@@ -6,6 +6,10 @@
   <packaging>jar</packaging>
   <version>0.0.0</version>
   <name>project</name>
+  <properties>
+    <sonar.organization>stefanobelli</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+  </properties>
   <!-- javac source option -->
   <build>
     <plugins>
