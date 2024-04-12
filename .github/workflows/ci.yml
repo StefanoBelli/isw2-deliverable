@@ -34,5 +34,5 @@ jobs:
     - name: Upload JAR with dependencies
       uses: actions/upload-artifact@v4
       with:
-        name: jar-with-deps
+        name: ISW2 project JAR (with dependencies)
         path: project.jar
