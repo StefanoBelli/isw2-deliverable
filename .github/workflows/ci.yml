@@ -34,5 +34,5 @@ jobs:
     - name: Upload JAR with dependencies
       uses: actions/upload-artifact@v4
       with:
-        name: ISW2 project JAR (with dependencies)
+        name: Stefano Belli, 0350116, ISW2 project JAR (with dependencies)
         path: project.jar
