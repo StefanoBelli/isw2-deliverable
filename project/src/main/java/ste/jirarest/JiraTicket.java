@@ -2,6 +2,7 @@ package ste.jirarest;
 
 import org.json.JSONObject;
 
+import ste.jirarest.util.Http;
 import ste.jirarest.util.Parsing;
 
 public final class JiraTicket {
@@ -109,5 +110,73 @@ public final class JiraTicket {
 
     public String getSelf() {
         return self;
+    }
+
+    private static final class JiraTicketHeader {
+        private final String expand;
+        private final int startAt;
+        private final int maxResults;
+        private final int total;
+
+        private JiraTicketHeader(JSONObject o) {
+            expand = o.getString("expand");
+            startAt = o.getInt("startAt");
+            maxResults = o.getInt("maxResults");
+            total = o.getInt("total");
+        }
+
+        public String getExpand() {
+            return expand;
+        }
+
+        public int getMaxResults() {
+            return maxResults;
+        }
+
+        public int getStartAt() {
+            return startAt;
+        }
+
+        public int getTotal() {
+            return total;
+        }
+    }
+
+    public static JiraTicket[] getAllTicketsByName(String name) throws Http.RequestException {
+        String upName = name.toUpperCase();
+        StringBuilder builder = new StringBuilder();
+        builder
+            .append("https://issues.apache.org/jira/rest/api/2/search?jql=project=%22")
+            .append(upName)
+            .append("%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR%22status%22")
+            .append("=%22resolved%22)AND%22resolution%22=%22fixed%22&fields=key,resolutiondate,versions,created")
+            .append("&maxResults=1000")
+            .append("&startAt=");
+        
+        StringBuilder useBuilder = builder;
+        String jsonBody = Http.get(useBuilder.append("0").toString());
+        JSONObject rootObject = new JSONObject(jsonBody);
+
+        JiraTicketHeader hdr = new JiraTicketHeader(rootObject);
+        int totalTickets = hdr.getTotal();
+        if(totalTickets == 0) {
+            return new JiraTicket[0];
+        }
+
+        JiraTicket[] tickets = new JiraTicket[totalTickets];
+
+        int i = 0;
+        do {
+            if(i != 0 && i % 1000 == 0) {
+                StringBuilder lastBuilder = builder;
+                lastBuilder.append(String.valueOf(i));
+                String lastJsonBody = Http.get(lastBuilder.toString());
+                rootObject = new JSONObject(lastJsonBody);
+            }
+
+            tickets[i] = new JiraTicket(rootObject);
+        } while(++i < totalTickets);        
+
+        return tickets;
     }
 }
