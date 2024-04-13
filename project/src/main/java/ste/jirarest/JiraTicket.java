@@ -56,13 +56,25 @@ public final class JiraTicket {
         }
 
         private final Version[] versions;
+        private final String resolutionDate;
+        private final String created;
 
         private Fields(JSONObject o) {
             versions = (Version[]) Parsing.getArray(o.getJSONArray("versions"), Version.class);
+            resolutionDate = o.getString("resolutionDate");
+            created = o.getString("created");
         }
 
         public Version[] getVersions() {
             return versions;
+        }
+
+        public String getCreated() {
+            return created;
+        }
+
+        public String getResolutionDate() {
+            return resolutionDate;
         }
     }
 
@@ -71,8 +83,6 @@ public final class JiraTicket {
     private final String self;
     private final String key;
     private final Fields fields;
-    private final String resolutionDate;
-    private final String created;
 
     private JiraTicket(JSONObject o) {
         expand = o.getString("expand");
@@ -80,12 +90,6 @@ public final class JiraTicket {
         self = o.getString("self");
         key = o.getString("key");
         fields = new Fields(o.getJSONObject("fields"));
-        resolutionDate = o.getString("resolutionDate");
-        created = o.getString("created");
-    }
-
-    public String getCreated() {
-        return created;
     }
 
     public String getExpand() {
@@ -102,10 +106,6 @@ public final class JiraTicket {
 
     public String getKey() {
         return key;
-    }
-
-    public String getResolutionDate() {
-        return resolutionDate;
     }
 
     public String getSelf() {
