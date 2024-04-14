@@ -6,7 +6,7 @@ import ste.jirarest.util.Parsing;
 import org.json.JSONObject;
 
 public final class JiraProject {
-    public final class AvatarUrls {
+    public static final class AvatarUrls {
         private final String k48x48;
         private final String k24x24;
         private final String k16x16;
@@ -36,7 +36,7 @@ public final class JiraProject {
         }
     }
 
-    public final class Lead {
+    public static final class Lead {
         private final String self;
         private final String key;
         private final String name;
@@ -78,7 +78,7 @@ public final class JiraProject {
         }
     }
 
-    public final class Roles {
+    public static final class Roles {
         private final String developers;
         private final String contributors;
         private final String pmc;
@@ -92,7 +92,7 @@ public final class JiraProject {
             developers = o.getString("Developers");
             contributors = o.getString("Contributors");
             pmc = o.getString("PMC");
-            committers = o.getString("Commiters");
+            committers = o.getString("Committers");
             administrators = o.getString("Administrators");
             asfMembers = o.getString("ASF Members");
             users = o.getString("Users");
@@ -132,7 +132,7 @@ public final class JiraProject {
         }
     }
 
-    public final class ProjectCategory {
+    public static final class ProjectCategory {
         private final String self;
         private final String id;
         private final String name;
@@ -162,7 +162,7 @@ public final class JiraProject {
         }
     }
 
-    public final class Component {
+    public static final class Component {
         private final String self;
         private final String id;
         private final String name;
@@ -173,7 +173,7 @@ public final class JiraProject {
             self = o.getString("self");
             id = o.getString("id");
             name = o.getString("name");
-            description = o.getString("description");
+            description = o.has("description") ? o.getString("description") : null;
             assigneeTypeValid = o.getBoolean("isAssigneeTypeValid");
         }
 
@@ -198,7 +198,7 @@ public final class JiraProject {
         }
     }
 
-    public final class IssueType {
+    public static final class IssueType {
         private final String self;
         private final String id;
         private final String description;
@@ -214,7 +214,7 @@ public final class JiraProject {
             iconUrl = o.getString("iconUrl");
             name = o.getString("name");
             subtask = o.getBoolean("subtask");
-            avatarId = o.getInt("avatarId");
+            avatarId = o.has("avatarId") ? o.getInt("avatarId") : 0;
         }
 
         public int getAvatarId() {
@@ -246,7 +246,7 @@ public final class JiraProject {
         }
     }
 
-    public final class Version {
+    public static final class Version {
         private final String self;
         private final String id;
         private final String name;
@@ -265,12 +265,12 @@ public final class JiraProject {
             name = o.getString("name");
             archived = o.getBoolean("archived");
             released = o.getBoolean("released");
-            releaseDate = o.getString("releaseDate");
-            userReleaseDate = o.getString("userReleaseDate");
+            releaseDate = o.has("releaseDate") ? o.getString("releaseDate") : null;
+            userReleaseDate = o.has("userReleaseDate") ? o.getString("userReleaseDate") : null;
             projectId = o.getInt("projectId");
-            startDate = (String) Parsing.maybeGet(o, "startDate", Parsing.M_GET_STRING);
-            overdue = (boolean) Parsing.maybeGet(o, "overdue", Parsing.M_GET_BOOLEAN);
-            userStartDate = (String) Parsing.maybeGet(o, "userStartDate", Parsing.M_GET_STRING);
+            startDate = o.has("startDate") ? o.getString("startDate") : null;
+            overdue = o.has("overdue") ? o.getBoolean("overdue") : false;
+            userStartDate = o.has("userStartDate") ? o.getString("userStartDate") : null;
         }
 
         public String getId() {
@@ -348,7 +348,8 @@ public final class JiraProject {
         name = o.getString("name");
         roles = new Roles(o.getJSONObject("roles"));
         avatarUrls = new AvatarUrls(o.getJSONObject("avatarUrls"));
-        projectCategory = new ProjectCategory(o.getJSONObject("projectCategory"));
+        projectCategory = o.has("projectCategory") ? 
+            new ProjectCategory(o.getJSONObject("projectCategory")) : null;
         projectTypeKey = o.getString("projectTypeKey");
         archived = o.getBoolean("archived");
         components = (Component[]) Parsing.getArray(o.getJSONArray("components"), Component.class);

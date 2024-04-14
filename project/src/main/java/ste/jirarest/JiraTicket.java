@@ -1,13 +1,14 @@
 package ste.jirarest;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import ste.jirarest.util.Http;
 import ste.jirarest.util.Parsing;
 
 public final class JiraTicket {
-    public final class Fields {
-        public final class Version {
+    public static final class Fields {
+        public static final class Version {
             private final String self;
             private final String id;
             private final String description;
@@ -19,11 +20,11 @@ public final class JiraTicket {
             private Version(JSONObject o) {
                 self = o.getString("self");
                 id = o.getString("id");
-                description = o.getString("description");
+                description = o.has("description") ? o.getString("description") : null;
                 name = o.getString("name");
                 archived = o.getBoolean("archived");
                 released = o.getBoolean("released");
-                releaseDate = o.getString("releaseDate");
+                releaseDate = o.has("releaseDate") ? o.getString("releaseDate") : null;
             }
 
             public String getDescription() {
@@ -61,7 +62,7 @@ public final class JiraTicket {
 
         private Fields(JSONObject o) {
             versions = (Version[]) Parsing.getArray(o.getJSONArray("versions"), Version.class);
-            resolutionDate = o.getString("resolutionDate");
+            resolutionDate = o.getString("resolutiondate");
             created = o.getString("created");
         }
 
@@ -144,23 +145,27 @@ public final class JiraTicket {
         }
     }
 
-    public static JiraTicket[] getAllTicketsByName(String name) throws Http.RequestException {
-        StringBuilder origBuilder = new StringBuilder();
-        origBuilder
+    private static StringBuilder getOriginalUrlBuilder(String name) {
+        return new StringBuilder()
             .append("https://issues.apache.org/jira/rest/api/2/search?jql=project=%22")
             .append(name.toUpperCase())
             .append("%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR%22status%22")
             .append("=%22resolved%22)AND%22resolution%22=%22fixed%22")
             .append("&fields=key,resolutiondate,versions,created")
             .append("&maxResults=1000")
-            .append("&startAt=");
-        
-        StringBuilder firstBuilder = origBuilder;
+            .append("&startAt="); 
+    }
+
+    public static JiraTicket[] getAllTicketsByName(String name) throws Http.RequestException {
+        StringBuilder origBuilder = getOriginalUrlBuilder(name);
+         
+        StringBuilder firstBuilder = new StringBuilder(origBuilder);
         String firstJsonBody = Http.get(firstBuilder.append("0").toString());
 
-        JSONObject currentRootObject = new JSONObject(firstJsonBody);
+        JSONObject initialRootObject = new JSONObject(firstJsonBody);
+        JSONArray currentTicketsArray = initialRootObject.getJSONArray("issues");
 
-        JiraTicketHeader ticketsHdr = new JiraTicketHeader(currentRootObject);
+        JiraTicketHeader ticketsHdr = new JiraTicketHeader(initialRootObject);
         int totalTickets = ticketsHdr.getTotal();
         if(totalTickets == 0) {
             return new JiraTicket[0];
@@ -171,15 +176,16 @@ public final class JiraTicket {
         int i = 0;
         do {
             if(i != 0 && i % 1000 == 0) {
-                StringBuilder lastBuilder = origBuilder;
-                lastBuilder.append(String.valueOf(i));
+                StringBuilder lastBuilder = new StringBuilder(origBuilder);
+                lastBuilder.append(i);
                 String lastJsonBody = Http.get(lastBuilder.toString());
 
-                currentRootObject = new JSONObject(lastJsonBody);
+                JSONObject lastRootObject = new JSONObject(lastJsonBody);
+                currentTicketsArray = lastRootObject.getJSONArray("issues");
             }
 
-            tickets[i] = new JiraTicket(currentRootObject);
-        } while(++i < totalTickets);        
+            tickets[i] = new JiraTicket(currentTicketsArray.getJSONObject(i % 1000));
+        } while(++i < totalTickets);   
 
         return tickets;
     }
