@@ -3,6 +3,7 @@ package ste.jirarest.util;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,10 +25,30 @@ public final class Parsing {
                         NoSuchMethodException | 
                         SecurityException e
                     ) {
-                throw new RuntimeException();
+                throw new RuntimeException(e);
             }
         }
 
         return o;
+    }
+
+    public static final String M_GET_STRING = "getString";
+    public static final String M_GET_BOOLEAN = "getBoolean";
+
+    public static Object maybeGet(JSONObject o, String key, String jsonObjectMethod) {
+        if(o.has(key)) {
+            try {
+                Method m = o.getClass().getMethod(jsonObjectMethod,String.class);
+                return m.invoke(o, jsonObjectMethod);
+            } catch (
+                        IllegalAccessException | 
+                        InvocationTargetException | 
+                        NoSuchMethodException | 
+                        SecurityException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return null;
     }
 }

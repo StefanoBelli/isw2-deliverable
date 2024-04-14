@@ -113,18 +113,19 @@ public final class JiraTicket {
     }
 
     private static final class JiraTicketHeader {
-        private final String expand;
+        /*private final String expand;
         private final int startAt;
-        private final int maxResults;
+        private final int maxResults;*/
         private final int total;
 
         private JiraTicketHeader(JSONObject o) {
-            expand = o.getString("expand");
+            /*expand = o.getString("expand");
             startAt = o.getInt("startAt");
-            maxResults = o.getInt("maxResults");
+            maxResults = o.getInt("maxResults");*/
             total = o.getInt("total");
         }
 
+        /*
         public String getExpand() {
             return expand;
         }
@@ -136,6 +137,7 @@ public final class JiraTicket {
         public int getStartAt() {
             return startAt;
         }
+        */
 
         public int getTotal() {
             return total;

@@ -252,7 +252,10 @@ public final class JiraProject {
         private final String name;
         private final boolean archived;
         private final boolean released;
+        private final String startDate;
         private final String releaseDate;
+        private final boolean overdue;
+        private final String userStartDate;
         private final String userReleaseDate;
         private final int projectId;
 
@@ -265,6 +268,9 @@ public final class JiraProject {
             releaseDate = o.getString("releaseDate");
             userReleaseDate = o.getString("userReleaseDate");
             projectId = o.getInt("projectId");
+            startDate = (String) Parsing.maybeGet(o, "startDate", Parsing.M_GET_STRING);
+            overdue = (boolean) Parsing.maybeGet(o, "overdue", Parsing.M_GET_BOOLEAN);
+            userStartDate = (String) Parsing.maybeGet(o, "userStartDate", Parsing.M_GET_STRING);
         }
 
         public String getId() {
@@ -297,6 +303,18 @@ public final class JiraProject {
 
         public boolean isReleased() {
             return released;
+        }
+
+        public String getStartDate() {
+            return startDate;
+        }
+
+        public String getUserStartDate() {
+            return userStartDate;
+        }
+
+        public boolean isOverdue() {
+            return overdue;
         }
     }
 
