@@ -1,6 +1,10 @@
 package ste;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -11,6 +15,7 @@ import ste.git.GitRepository;
 import ste.jirarest.JiraProject;
 import ste.jirarest.JiraTicket;
 import ste.jirarest.util.Http.RequestException;
+import ste.model.Release;
 
 public final class App {
     private static final Logger logger;
@@ -65,6 +70,39 @@ public final class App {
         GitRepository bookKeeperGitRepo = new GitRepository(BOOKKEEPER_GITHUB, BOOKKEEPER_BRANCH, bookKeeperLocal);
 
         logger.info("Setup phase done");
+
+        List<Release> stormReleases = sortReleasesByDate(jiraStormProject);
+        List<Release> bookKeeperReleases = sortReleasesByDate(jiraBookKeeperProject);
+    }
+
+    private static List<Release> sortReleasesByDate(JiraProject project) {
+        List<Release> rel = new ArrayList<>();
+
+        JiraProject.Version[] vers = project.getVersions();
+        for(JiraProject.Version ver : vers) {
+            rel.add(Release.fromJiraVersion(ver));
+        }
+
+        rel.removeIf(new Predicate<Release>() {
+            @Override
+            public boolean test(Release release) {
+                return release.getReleaseDate() == null;
+            }
+        });
+
+        rel.sort(new Comparator<Release>() {
+            @Override
+            public int compare(Release o1, Release o2) {
+                return o1.getReleaseDate().compareTo(o2.getReleaseDate());
+            }
+        });
+
+        int halfSize = Math.round(rel.size() / 2);
+        for(int i = 0; i < halfSize; ++i) {
+            rel.removeLast();
+        }
+
+        return rel;
     }
 }
 

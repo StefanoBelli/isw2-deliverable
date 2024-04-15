@@ -44,13 +44,11 @@ public final class GitRepository implements AutoCloseable {
         repo = git.getRepository();
     }
 
-    public List<String> getRepoFilePaths() {
+    public List<String> getRepoFilesByCommit(RevCommit commit) {
         List<String> filePaths = new ArrayList<>();
         
         try(RevWalk walk = new RevWalk(repo)) {
-            Ref refHead = repo.findRef(Constants.HEAD);
 
-            RevCommit commit = walk.parseCommit(refHead.getObjectId());
             RevTree tree = commit.getTree();
             
             try(TreeWalk treeWalk = new TreeWalk(repo)) {
