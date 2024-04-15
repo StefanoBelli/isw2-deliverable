@@ -6,35 +6,41 @@
   <packaging>jar</packaging>
   <version>0.0.0</version>
   <name>project</name>
+  <properties>
+    <json.version>20240303</json.version>
+    <jgit.version>6.9.0.202403050737-r</jgit.version>
+    <slf4j.version>2.0.13</slf4j.version>
+
+    <!-- SonarCloud analyzer properties-->
+    <sonar.organization>stefanobelli</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+  </properties>
   <dependencies>
     <!-- https://mvnrepository.com/artifact/org.json/json -->
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20240303</version>
+      <version>${json.version}</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
       <artifactId>org.eclipse.jgit</artifactId>
-      <version>6.9.0.202403050737-r</version>
+      <version>${jgit.version}</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>2.0.13</version>
+      <version>${slf4j.version}</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>2.0.13</version>
+      <version>${slf4j.version}</version>
     </dependency>
   </dependencies>
-  <properties>
-    <sonar.organization>stefanobelli</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-  </properties>
   <build>
     <plugins>
       <plugin>

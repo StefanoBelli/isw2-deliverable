@@ -15,6 +15,6 @@ public class App {
     public static void main(String[] args) throws RequestException, InvalidRemoteException, TransportException, GitAPIException, IOException {
         JiraProject.getProjectByName(args[0]);
         JiraTicket.getAllTicketsByName(args[0]);
-        GitRepository repo = new GitRepository("https://github.com/StefanoBelli/Whork.git", "Whork");
+        GitRepository repo = new GitRepository("https://github.com/StefanoBelli/Whork.git", "main", "Whork");
     }
 }

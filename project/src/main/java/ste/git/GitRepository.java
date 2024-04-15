@@ -21,7 +21,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 public final class GitRepository {
     private final Git git; //potential resource leakage
 
-    public GitRepository(String remote, String localPath) 
+    public GitRepository(String remote, String branch, String localPath) 
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         File localPathDir = new File(localPath);
         if(localPathDir.exists() == false) {
@@ -33,6 +33,12 @@ public final class GitRepository {
         } else {
             git = Git.open(localPathDir);
         }
+
+        git
+            .checkout()
+            .setCreateBranch(false)
+            .setName(branch)
+            .call();
     }
 
     public List<String> getRepoFilePaths() {
