@@ -23,19 +23,15 @@ public final class GitRepository {
 
     public GitRepository(String remote, String localPath) 
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-        StringBuilder gitLocalPathBuilder = new StringBuilder();
-        gitLocalPathBuilder.append(localPath).append("/.git");
-        String gitLocalPath = gitLocalPathBuilder.toString();
-
-        File gitLocalPathDir = new File(gitLocalPath);
-        if(gitLocalPathDir.exists() == false) {
+        File localPathDir = new File(localPath);
+        if(localPathDir.exists() == false) {
             git = Git
                 .cloneRepository()
                 .setURI(remote)
-                .setDirectory(gitLocalPathDir)
+                .setDirectory(localPathDir)
                 .call();
         } else {
-            git = Git.open(gitLocalPathDir);
+            git = Git.open(localPathDir);
         }
     }
 
