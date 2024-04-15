@@ -18,8 +18,9 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public final class GitRepository {
-    private final Git git; //potential resource leakage
+public final class GitRepository implements AutoCloseable {
+    private final Repository repo;
+    private final Git git;
 
     public GitRepository(String remote, String branch, String localPath) 
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
@@ -39,29 +40,28 @@ public final class GitRepository {
             .setCreateBranch(false)
             .setName(branch)
             .call();
+        
+        repo = git.getRepository();
     }
 
     public List<String> getRepoFilePaths() {
         List<String> filePaths = new ArrayList<>();
-
-        try(Repository repo = git.getRepository()) {
-
+        
+        try(RevWalk walk = new RevWalk(repo)) {
             Ref refHead = repo.findRef(Constants.HEAD);
-            try(RevWalk walk = new RevWalk(repo)) {
 
-                RevCommit commit = walk.parseCommit(refHead.getObjectId());
-                RevTree tree = commit.getTree();
+            RevCommit commit = walk.parseCommit(refHead.getObjectId());
+            RevTree tree = commit.getTree();
             
-                try(TreeWalk treeWalk = new TreeWalk(repo)) {
-                    treeWalk.addTree(tree);
-                    treeWalk.setRecursive(true);
+            try(TreeWalk treeWalk = new TreeWalk(repo)) {
+                treeWalk.addTree(tree);
+                treeWalk.setRecursive(true);
             
-                    while (treeWalk.next()) {
-                        filePaths.add(treeWalk.getPathString());
-                    }
+                while (treeWalk.next()) {
+                    filePaths.add(treeWalk.getPathString());
                 }
             }
-        } catch (IOException e) {
+        } catch(IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -71,21 +71,24 @@ public final class GitRepository {
     public List<RevCommit> getFilteredCommits(RevFilter filter) {
         List<RevCommit> commits = new ArrayList<>();
 
-        try(Repository repo = git.getRepository()) {
+        try(RevWalk walk = new RevWalk(repo)) {
+            Ref refHead = repo.findRef(Constants.HEAD);
 
-            try(RevWalk walk = new RevWalk(repo)) {
-
-                Ref refHead = repo.findRef(Constants.HEAD);
-                walk.markStart(walk.parseCommit(refHead.getObjectId()));
-                walk.setRevFilter(filter);
-                for(RevCommit commit : walk) {
-                    commits.add(commit);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            walk.markStart(walk.parseCommit(refHead.getObjectId()));
+            walk.setRevFilter(filter);
+            for(RevCommit commit : walk) {
+                commits.add(commit);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         return commits;
+    }
+
+    @Override
+    public void close() {
+        //Git#close() calls Repository#close() by itself
+        git.close();
     }
 }
