@@ -18,15 +18,14 @@ public final class Util {
    }
 
    public static int getReleaseIndexByDate(List<Release> r, Date d) {
-      int i = 1;
-      for (; i < r.size(); ++i) {
+      for (int i = 0; i < r.size(); ++i) {
          Date rd = r.get(i).getReleaseDate();
          if (rd.compareTo(d) > 0) {
-            return i - 1;
+            return i;
          }
       }
 
-      return i;
+      return -1;
    }
 
    public static int getReleaseIndexByTicketVersionField(

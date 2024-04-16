@@ -2,6 +2,7 @@ package ste;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -80,8 +81,40 @@ public final class App {
         List<Ticket> stormTickets = initProjectTickets(stormReleases, jiraStormTickets);
         List<Ticket> bookKeeperTickets = initProjectTickets(bookKeeperReleases, jiraBookKeeperTickets);
 
-        linkTicketToCommits(bookKeeperTickets, bookKeeperGitRepo);
-        linkTicketToCommits(stormTickets, stormGitRepo);
+        removeTicketsIfInvlRelease(stormTickets);
+        removeTicketsIfInvlRelease(bookKeeperTickets);
+
+        removeTicketsIfInconsistent(stormTickets);
+        removeTicketsIfInconsistent(bookKeeperTickets);
+        
+        linkTicketsToCommits(bookKeeperTickets, bookKeeperGitRepo);
+        linkTicketsToCommits(stormTickets, stormGitRepo);
+        
+        removeTicketsIfNoCommits(stormTickets);
+        removeTicketsIfNoCommits(bookKeeperTickets);
+
+        reverseTicketsOrder(stormTickets);
+        reverseTicketsOrder(bookKeeperTickets);
+
+        /* 
+        for(Ticket t : stormTickets) {
+
+            if(t.isInjectedVersionAvail()) {
+                System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
+                    t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
+            }
+        }
+        
+        System.out.println("BOOKKEEPER-----");
+        
+        for(Ticket t : bookKeeperTickets) {
+
+            if(t.isInjectedVersionAvail()) {
+                System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
+                    t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
+            }
+        }
+        */
     }
 
     private static List<Release> sortReleasesByDate(JiraProject project) {
@@ -137,19 +170,9 @@ public final class App {
             JiraTicket.Fields.Version[] affVer = tktFields.getVersions();
             if(affVer.length > 0) {
                 List<Integer> affRelIdx = new ArrayList<>();
-                boolean idxNotFound = false;
                 for(JiraTicket.Fields.Version jfv : affVer) {
                     int relIdx = Util.getReleaseIndexByTicketVersionField(rels, jfv);
-                    if(relIdx >= 0) {
-                        affRelIdx.add(relIdx);
-                    } else {
-                        idxNotFound = true;
-                        break;
-                    }
-                }
-
-                if(idxNotFound == true) {
-                    continue;
+                    affRelIdx.add(relIdx);
                 }
 
                 realTkt.setInjectedVersionIdx(affRelIdx.get(0));
@@ -162,7 +185,34 @@ public final class App {
         return tickets;
     }
 
-    private static void linkTicketToCommits(
+    private static void removeTicketsIfInvlRelease(List<Ticket> tkts) {
+        tkts.removeIf(new Predicate<Ticket>() {
+
+            @Override
+            public boolean test(Ticket t) {
+                return 
+                    t.getFixedVersionIdx() == -1 || 
+                    t.getOpeningVersionIdx() == -1 || 
+                    (t.isInjectedVersionAvail() && t.getInjectedVersionIdx() == -1);
+            } 
+        });
+    }
+
+    private static void removeTicketsIfInconsistent(List<Ticket> tkts) {
+        tkts.removeIf(new Predicate<Ticket>() {
+
+            @Override
+            public boolean test(Ticket t) {
+                int iv = t.getInjectedVersionIdx();
+                int ov = t.getOpeningVersionIdx();
+                int fv = t.getFixedVersionIdx();
+
+                return iv >= fv || iv > ov /*|| ov > fv*/;
+            } 
+        });
+    }
+
+    private static void linkTicketsToCommits(
             List<Ticket> tkts, GitRepository repo) {
 
         for(Ticket tkt : tkts) {
@@ -175,8 +225,17 @@ public final class App {
         }
     }
 
-    private static void fixTicketsInconsistencies() {
+    private static void removeTicketsIfNoCommits(List<Ticket> tkts) {
+        tkts.removeIf(new Predicate<Ticket>() {
+            @Override
+            public boolean test(Ticket t) {
+                return t.getCommits().isEmpty();
+            }       
+        });
+    }
 
+    private static void reverseTicketsOrder(List<Ticket> tkts) {
+        Collections.reverse(tkts);
     }
 }
 
