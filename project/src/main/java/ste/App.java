@@ -10,12 +10,15 @@ import java.util.logging.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
 import ste.git.GitRepository;
 import ste.jirarest.JiraProject;
 import ste.jirarest.JiraTicket;
 import ste.jirarest.util.Http.RequestException;
 import ste.model.Release;
+import ste.model.Ticket;
 
 public final class App {
     private static final Logger logger;
@@ -34,7 +37,7 @@ public final class App {
     }
 
     private static String getCloneDir(String rel) {
-        return String.format("%s/%s", System.getProperty("user.home"), rel);
+        return String.format("%s/.isw2repos/%s", System.getProperty("user.home"), rel);
     }
 
     private static String getCloneInfoLine(String proj, String github, String branch, String local) {
@@ -73,6 +76,12 @@ public final class App {
 
         List<Release> stormReleases = sortReleasesByDate(jiraStormProject);
         List<Release> bookKeeperReleases = sortReleasesByDate(jiraBookKeeperProject);
+
+        List<Ticket> stormTickets = initProjectTickets(stormReleases, jiraStormTickets);
+        List<Ticket> bookKeeperTickets = initProjectTickets(bookKeeperReleases, jiraBookKeeperTickets);
+
+        linkTicketToCommits(bookKeeperTickets, bookKeeperGitRepo);
+        linkTicketToCommits(stormTickets, stormGitRepo);
     }
 
     private static List<Release> sortReleasesByDate(JiraProject project) {
@@ -99,10 +108,75 @@ public final class App {
 
         int halfSize = Math.round(rel.size() / 2);
         for(int i = 0; i < halfSize; ++i) {
-            rel.removeLast();
+            rel.remove(rel.size() - 1);
         }
 
         return rel;
+    }
+
+    private static List<Ticket> initProjectTickets(
+            List<Release> rels, JiraTicket[] tkts) {
+
+        List<Ticket> tickets = new ArrayList<>();
+
+        for(JiraTicket tkt : tkts) {
+            String key = tkt.getKey();
+            
+            JiraTicket.Fields tktFields = tkt.getFields();
+
+            String rds = tktFields.getResolutionDate();
+            String cds = tktFields.getCreated();
+            
+            int fixRelIdx = 
+                Util.getReleaseIndexByDate(rels, Util.dateFromString(rds.substring(0,10)));
+            int openRelIdx = 
+                Util.getReleaseIndexByDate(rels, Util.dateFromString(cds.substring(0,10)));
+                
+            Ticket realTkt = new Ticket(key, openRelIdx, fixRelIdx);
+
+            JiraTicket.Fields.Version[] affVer = tktFields.getVersions();
+            if(affVer.length > 0) {
+                List<Integer> affRelIdx = new ArrayList<>();
+                boolean idxNotFound = false;
+                for(JiraTicket.Fields.Version jfv : affVer) {
+                    int relIdx = Util.getReleaseIndexByTicketVersionField(rels, jfv);
+                    if(relIdx >= 0) {
+                        affRelIdx.add(relIdx);
+                    } else {
+                        idxNotFound = true;
+                        break;
+                    }
+                }
+
+                if(idxNotFound == true) {
+                    continue;
+                }
+
+                realTkt.setInjectedVersionIdx(affRelIdx.get(0));
+                realTkt.setAffectedVersionsIdxs(affRelIdx);
+            }
+
+            tickets.add(realTkt);
+        }
+
+        return tickets;
+    }
+
+    private static void linkTicketToCommits(
+            List<Ticket> tkts, GitRepository repo) {
+
+        for(Ticket tkt : tkts) {
+            List<RevCommit> tktCommits = 
+                repo.getFilteredCommits(
+                    MessageRevFilter.create(
+                        tkt.getKey()));
+
+            tkt.setCommits(tktCommits);
+        }
+    }
+
+    private static void fixTicketsInconsistencies() {
+
     }
 }
 
