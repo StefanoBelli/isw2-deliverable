@@ -101,7 +101,7 @@ public final class Http {
         }
 
         if(httpResCode != HttpURLConnection.HTTP_OK) {
-            logger.log(Level.SEVERE, String.valueOf(httpResCode));
+            logger.log(Level.SEVERE, "HTTP response code: {0}", httpResCode);
             throw new RequestException(RequestException.HTTP_NOT_OK_ERROR);
         }
         

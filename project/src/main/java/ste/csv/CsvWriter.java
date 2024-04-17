@@ -1,17 +1,14 @@
 package ste.csv;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import ste.Util;
-import ste.Util.Threeple;
 import ste.csv.annotations.CsvColumn;
 import ste.csv.annotations.CsvDescriptor;
 
@@ -35,12 +32,7 @@ public final class CsvWriter {
             }
         }
 
-        intermediate.sort(new Comparator<Util.Threeple<Integer, String, Method>>() {
-            @Override
-            public int compare(Threeple<Integer, String, Method> o1, Threeple<Integer, String, Method> o2) {
-                return o1.getFirst() - o2.getFirst();
-            } 
-        });
+        intermediate.sort((o1, o2) -> o1.getFirst() - o2.getFirst());
 
         valueGetters = new ArrayList<>();
         csvBuilder = new StringBuilder();
@@ -72,7 +64,7 @@ public final class CsvWriter {
     }
 
     private void write() 
-            throws FileNotFoundException, IOException, CsvWriterException {
+            throws IOException {
 
         File f = new File(filename);
         f.getParentFile().mkdirs();
@@ -83,7 +75,7 @@ public final class CsvWriter {
 
 
     public static <T> void writeAll(String filename, Class<T> cls, List<T> elems) 
-            throws CsvWriterException, FileNotFoundException, IOException {
+            throws CsvWriterException, IOException {
         CsvWriter csv = new CsvWriter(filename, cls);
         for(T elem : elems) {
             csv.addEntry(elem);

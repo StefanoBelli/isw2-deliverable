@@ -269,8 +269,13 @@ public final class JiraProject {
             userReleaseDate = o.has("userReleaseDate") ? o.getString("userReleaseDate") : null;
             projectId = o.getInt("projectId");
             startDate = o.has("startDate") ? o.getString("startDate") : null;
-            overdue = o.has("overdue") ? o.getBoolean("overdue") : false;
             userStartDate = o.has("userStartDate") ? o.getString("userStartDate") : null;
+            
+            if(o.has("overdue")) {
+                overdue = o.getBoolean("overdue");
+            } else {
+                overdue = false;
+            }
         }
 
         public String getId() {

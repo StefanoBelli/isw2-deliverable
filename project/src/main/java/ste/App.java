@@ -1,17 +1,12 @@
 package ste;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.logging.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
@@ -36,17 +31,14 @@ public final class App {
     private static final String BOOKKEEPER_LOCAL = "bookkeeper";
     private static final String BOOKKEEPER_BRANCH = "master";
 
+    private static final String CLONE_INFO_FMT = "(git) project {}: url={} (branch={}, local={})";
+
     static {
-        logger = Logger.getLogger("App");
+        logger = LoggerFactory.getLogger("App");
     }
 
     private static String getCloneDir(String rel) {
         return String.format("%s/.isw2repos/%s", System.getProperty("user.home"), rel);
-    }
-
-    private static String getCloneInfoLine(String proj, String github, String branch, String local) {
-        return String.format("(git) project %s: url=%s (branch=%s, local=%s)", 
-            proj, github, branch, local);
     }
 
     private static String getVersionInfoCsvFilename(String proj) {
@@ -59,12 +51,12 @@ public final class App {
 
         logger.info("Setup phase...");
 
-        logger.info(String.format("Fetching projects for %s and %s...", STORM, BOOKKEEPER));
+        logger.info("Fetching projects for {} and {}...", STORM, BOOKKEEPER);
 
         JiraProject jiraStormProject = JiraProject.getProjectByName(STORM);
         JiraProject jiraBookKeeperProject = JiraProject.getProjectByName(BOOKKEEPER);
 
-        logger.info(String.format("Fetching tickets for %s and %s...", STORM, BOOKKEEPER));
+        logger.info("Fetching tickets for {} and {}...", STORM, BOOKKEEPER);
 
         JiraTicket[] jiraStormTickets = JiraTicket.getAllTicketsByName(STORM);
         JiraTicket[] jiraBookKeeperTickets = JiraTicket.getAllTicketsByName(BOOKKEEPER);
@@ -74,10 +66,10 @@ public final class App {
 
         logger.info("Checking git repositories...");
 
-        logger.info(getCloneInfoLine(STORM, STORM_GITHUB, STORM_BRANCH, stormLocal));
+        logger.info(CLONE_INFO_FMT, STORM, STORM_GITHUB, STORM_BRANCH, stormLocal);
         GitRepository stormGitRepo = new GitRepository(STORM_GITHUB, STORM_BRANCH, stormLocal);
 
-        logger.info(getCloneInfoLine(BOOKKEEPER, BOOKKEEPER_GITHUB, BOOKKEEPER_BRANCH, bookKeeperLocal));
+        logger.info(CLONE_INFO_FMT, BOOKKEEPER, BOOKKEEPER_GITHUB, BOOKKEEPER_BRANCH, bookKeeperLocal);
         GitRepository bookKeeperGitRepo = new GitRepository(BOOKKEEPER_GITHUB, BOOKKEEPER_BRANCH, bookKeeperLocal);
 
         logger.info("Setup phase done");
@@ -135,19 +127,9 @@ public final class App {
             rel.add(Release.fromJiraVersion(ver));
         }
 
-        rel.removeIf(new Predicate<Release>() {
-            @Override
-            public boolean test(Release release) {
-                return release.getReleaseDate() == null;
-            }
-        });
-
-        rel.sort(new Comparator<Release>() {
-            @Override
-            public int compare(Release o1, Release o2) {
-                return o1.getReleaseDate().compareTo(o2.getReleaseDate());
-            }
-        });
+        rel.removeIf(release -> release.getReleaseDate() == null);
+        
+        rel.sort((o1, o2) -> o1.getReleaseDate().compareTo(o2.getReleaseDate()));
 
         for(int i = 0; i < rel.size(); ++i) {
             rel.get(i).setIndex(i + 1);
@@ -203,29 +185,20 @@ public final class App {
     }
 
     private static void removeTicketsIfInvlRelease(List<Ticket> tkts) {
-        tkts.removeIf(new Predicate<Ticket>() {
-
-            @Override
-            public boolean test(Ticket t) {
-                return 
-                    t.getFixedVersionIdx() == -1 || 
-                    t.getOpeningVersionIdx() == -1 || 
-                    (t.isInjectedVersionAvail() && t.getInjectedVersionIdx() == -1);
-            } 
-        });
+        tkts.removeIf(t ->
+            t.getFixedVersionIdx() == -1 || 
+            t.getOpeningVersionIdx() == -1 || 
+            (t.isInjectedVersionAvail() && t.getInjectedVersionIdx() == -1)
+        );
     }
 
     private static void removeTicketsIfInconsistent(List<Ticket> tkts) {
-        tkts.removeIf(new Predicate<Ticket>() {
+        tkts.removeIf(t -> {
+            int iv = t.getInjectedVersionIdx();
+            int ov = t.getOpeningVersionIdx();
+            int fv = t.getFixedVersionIdx();
 
-            @Override
-            public boolean test(Ticket t) {
-                int iv = t.getInjectedVersionIdx();
-                int ov = t.getOpeningVersionIdx();
-                int fv = t.getFixedVersionIdx();
-
-                return iv >= fv || iv > ov /*|| ov > fv*/;
-            } 
+            return iv >= fv || iv > ov /*|| ov > fv*/;
         });
     }
 
@@ -243,12 +216,7 @@ public final class App {
     }
 
     private static void removeTicketsIfNoCommits(List<Ticket> tkts) {
-        tkts.removeIf(new Predicate<Ticket>() {
-            @Override
-            public boolean test(Ticket t) {
-                return t.getCommits().isEmpty();
-            }       
-        });
+        tkts.removeIf(t -> t.getCommits().isEmpty());
     }
 
     private static void reverseTicketsOrder(List<Ticket> tkts) {
