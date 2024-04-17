@@ -9,7 +9,8 @@ public final class Release {
     private final String id;
     private final String version;
     private final Date releaseDate;
-    
+    private int releaseIndex;
+ 
     private Release(String id, String version, Date releaseDate) {
         this.version = version;
         this.releaseDate = releaseDate;
@@ -26,6 +27,14 @@ public final class Release {
 
     public String getId() {
         return id;
+    }
+
+    public int getReleaseIndex() {
+        return releaseIndex;
+    }
+
+    public void setReleaseIndex(int releaseIndex) {
+        this.releaseIndex = releaseIndex;
     }
 
     public static Release fromJiraVersion(JiraProject.Version version) {

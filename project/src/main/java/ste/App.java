@@ -121,8 +121,11 @@ public final class App {
         List<Release> rel = new ArrayList<>();
 
         JiraProject.Version[] vers = project.getVersions();
-        for(JiraProject.Version ver : vers) {
-            rel.add(Release.fromJiraVersion(ver));
+        for(int i = 0; i < vers.length; ++i) {
+            Release r = Release.fromJiraVersion(vers[i]);
+            r.setReleaseIndex(i + 1); 
+             
+            rel.add(r);
         }
 
         rel.removeIf(new Predicate<Release>() {
@@ -135,7 +138,14 @@ public final class App {
         rel.sort(new Comparator<Release>() {
             @Override
             public int compare(Release o1, Release o2) {
-                return o1.getReleaseDate().compareTo(o2.getReleaseDate());
+                int cmp = o1.getReleaseDate().compareTo(o2.getReleaseDate());
+                if(cmp != 0) {
+                    int r1 = o1.getReleaseIndex();
+                    o1.setReleaseIndex(o2.getReleaseIndex());
+                    o2.setReleaseIndex(r1);
+                }
+
+                return cmp;
             }
         });
 
