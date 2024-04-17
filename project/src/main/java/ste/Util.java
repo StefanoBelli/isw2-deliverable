@@ -39,4 +39,28 @@ public final class Util {
 
       return -1;
    }
+
+   public static final class Threeple<I,J,K> {
+      private final I i;
+      private final J j;
+      private final K k;
+
+      public Threeple(I i, J j, K k) {
+         this.i = i;
+         this.j = j;
+         this.k = k;
+      }
+
+      public I getFirst() {
+          return i;
+      }
+
+      public J getSecond() {
+          return j;
+      }
+      
+      public K getThird() {
+          return k;
+      }
+   }
 }

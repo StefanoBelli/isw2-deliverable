@@ -1,5 +1,6 @@
 package ste;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +15,8 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
+import ste.csv.CsvException;
+import ste.csv.CsvWriter;
 import ste.git.GitRepository;
 import ste.jirarest.JiraProject;
 import ste.jirarest.JiraTicket;
@@ -46,9 +49,13 @@ public final class App {
             proj, github, branch, local);
     }
 
+    private static String getVersionInfoCsvFilename(String proj) {
+        return String.format("csv_output/%s-VersionInfo.csv", proj);
+    }
+
     public static void main(String[] args) 
             throws RequestException, InvalidRemoteException, 
-                    TransportException, GitAPIException, IOException {
+                    TransportException, GitAPIException, IOException, CsvException {
 
         logger.info("Setup phase...");
 
@@ -113,19 +120,16 @@ public final class App {
                 System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
                     t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
             }
-        }
-        */
+        }*/
     }
 
-    private static List<Release> sortReleasesByDate(JiraProject project) {
+    private static List<Release> sortReleasesByDate(JiraProject project) 
+            throws CsvException, FileNotFoundException, IOException {
         List<Release> rel = new ArrayList<>();
 
         JiraProject.Version[] vers = project.getVersions();
-        for(int i = 0; i < vers.length; ++i) {
-            Release r = Release.fromJiraVersion(vers[i]);
-            r.setReleaseIndex(i + 1); 
-             
-            rel.add(r);
+        for(JiraProject.Version ver : vers) {
+            rel.add(Release.fromJiraVersion(ver));
         }
 
         rel.removeIf(new Predicate<Release>() {
@@ -138,16 +142,16 @@ public final class App {
         rel.sort(new Comparator<Release>() {
             @Override
             public int compare(Release o1, Release o2) {
-                int cmp = o1.getReleaseDate().compareTo(o2.getReleaseDate());
-                if(cmp != 0) {
-                    int r1 = o1.getReleaseIndex();
-                    o1.setReleaseIndex(o2.getReleaseIndex());
-                    o2.setReleaseIndex(r1);
-                }
-
-                return cmp;
+                return o1.getReleaseDate().compareTo(o2.getReleaseDate());
             }
         });
+
+        for(int i = 0; i < rel.size(); ++i) {
+            rel.get(i).setIndex(i + 1);
+        }
+
+        String csvFilename = getVersionInfoCsvFilename(project.getName());
+        CsvWriter.writeAll(csvFilename, Release.class, rel);
 
         int halfSize = Math.round(rel.size() / 2);
         for(int i = 0; i < halfSize; ++i) {
