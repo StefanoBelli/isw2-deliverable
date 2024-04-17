@@ -20,9 +20,9 @@ public final class CsvWriter {
     private final List<Method> valueGetters;
     private final String filename;
 
-    private CsvWriter(String filename, Class<?> c) throws CsvException {
+    private CsvWriter(String filename, Class<?> c) throws CsvWriterException {
         if(!c.isAnnotationPresent(CsvDescriptor.class)) {
-            throw new CsvException();
+            throw new CsvWriterException("Class must have @CsvDescriptor annotation");
         }
 
         List<Util.Threeple<Integer, String, Method>> intermediate 
@@ -72,12 +72,10 @@ public final class CsvWriter {
     }
 
     private void write() 
-            throws FileNotFoundException, IOException {
+            throws FileNotFoundException, IOException, CsvWriterException {
 
         File f = new File(filename);
         f.getParentFile().mkdirs();
-        f.createNewFile();
-
         try (FileOutputStream fos = new FileOutputStream(filename)) {
             fos.write(csvBuilder.toString().getBytes());
         }
@@ -85,7 +83,7 @@ public final class CsvWriter {
 
 
     public static <T> void writeAll(String filename, Class<T> cls, List<T> elems) 
-            throws CsvException, FileNotFoundException, IOException {
+            throws CsvWriterException, FileNotFoundException, IOException {
         CsvWriter csv = new CsvWriter(filename, cls);
         for(T elem : elems) {
             csv.addEntry(elem);

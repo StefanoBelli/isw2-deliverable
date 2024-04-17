@@ -15,7 +15,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
-import ste.csv.CsvException;
+import ste.csv.CsvWriterException;
 import ste.csv.CsvWriter;
 import ste.git.GitRepository;
 import ste.jirarest.JiraProject;
@@ -54,8 +54,8 @@ public final class App {
     }
 
     public static void main(String[] args) 
-            throws RequestException, InvalidRemoteException, 
-                    TransportException, GitAPIException, IOException, CsvException {
+            throws RequestException, GitAPIException, 
+                    IOException, CsvWriterException {
 
         logger.info("Setup phase...");
 
@@ -121,10 +121,13 @@ public final class App {
                     t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
             }
         }*/
+
+        stormGitRepo.close();
+        bookKeeperGitRepo.close();
     }
 
     private static List<Release> sortReleasesByDate(JiraProject project) 
-            throws CsvException, FileNotFoundException, IOException {
+            throws CsvWriterException, IOException {
         List<Release> rel = new ArrayList<>();
 
         JiraProject.Version[] vers = project.getVersions();
@@ -153,7 +156,7 @@ public final class App {
         String csvFilename = getVersionInfoCsvFilename(project.getName());
         CsvWriter.writeAll(csvFilename, Release.class, rel);
 
-        int halfSize = Math.round(rel.size() / 2);
+        int halfSize = (int) Math.floor(rel.size() / 2f);
         for(int i = 0; i < halfSize; ++i) {
             rel.remove(rel.size() - 1);
         }

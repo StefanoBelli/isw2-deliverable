@@ -12,6 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Http {
+    private Http() {}
+
     public static final class RequestException extends Exception {
         public static final int URI_ERROR = 1;
         public static final int MALFORMED_URL_ERROR = 2;
@@ -20,7 +22,7 @@ public final class Http {
         public static final int HTTP_NOT_OK_ERROR = 5;
         public static final int READ_BODY_ERROR = 6;
 
-        private int code;
+        private final int code;
         
         public RequestException(int code) {
             this.code = code;

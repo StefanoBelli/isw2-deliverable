@@ -18,14 +18,14 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public final class GitRepository implements AutoCloseable {
+public final class GitRepository {
     private final Repository repo;
     private final Git git;
 
     public GitRepository(String remote, String branch, String localPath) 
-            throws InvalidRemoteException, TransportException, GitAPIException, IOException {
+            throws GitAPIException, IOException {
         File localPathDir = new File(localPath);
-        if(localPathDir.exists() == false) {
+        if(!localPathDir.exists()) {
             git = Git
                 .cloneRepository()
                 .setURI(remote)
@@ -72,10 +72,13 @@ public final class GitRepository implements AutoCloseable {
         try(RevWalk walk = new RevWalk(repo)) {
             Ref refHead = repo.findRef(Constants.HEAD);
 
-            walk.markStart(walk.parseCommit(refHead.getObjectId()));
-            walk.setRevFilter(filter);
-            for(RevCommit commit : walk) {
-                commits.add(commit);
+            if(refHead != null) {
+                walk.markStart(walk.parseCommit(refHead.getObjectId()));
+                walk.setRevFilter(filter);
+                
+                for(RevCommit commit : walk) {
+                    commits.add(commit);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -84,7 +87,6 @@ public final class GitRepository implements AutoCloseable {
         return commits;
     }
 
-    @Override
     public void close() {
         //Git#close() calls Repository#close() by itself
         git.close();
