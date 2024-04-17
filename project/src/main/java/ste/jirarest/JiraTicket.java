@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import ste.jirarest.util.Http;
-import ste.jirarest.util.Parsing;
 
 public final class JiraTicket {
     public static final class Fields {
@@ -61,7 +60,12 @@ public final class JiraTicket {
         private final String created;
 
         private Fields(JSONObject o) {
-            versions = (Version[]) Parsing.getArray(o.getJSONArray("versions"), Version.class);
+            JSONArray jv = o.getJSONArray("versions");
+            versions = new Version[jv.length()];
+            for(int i = 0; i < jv.length(); ++i) {
+                versions[i] = new Version(jv.getJSONObject(i));
+            }
+
             resolutionDate = o.getString("resolutiondate");
             created = o.getString("created");
         }

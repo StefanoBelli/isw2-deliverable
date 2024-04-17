@@ -1,8 +1,8 @@
 package ste.jirarest;
 
 import ste.jirarest.util.Http;
-import ste.jirarest.util.Parsing;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public final class JiraProject {
@@ -263,11 +263,28 @@ public final class JiraProject {
             self = o.getString("self");
             id = o.getString("id");
             name = o.getString("name");
-            archived = o.getBoolean("archived");
-            released = o.getBoolean("released");
+
+            if(o.has("archived")) {
+                archived = o.getBoolean("archived");
+            } else {
+                archived = false;
+            }
+
+            if(o.has("released")) {
+                released = o.getBoolean("released");
+            } else {
+                released = false;
+            }
+
             releaseDate = o.has("releaseDate") ? o.getString("releaseDate") : null;
             userReleaseDate = o.has("userReleaseDate") ? o.getString("userReleaseDate") : null;
-            projectId = o.getInt("projectId");
+
+            if(o.has("projectId")) {
+                projectId = o.getInt("projectId");
+            } else {
+                projectId = 0;
+            }
+
             startDate = o.has("startDate") ? o.getString("startDate") : null;
             userStartDate = o.has("userStartDate") ? o.getString("userStartDate") : null;
             
@@ -357,9 +374,24 @@ public final class JiraProject {
             new ProjectCategory(o.getJSONObject("projectCategory")) : null;
         projectTypeKey = o.getString("projectTypeKey");
         archived = o.getBoolean("archived");
-        components = (Component[]) Parsing.getArray(o.getJSONArray("components"), Component.class);
-        issueTypes = (IssueType[]) Parsing.getArray(o.getJSONArray("issueTypes"), IssueType.class);
-        versions = (Version[]) Parsing.getArray(o.getJSONArray("versions"), Version.class);
+
+        JSONArray jc = o.getJSONArray("components");
+        components = new Component[jc.length()];
+        for(int i = 0; i < jc.length(); ++i) {
+            components[i] = new Component(jc.getJSONObject(i));
+        }
+        
+        JSONArray ji = o.getJSONArray("issueTypes");
+        issueTypes = new IssueType[ji.length()];
+        for(int i = 0; i < ji.length(); ++i) {
+            issueTypes[i] = new IssueType(ji.getJSONObject(i));
+        }
+
+        JSONArray jv = o.getJSONArray("versions");
+        versions = new Version[jv.length()];
+        for(int i = 0; i < jv.length(); ++i) {
+            versions[i] = new Version(jv.getJSONObject(i));
+        }
     }
     
     public String getAssigneeType() {

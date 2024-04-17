@@ -95,7 +95,7 @@ public final class App {
         reverseTicketsOrder(stormTickets);
         reverseTicketsOrder(bookKeeperTickets);
 
-        /* 
+        /*
         for(Ticket t : stormTickets) {
 
             if(t.isInjectedVersionAvail()) {
@@ -139,11 +139,7 @@ public final class App {
         CsvWriter.writeAll(csvFilename, Release.class, rel);
 
         int halfSize = (int) Math.floor(rel.size() / 2f);
-        for(int i = 0; i < halfSize; ++i) {
-            rel.remove(rel.size() - 1);
-        }
-
-        return rel;
+        return rel.subList(0, halfSize);
     }
 
     private static List<Ticket> initProjectTickets(
@@ -203,7 +199,7 @@ public final class App {
     }
 
     private static void linkTicketsToCommits(
-            List<Ticket> tkts, GitRepository repo) {
+            List<Ticket> tkts, GitRepository repo) throws IOException {
 
         for(Ticket tkt : tkts) {
             List<RevCommit> tktCommits = 

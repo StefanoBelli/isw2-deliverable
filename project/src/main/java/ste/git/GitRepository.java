@@ -42,7 +42,7 @@ public final class GitRepository {
         repo = git.getRepository();
     }
 
-    public List<String> getRepoFilesByCommit(RevCommit commit) {
+    public List<String> getRepoFilesByCommit(RevCommit commit) throws IOException {
         List<String> filePaths = new ArrayList<>();
         
         try(RevWalk walk = new RevWalk(repo)) {
@@ -57,14 +57,12 @@ public final class GitRepository {
                     filePaths.add(treeWalk.getPathString());
                 }
             }
-        } catch(IOException e) {
-            throw new RuntimeException(e);
         }
 
         return filePaths;
     }
 
-    public List<RevCommit> getFilteredCommits(RevFilter filter) {
+    public List<RevCommit> getFilteredCommits(RevFilter filter) throws IOException {
         List<RevCommit> commits = new ArrayList<>();
 
         try(RevWalk walk = new RevWalk(repo)) {
@@ -78,8 +76,6 @@ public final class GitRepository {
                     commits.add(commit);
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
 
         return commits;

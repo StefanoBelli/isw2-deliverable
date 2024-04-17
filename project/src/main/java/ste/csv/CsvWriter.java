@@ -58,7 +58,7 @@ public final class CsvWriter {
                     .append(valueGetters.get(i).invoke(any))
                     .append(i == nMethods - 1 ? '\n' : ',');
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new CsvWriterInvokeException(e);
             }
         }
     }
