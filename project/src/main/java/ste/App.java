@@ -95,7 +95,6 @@ public final class App {
         reverseTicketsOrder(stormTickets);
         reverseTicketsOrder(bookKeeperTickets);
 
-        /*
         for(Ticket t : stormTickets) {
 
             if(t.isInjectedVersionAvail()) {
@@ -112,7 +111,7 @@ public final class App {
                 System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
                     t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
             }
-        }*/
+        }
 
         stormGitRepo.close();
         bookKeeperGitRepo.close();
@@ -165,13 +164,24 @@ public final class App {
             JiraTicket.Fields.Version[] affVer = tktFields.getVersions();
             if(affVer.length > 0) {
                 List<Integer> affRelIdx = new ArrayList<>();
+                System.out.println("===============");
                 for(JiraTicket.Fields.Version jfv : affVer) {
                     int relIdx = Util.getReleaseIndexByTicketVersionField(rels, jfv);
                     affRelIdx.add(relIdx);
+                    System.out.println(String.format("release %s, index %d", jfv.getReleaseDate(), relIdx));
                 }
 
-                realTkt.setInjectedVersionIdx(affRelIdx.get(0));
-                realTkt.setAffectedVersionsIdxs(affRelIdx);
+                affRelIdx.removeIf(e -> e == -1);
+                affRelIdx.sort((o1, o2) -> o1 - o2);
+
+                for(int i : affRelIdx) {
+                    System.out.println(i);
+                }
+
+                if(!affRelIdx.isEmpty()) {
+                    realTkt.setInjectedVersionIdx(affRelIdx.get(0));
+                    realTkt.setAffectedVersionsIdxs(affRelIdx);
+                }
             }
 
             tickets.add(realTkt);
@@ -183,7 +193,6 @@ public final class App {
     private static void removeTicketsIfInvlRelease(List<Ticket> tkts) {
         tkts.removeIf(t ->
             t.getFixedVersionIdx() == -1 || 
-            t.getOpeningVersionIdx() == -1 || 
             (t.isInjectedVersionAvail() && t.getInjectedVersionIdx() == -1)
         );
     }
