@@ -1,11 +1,14 @@
 package ste.jirarest;
 
-import ste.jirarest.util.Http;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import ste.jirarest.http.Http;
+
 public final class JiraProject {
+    private static final String DESCRIPTION_S = "description";
+    private static final String ARCHIVED_S = "archived";
+
     public static final class AvatarUrls {
         private final String k48x48;
         private final String k24x24;
@@ -142,7 +145,7 @@ public final class JiraProject {
             self = o.getString("self");
             id = o.getString("id");
             name = o.getString("name");
-            description = o.getString("description");
+            description = o.getString(DESCRIPTION_S);
         }
         
         public String getSelf() {
@@ -173,7 +176,7 @@ public final class JiraProject {
             self = o.getString("self");
             id = o.getString("id");
             name = o.getString("name");
-            description = o.has("description") ? o.getString("description") : null;
+            description = o.has(DESCRIPTION_S) ? o.getString(DESCRIPTION_S) : null;
             assigneeTypeValid = o.getBoolean("isAssigneeTypeValid");
         }
 
@@ -210,7 +213,7 @@ public final class JiraProject {
         private IssueType(JSONObject o) {
             self = o.getString("self");
             id = o.getString("id");
-            description = o.getString("description");
+            description = o.getString(DESCRIPTION_S);
             iconUrl = o.getString("iconUrl");
             name = o.getString("name");
             subtask = o.getBoolean("subtask");
@@ -264,8 +267,8 @@ public final class JiraProject {
             id = o.getString("id");
             name = o.getString("name");
 
-            if(o.has("archived")) {
-                archived = o.getBoolean("archived");
+            if(o.has(ARCHIVED_S)) {
+                archived = o.getBoolean(ARCHIVED_S);
             } else {
                 archived = false;
             }
@@ -363,7 +366,7 @@ public final class JiraProject {
         self = o.getString("self");
         id = o.getString("id");
         key = o.getString("key");
-        description = o.getString("description");
+        description = o.getString(DESCRIPTION_S);
         lead = new Lead(o.getJSONObject("lead"));
         url = o.getString("url");
         assigneeType = o.getString("assigneeType");
@@ -373,7 +376,7 @@ public final class JiraProject {
         projectCategory = o.has("projectCategory") ? 
             new ProjectCategory(o.getJSONObject("projectCategory")) : null;
         projectTypeKey = o.getString("projectTypeKey");
-        archived = o.getBoolean("archived");
+        archived = o.getBoolean(ARCHIVED_S);
 
         JSONArray jc = o.getJSONArray("components");
         components = new Component[jc.length()];

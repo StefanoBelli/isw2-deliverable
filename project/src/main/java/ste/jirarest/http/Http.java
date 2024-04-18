@@ -1,4 +1,4 @@
-package ste.jirarest.util;
+package ste.jirarest.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,8 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public final class Http {
     private Http() {}
@@ -23,9 +21,11 @@ public final class Http {
         public static final int READ_BODY_ERROR = 6;
 
         private final int code;
-        
-        public RequestException(int code) {
+        private final String causeMessage;
+
+        public RequestException(int code, String causeMessage) {
             this.code = code;
+            this.causeMessage = causeMessage;
         }
 
         public int getCode() {
@@ -34,22 +34,33 @@ public final class Http {
 
         @Override
         public String getMessage() {
+            String myMsg;
             switch (code) {
-                case URI_ERROR:
-                    return "URI parse error";
+                case URI_ERROR: 
+                    myMsg = "URI parse error";
+                    break;
                 case MALFORMED_URL_ERROR:
-                    return "Malformed URL";
+                    myMsg = "Malformed URL";
+                    break;
                 case CONNECTION_ERROR:
-                    return "Unable to open connection";
+                    myMsg = "Unable to open connection";
+                    break;
                 case RESPONSE_ERROR:
-                    return "Unable to read HTTP response";
+                    myMsg = "Unable to read HTTP response";
+                    break;
                 case HTTP_NOT_OK_ERROR:
-                    return "HTTP response code not 200 OK";
+                    myMsg = "HTTP response code not 200 OK";
+                    break;
                 case READ_BODY_ERROR:
-                    return "HTTP body read error";
+                    myMsg = "HTTP body read error";
+                    break;
                 default:
                     return "Success";
             }
+
+            String realCause = causeMessage != null ? causeMessage : "none";
+
+            return String.format("%s (cause: %s)", myMsg, realCause);
         }
     }
 
@@ -70,25 +81,20 @@ public final class Http {
     }
 
     public static String get(String url) throws RequestException {
-        Logger logger = Logger.getLogger("HttpGet");
-
         URI uri;
         try{
             uri = new URI(url);
         } catch(URISyntaxException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            throw new RequestException(RequestException.URI_ERROR);
+            throw new RequestException(RequestException.URI_ERROR, e.getMessage());
         }
 
         HttpURLConnection conn;
         try {
             conn = (HttpURLConnection) uri.toURL().openConnection();
         } catch(MalformedURLException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            throw new RequestException(RequestException.MALFORMED_URL_ERROR);
+            throw new RequestException(RequestException.MALFORMED_URL_ERROR, e.getMessage());
         } catch(IOException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            throw new RequestException(RequestException.CONNECTION_ERROR);
+            throw new RequestException(RequestException.CONNECTION_ERROR, e.getMessage());
         }
 
         int httpResCode;
@@ -96,20 +102,17 @@ public final class Http {
         try {
             httpResCode = conn.getResponseCode();
         } catch(IOException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            throw new RequestException(RequestException.RESPONSE_ERROR);
+            throw new RequestException(RequestException.RESPONSE_ERROR, e.getMessage());
         }
 
         if(httpResCode != HttpURLConnection.HTTP_OK) {
-            logger.log(Level.SEVERE, "HTTP response code: {0}", httpResCode);
-            throw new RequestException(RequestException.HTTP_NOT_OK_ERROR);
+            throw new RequestException(RequestException.HTTP_NOT_OK_ERROR, null);
         }
         
         try {
             return readAll(conn.getInputStream());
         } catch(IOException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            throw new RequestException(RequestException.READ_BODY_ERROR);
+            throw new RequestException(RequestException.READ_BODY_ERROR, e.getMessage());
         }
     }
 }

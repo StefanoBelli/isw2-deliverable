@@ -15,7 +15,7 @@ import ste.csv.CsvWriter;
 import ste.git.GitRepository;
 import ste.jirarest.JiraProject;
 import ste.jirarest.JiraTicket;
-import ste.jirarest.util.Http.RequestException;
+import ste.jirarest.http.Http.RequestException;
 import ste.model.Release;
 import ste.model.Ticket;
 

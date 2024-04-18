@@ -3,7 +3,7 @@ package ste.jirarest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import ste.jirarest.util.Http;
+import ste.jirarest.http.Http;
 
 public final class JiraTicket {
     public static final class Fields {
