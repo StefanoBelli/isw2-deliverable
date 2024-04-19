@@ -74,6 +74,9 @@ public final class App {
 
         logger.info("Setup phase done");
 
+
+        //sequencer()
+
         List<Release> stormReleases = sortReleasesByDate(jiraStormProject);
         List<Release> bookKeeperReleases = sortReleasesByDate(jiraBookKeeperProject);
 
@@ -94,6 +97,12 @@ public final class App {
 
         reverseTicketsOrder(stormTickets);
         reverseTicketsOrder(bookKeeperTickets);
+
+        Proportion.apply(stormTickets);
+        Proportion.apply(bookKeeperTickets);
+        
+        removeTicketsIfInconsistent(stormTickets);
+        removeTicketsIfInconsistent(bookKeeperTickets);
 
         for(Ticket t : stormTickets) {
 
