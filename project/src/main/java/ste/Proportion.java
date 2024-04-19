@@ -24,10 +24,10 @@ public final class Proportion {
         int effectiveTickets = 0;
 
         for(Ticket ticket : subTickets) {
-            if(!ticket.isCalcInjectedVersion()) {
+            if(!ticket.isArtificialInjectedVersion()) {
                 int tmpProportion = proportion(ticket);
                 if(tmpProportion >= 1) {
-                    realProportion += proportion(ticket);
+                    realProportion += tmpProportion;
                     ++effectiveTickets;
                 } else {
                     System.err.println("ERRORED WARNING: PROPORTION neg");
@@ -63,7 +63,7 @@ public final class Proportion {
                 }
 
                 ticket.setInjectedVersionIdx(newIv - 1);
-                ticket.setCalcInjectedVersion(true);
+                ticket.setArtificialInjectedVersion(true);
             }
         }        
     }

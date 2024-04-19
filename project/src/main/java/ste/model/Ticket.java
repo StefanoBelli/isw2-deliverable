@@ -7,10 +7,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 public final class Ticket {
     private final String key;
 
-    //private List<Integer> affectedVersionsIdxs;
-
     private boolean injectedVersionAvail;
-    private boolean calcInjectedVersion;
+    private boolean artificialInjectedVersion;
 
     private int injectedVersionIdx;
     private final int openingVersionIdx;
@@ -23,7 +21,7 @@ public final class Ticket {
         this.openingVersionIdx = openingVersionIdx;
         this.fixedVersionIdx = fixedVersionIdx;
         this.injectedVersionAvail = false;
-        this.calcInjectedVersion = false;
+        this.artificialInjectedVersion = false;
     }
 
     public int getOpeningVersionIdx() {
@@ -38,15 +36,9 @@ public final class Ticket {
         return this.injectedVersionAvail;
     }
 
-    public boolean isCalcInjectedVersion() {
-        return calcInjectedVersion;
+    public boolean isArtificialInjectedVersion() {
+        return artificialInjectedVersion;
     }
-
-    /*
-    public List<Integer> getAffectedVersionsIdxs() {
-        return affectedVersionsIdxs;
-    }
-    */
 
     public List<RevCommit> getCommits() {
         return commits;
@@ -60,12 +52,6 @@ public final class Ticket {
         return key;
     }
 
-    /*
-    public void setAffectedVersionsIdxs(List<Integer> affectedVersionsIdxs) {
-        this.affectedVersionsIdxs = affectedVersionsIdxs;
-    }
-    */
-
     public void setCommits(List<RevCommit> commits) {
         this.commits = commits;
     }
@@ -75,7 +61,7 @@ public final class Ticket {
         this.injectedVersionAvail = true;
     }
 
-    public void setCalcInjectedVersion(boolean calcInjectedVersion) {
-        this.calcInjectedVersion = calcInjectedVersion;
+    public void setArtificialInjectedVersion(boolean calcInjectedVersion) {
+        this.artificialInjectedVersion = calcInjectedVersion;
     }
 }
