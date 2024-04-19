@@ -25,8 +25,13 @@ public final class Proportion {
 
         for(Ticket ticket : subTickets) {
             if(!ticket.isCalcInjectedVersion()) {
-                realProportion += proportion(ticket);
-                ++effectiveTickets;
+                int tmpProportion = proportion(ticket);
+                if(tmpProportion >= 1) {
+                    realProportion += proportion(ticket);
+                    ++effectiveTickets;
+                } else {
+                    System.err.println("ERRORED WARNING: PROPORTION neg");
+                }
             }
         }
 
@@ -34,7 +39,7 @@ public final class Proportion {
             return 0;
         }
 
-        return (int) Math.ceil((float) realProportion / effectiveTickets);
+        return (int) Math.floor((float) realProportion / effectiveTickets);
     }
 
     public static void apply(List<Ticket> allTickets) {
@@ -52,6 +57,9 @@ public final class Proportion {
                     int pIncrement = increment(allTickets.subList(0, i));
                     newIv = fv - ((fv - ov) * pIncrement);
                     newIv = Math.min(newIv, ov);
+                    if(newIv - 1 < 0) {
+                        System.err.println("FIXUP WARNING");
+                    }
                 }
 
                 ticket.setInjectedVersionIdx(newIv - 1);
