@@ -10,6 +10,7 @@ public final class Ticket {
     //private List<Integer> affectedVersionsIdxs;
 
     private boolean injectedVersionAvail;
+    private boolean calcInjectedVersion;
 
     private int injectedVersionIdx;
     private final int openingVersionIdx;
@@ -17,12 +18,12 @@ public final class Ticket {
 
     private List<RevCommit> commits;
 
-
     public Ticket(String key, int openingVersionIdx, int fixedVersionIdx) {
         this.key = key;
         this.openingVersionIdx = openingVersionIdx;
         this.fixedVersionIdx = fixedVersionIdx;
         this.injectedVersionAvail = false;
+        this.calcInjectedVersion = false;
     }
 
     public int getOpeningVersionIdx() {
@@ -35,6 +36,10 @@ public final class Ticket {
 
     public boolean isInjectedVersionAvail() {
         return this.injectedVersionAvail;
+    }
+
+    public boolean isCalcInjectedVersion() {
+        return calcInjectedVersion;
     }
 
     /*
@@ -68,5 +73,9 @@ public final class Ticket {
     public void setInjectedVersionIdx(int injectedVersionIdx) {
         this.injectedVersionIdx = injectedVersionIdx;
         this.injectedVersionAvail = true;
+    }
+
+    public void setCalcInjectedVersion(boolean calcInjectedVersion) {
+        this.calcInjectedVersion = calcInjectedVersion;
     }
 }

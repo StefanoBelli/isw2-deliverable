@@ -102,7 +102,7 @@ public final class App {
                     t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
             }
         }
-        
+        System.out.println(stormTickets.size()); 
         System.out.println("BOOKKEEPER-----");
         
         for(Ticket t : bookKeeperTickets) {
@@ -112,6 +112,7 @@ public final class App {
                     t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
             }
         }
+        System.out.println(bookKeeperTickets.size());
 
         stormGitRepo.close();
         bookKeeperGitRepo.close();
@@ -205,6 +206,7 @@ public final class App {
 
             //return iv >= fv || iv > ov /*|| ov > fv*/;
             return !(iv < fv && ov >= iv);
+            //return iv == fv || ov > fv;
         });
     }
 
