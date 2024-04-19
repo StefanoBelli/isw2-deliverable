@@ -45,6 +45,13 @@ public final class App {
         return String.format("csv_output/%s-VersionInfo.csv", proj);
     }
 
+    private static GitRepository stormGitRepo;
+    private static GitRepository bookKeeperGitRepo;
+    private static List<Release> stormReleases;
+    private static List<Release> bookKeeperReleases;
+    private static List<Ticket> stormTickets;
+    private static List<Ticket> bookKeeperTickets;
+
     public static void main(String[] args) 
             throws RequestException, GitAPIException, 
                     IOException, CsvWriterException {
@@ -67,21 +74,33 @@ public final class App {
         logger.info("Checking git repositories...");
 
         logger.info(CLONE_INFO_FMT, STORM, STORM_GITHUB, STORM_BRANCH, stormLocal);
-        GitRepository stormGitRepo = new GitRepository(STORM_GITHUB, STORM_BRANCH, stormLocal);
+        stormGitRepo = new GitRepository(STORM_GITHUB, STORM_BRANCH, stormLocal);
 
         logger.info(CLONE_INFO_FMT, BOOKKEEPER, BOOKKEEPER_GITHUB, BOOKKEEPER_BRANCH, bookKeeperLocal);
-        GitRepository bookKeeperGitRepo = new GitRepository(BOOKKEEPER_GITHUB, BOOKKEEPER_BRANCH, bookKeeperLocal);
+        bookKeeperGitRepo = new GitRepository(BOOKKEEPER_GITHUB, BOOKKEEPER_BRANCH, bookKeeperLocal);
 
         logger.info("Setup phase done");
 
+        filteringSequence(
+            jiraStormProject, 
+            jiraBookKeeperProject, 
+            jiraStormTickets, 
+            jiraBookKeeperTickets);
 
-        //sequencer()
+        stormGitRepo.close();
+        bookKeeperGitRepo.close();
+    }
 
-        List<Release> stormReleases = sortReleasesByDate(jiraStormProject);
-        List<Release> bookKeeperReleases = sortReleasesByDate(jiraBookKeeperProject);
 
-        List<Ticket> stormTickets = initProjectTickets(stormReleases, jiraStormTickets);
-        List<Ticket> bookKeeperTickets = initProjectTickets(bookKeeperReleases, jiraBookKeeperTickets);
+    private static void filteringSequence(
+                JiraProject jsp, JiraProject jbkp, JiraTicket[] jst, JiraTicket[] jbkt)
+            throws CsvWriterException, IOException {
+
+        stormReleases = sortReleasesByDate(jsp);
+        bookKeeperReleases = sortReleasesByDate(jbkp);
+
+        stormTickets = initProjectTickets(stormReleases, jst);
+        bookKeeperTickets = initProjectTickets(bookKeeperReleases, jbkt);
 
         removeTicketsIfInvlRelease(stormTickets);
         removeTicketsIfInvlRelease(bookKeeperTickets);
@@ -104,6 +123,7 @@ public final class App {
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
 
+        /*
         for(Ticket t : stormTickets) {
 
             if(t.isInjectedVersionAvail()) {
@@ -122,9 +142,7 @@ public final class App {
             }
         }
         System.out.println(bookKeeperTickets.size());
-
-        stormGitRepo.close();
-        bookKeeperGitRepo.close();
+        */
     }
 
     private static List<Release> sortReleasesByDate(JiraProject project) 
@@ -174,23 +192,22 @@ public final class App {
             JiraTicket.Fields.Version[] affVer = tktFields.getVersions();
             if(affVer.length > 0) {
                 List<Integer> affRelIdx = new ArrayList<>();
-                System.out.println("===============");
+                //System.out.println("===============");
                 for(JiraTicket.Fields.Version jfv : affVer) {
                     int relIdx = Util.getReleaseIndexByTicketVersionField(rels, jfv);
                     affRelIdx.add(relIdx);
-                    System.out.println(String.format("release %s, index %d", jfv.getReleaseDate(), relIdx));
+                    //System.out.println(String.format("release %s, index %d", jfv.getReleaseDate(), relIdx));
                 }
 
                 affRelIdx.removeIf(e -> e == -1);
                 affRelIdx.sort((o1, o2) -> o1 - o2);
 
-                for(int i : affRelIdx) {
+                /*for(int i : affRelIdx) {
                     System.out.println(i);
-                }
+                }*/
 
                 if(!affRelIdx.isEmpty()) {
                     realTkt.setInjectedVersionIdx(affRelIdx.get(0));
-                    //realTkt.setAffectedVersionsIdxs(affRelIdx);
                 }
             }
 
@@ -213,9 +230,9 @@ public final class App {
             int ov = t.getOpeningVersionIdx();
             int fv = t.getFixedVersionIdx();
 
-            //return iv >= fv || iv > ov /*|| ov > fv*/;
+            //alt-cond iv >= fv || iv > ov /*|| ov > fv*/;
             return !(iv < fv && ov >= iv);
-            //return iv == fv || ov > fv;
+            //alt-cond iv == fv || ov > fv;
         });
     }
 

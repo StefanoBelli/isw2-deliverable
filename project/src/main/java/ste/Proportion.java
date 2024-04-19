@@ -29,9 +29,9 @@ public final class Proportion {
                 if(tmpProportion >= 1) {
                     realProportion += tmpProportion;
                     ++effectiveTickets;
-                } else {
+                } /*else {
                     System.err.println("ERRORED WARNING: PROPORTION neg");
-                }
+                }*/
             }
         }
 
@@ -57,9 +57,9 @@ public final class Proportion {
                     int pIncrement = increment(allTickets.subList(0, i));
                     newIv = fv - ((fv - ov) * pIncrement);
                     newIv = Math.min(newIv, ov);
-                    if(newIv - 1 < 0) {
+                    /*if(newIv - 1 < 0) {
                         System.err.println("FIXUP WARNING");
-                    }
+                    }*/
                 }
 
                 ticket.setInjectedVersionIdx(newIv - 1);
