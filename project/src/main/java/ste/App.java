@@ -180,7 +180,7 @@ public final class App {
 
                 if(!affRelIdx.isEmpty()) {
                     realTkt.setInjectedVersionIdx(affRelIdx.get(0));
-                    realTkt.setAffectedVersionsIdxs(affRelIdx);
+                    //realTkt.setAffectedVersionsIdxs(affRelIdx);
                 }
             }
 
@@ -203,7 +203,8 @@ public final class App {
             int ov = t.getOpeningVersionIdx();
             int fv = t.getFixedVersionIdx();
 
-            return iv >= fv || iv > ov /*|| ov > fv*/;
+            //return iv >= fv || iv > ov /*|| ov > fv*/;
+            return !(iv < fv && ov >= iv);
         });
     }
 

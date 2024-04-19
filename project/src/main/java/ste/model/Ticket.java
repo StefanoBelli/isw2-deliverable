@@ -7,7 +7,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 public final class Ticket {
     private final String key;
 
-    private List<Integer> affectedVersionsIdxs;
+    //private List<Integer> affectedVersionsIdxs;
 
     private boolean injectedVersionAvail;
 
@@ -37,9 +37,11 @@ public final class Ticket {
         return this.injectedVersionAvail;
     }
 
+    /*
     public List<Integer> getAffectedVersionsIdxs() {
         return affectedVersionsIdxs;
     }
+    */
 
     public List<RevCommit> getCommits() {
         return commits;
@@ -53,9 +55,11 @@ public final class Ticket {
         return key;
     }
 
+    /*
     public void setAffectedVersionsIdxs(List<Integer> affectedVersionsIdxs) {
         this.affectedVersionsIdxs = affectedVersionsIdxs;
     }
+    */
 
     public void setCommits(List<RevCommit> commits) {
         this.commits = commits;
