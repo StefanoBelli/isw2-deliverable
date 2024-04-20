@@ -87,17 +87,32 @@ public final class App {
             jiraStormTickets, 
             jiraBookKeeperTickets);
 
+        logger.info("Terminating...");
+
         stormGitRepo.close();
         bookKeeperGitRepo.close();
+
+        logger.info("Graceful termination. Exiting...");
     }
 
+    private static final String STAT_INFO_FMT = "project {} - rem. tickets: {} - rem. releases: {}";
+    private static final String STAT_IVINFO_FMT = "project {} - tickets with IV: {}";
 
     private static void filteringSequence(
                 JiraProject jsp, JiraProject jbkp, JiraTicket[] jst, JiraTicket[] jbkt)
             throws CsvWriterException, IOException {
+                
+        logger.info("Starting filtering sequence...");
+
+        logger.info(STAT_INFO_FMT, STORM, jst.length, jsp.getVersions().length);
+        logger.info(STAT_INFO_FMT, BOOKKEEPER, jbkt.length, jbkp.getVersions().length);
+
+        logger.info("Removing releases that have no release date, sorting them and then cutting them in half...");
 
         stormReleases = sortReleasesByDate(jsp);
         bookKeeperReleases = sortReleasesByDate(jbkp);
+
+        logger.info("Getting relevant infos about tickets OVs, FVs and AVs...");
 
         stormTickets = initProjectTickets(stormReleases, jst);
         bookKeeperTickets = initProjectTickets(bookKeeperReleases, jbkt);
@@ -107,12 +122,24 @@ public final class App {
 
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
+
+        logger.info("After ticket inconsistency fixup:");
+
+        logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
+        logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
+
+        logger.info("Linking tickets to commits. This may take a while, please wait...");
         
         linkTicketsToCommits(bookKeeperTickets, bookKeeperGitRepo);
         linkTicketsToCommits(stormTickets, stormGitRepo);
         
         removeTicketsIfNoCommits(stormTickets);
         removeTicketsIfNoCommits(bookKeeperTickets);
+
+        logger.info("After removing tickets if no matching commit could be found:");
+        
+        logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
+        logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
 
         reverseTicketsOrder(stormTickets);
         reverseTicketsOrder(bookKeeperTickets);
@@ -144,11 +171,24 @@ public final class App {
 
         System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
         */
+        int stormTicketsWithIv = statTicketsWithIv(stormTickets);
+        int bookKeeperTicketsWithIv = statTicketsWithIv(bookKeeperTickets);
+
+        logger.info(STAT_IVINFO_FMT, STORM, stormTicketsWithIv);
+        logger.info(STAT_IVINFO_FMT, BOOKKEEPER, bookKeeperTicketsWithIv);
+
+        logger.info("Applying proportion ({} strategy)...", Proportion.STRATEGY_NAME);
+
         Proportion.apply(stormTickets);
         Proportion.apply(bookKeeperTickets);
-        
+
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
+        
+        logger.info("After proportion and inconistency fixup:");
+        
+        logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
+        logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
 
         /*
         System.out.println("POST-PROPORTION========================");
@@ -180,6 +220,7 @@ public final class App {
         System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
         */
 
+        logger.info("Filtering sequence done");
     }
 
     private static List<Release> sortReleasesByDate(JiraProject project) 
@@ -202,7 +243,8 @@ public final class App {
         String csvFilename = getVersionInfoCsvFilename(project.getName());
         CsvWriter.writeAll(csvFilename, Release.class, rel);
 
-        int halfSize = (int) Math.floor(rel.size() / 2f);
+        int halfSize = Math.round(rel.size() / 2f);
+
         return rel.subList(0, halfSize);
     }
 
@@ -292,6 +334,19 @@ public final class App {
 
     private static void reverseTicketsOrder(List<Ticket> tkts) {
         Collections.reverse(tkts);
+    }
+
+
+    private static int statTicketsWithIv(List<Ticket> tkts) {
+        int ticketsWithIv = 0;
+
+        for(Ticket t : tkts) {
+            if(t.isInjectedVersionAvail()) {
+                ++ticketsWithIv;
+            }
+        }
+
+        return ticketsWithIv;
     }
 }
 

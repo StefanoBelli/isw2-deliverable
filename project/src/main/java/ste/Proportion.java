@@ -7,6 +7,8 @@ import ste.model.Ticket;
 public final class Proportion {
     private Proportion() {} 
 
+    public static final String STRATEGY_NAME = "increment";
+
     private static int proportion(Ticket t) {
         int iv = t.getInjectedVersionIdx() + 1;
         int ov = t.getOpeningVersionIdx() + 1;
