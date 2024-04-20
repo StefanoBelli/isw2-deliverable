@@ -2,6 +2,9 @@ package ste.model;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import ste.Util;
 import ste.csv.annotations.CsvColumn;
@@ -15,6 +18,7 @@ public final class Release {
     private final Date releaseDate;
     
     private int index;
+    private List<RevCommit> commits;
  
     private Release(String id, String version, Date releaseDate) {
         this.version = version;
@@ -46,8 +50,16 @@ public final class Release {
         return index;
     }
 
+    public List<RevCommit> getCommits() {
+        return commits;
+    }
+
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public void setCommits(List<RevCommit> commits) {
+        this.commits = commits;
     }
 
     public static Release fromJiraVersion(JiraProject.Version version) {

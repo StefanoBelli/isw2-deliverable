@@ -2,12 +2,15 @@ package ste;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
 import ste.csv.CsvWriterException;
@@ -86,7 +89,7 @@ public final class App {
             jiraBookKeeperProject, 
             jiraStormTickets, 
             jiraBookKeeperTickets);
-
+        
         logger.info("Terminating...");
 
         stormGitRepo.close();
@@ -107,7 +110,10 @@ public final class App {
         logger.info(STAT_INFO_FMT, STORM, jst.length, jsp.getVersions().length);
         logger.info(STAT_INFO_FMT, BOOKKEEPER, jbkt.length, jbkp.getVersions().length);
 
-        logger.info("Removing releases that have no release date, sorting them and then cutting them in half...");
+        logger.info(
+            "Removing releases that have no release date" +
+            ", sorting them and then cutting them in half (including one extra release" + 
+            ", which will be removed later)...");
 
         stormReleases = sortReleasesByDate(jsp);
         bookKeeperReleases = sortReleasesByDate(jbkp);
@@ -171,6 +177,7 @@ public final class App {
 
         System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
         */
+
         int stormTicketsWithIv = statTicketsWithIv(stormTickets);
         int bookKeeperTicketsWithIv = statTicketsWithIv(bookKeeperTickets);
 
@@ -219,6 +226,35 @@ public final class App {
         
         System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
         */
+        
+        logger.info("Linking releases to commits. This should be fast...");
+
+        linkReleasesToCommits(stormReleases, stormGitRepo);
+        System.out.println("BOOKKEEPER====================");
+        linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo);
+
+        logger.info("After linking releases to commits and REMOVING the last extra release:");
+        
+        logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
+        logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
+
+        for(Release rel : stormReleases) {
+            if(rel.getCommits() != null) {
+                System.out.println(rel.getCommits().size());
+            } else {
+                System.out.println("null");
+            }
+        }
+        
+        System.out.println("BOOKKEEPER============");
+
+        for(Release rel : bookKeeperReleases) {
+             if(rel.getCommits() != null) {
+                System.out.println(rel.getCommits().size());
+            } else {
+                System.out.println("null");
+            }
+        }
 
         logger.info("Filtering sequence done");
     }
@@ -245,7 +281,9 @@ public final class App {
 
         int halfSize = Math.round(rel.size() / 2f);
 
-        return rel.subList(0, halfSize);
+        //extra release will be cut out when linking rel -> commits
+        //we need the extra rel to get end date of last release
+        return rel.subList(0, halfSize + 1);
     }
 
     private static List<Ticket> initProjectTickets(
@@ -336,6 +374,38 @@ public final class App {
         Collections.reverse(tkts);
     }
 
+    private static void linkReleasesToCommits(List<Release> rels, GitRepository repo) throws IOException {
+        Calendar cal = Calendar.getInstance();
+
+        for(int i = 1; i < rels.size(); ++i) {
+            Release leftBoundaryRel = rels.get(i - 1);
+            Release rightBoundaryRel = rels.get(i);
+
+            Date tmpStart = leftBoundaryRel.getReleaseDate();
+            Date tmpEnd = rightBoundaryRel.getReleaseDate();
+
+            cal.setTime(tmpStart);
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+
+            Date relStartDate = cal.getTime();
+
+            cal.setTime(tmpEnd);
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+
+            Date relEndDate = cal.getTime();
+
+            List<RevCommit> relCommits = repo.getFilteredCommits(
+                CommitTimeRevFilter.between(relStartDate, relEndDate));
+
+            System.out.println("===================");
+            System.out.println(relStartDate);
+            System.out.println(relEndDate);
+
+            leftBoundaryRel.setCommits(relCommits);
+        }
+
+        rels.removeLast();
+    }
 
     private static int statTicketsWithIv(List<Ticket> tkts) {
         int ticketsWithIv = 0;
