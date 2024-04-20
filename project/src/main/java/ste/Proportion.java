@@ -56,7 +56,7 @@ public final class Proportion {
                 } else {
                     int pIncrement = increment(allTickets.subList(0, i));
                     newIv = fv - ((fv - ov) * pIncrement);
-                    newIv = Math.min(newIv, ov);
+                    //newIv = Math.min(newIv, ov);
                     /*if(newIv - 1 < 0) {
                         System.err.println("FIXUP WARNING");
                     }*/

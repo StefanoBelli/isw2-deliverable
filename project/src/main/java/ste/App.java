@@ -117,32 +117,67 @@ public final class App {
         reverseTicketsOrder(stormTickets);
         reverseTicketsOrder(bookKeeperTickets);
 
+        int ivs = 0;
+
+        for(Ticket t : stormTickets) {
+
+            if(t.isInjectedVersionAvail()) {
+                ++ivs;
+                System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
+                    t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
+            }
+        }
+        System.out.println(stormTickets.size() + ", with IV = " + ivs); 
+        System.out.println("BOOKKEEPER-----");
+
+        ivs = 0;
+        
+        for(Ticket t : bookKeeperTickets) {
+
+            if(t.isInjectedVersionAvail()) {
+                ++ivs;
+                System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
+                    t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
+            }
+        }
+
+        System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
+
         Proportion.apply(stormTickets);
         Proportion.apply(bookKeeperTickets);
         
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
 
-        /*
+
+        System.out.println("POST-PROPORTION========================");
+
+        ivs = 0;
+
         for(Ticket t : stormTickets) {
 
             if(t.isInjectedVersionAvail()) {
+                ++ivs;
                 System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
                     t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
             }
         }
-        System.out.println(stormTickets.size()); 
+        System.out.println(stormTickets.size() + ", with IV = " + ivs); 
         System.out.println("BOOKKEEPER-----");
+
+        ivs = 0;
         
         for(Ticket t : bookKeeperTickets) {
 
             if(t.isInjectedVersionAvail()) {
+                ++ivs;
                 System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
                     t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
             }
         }
-        System.out.println(bookKeeperTickets.size());
-        */
+        
+        System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
+
     }
 
     private static List<Release> sortReleasesByDate(JiraProject project) 
