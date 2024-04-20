@@ -34,7 +34,7 @@ public final class App {
     private static final String CLONE_INFO_FMT = "(git) project {}: url={} (branch={}, local={})";
 
     static {
-        logger = LoggerFactory.getLogger("App");
+        logger = LoggerFactory.getLogger(App.class.getName());
     }
 
     private static String getCloneDir(String rel) {
@@ -117,6 +117,7 @@ public final class App {
         reverseTicketsOrder(stormTickets);
         reverseTicketsOrder(bookKeeperTickets);
 
+        /*
         int ivs = 0;
 
         for(Ticket t : stormTickets) {
@@ -142,14 +143,14 @@ public final class App {
         }
 
         System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
-
+        */
         Proportion.apply(stormTickets);
         Proportion.apply(bookKeeperTickets);
         
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
 
-
+        /*
         System.out.println("POST-PROPORTION========================");
 
         ivs = 0;
@@ -177,6 +178,7 @@ public final class App {
         }
         
         System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
+        */
 
     }
 

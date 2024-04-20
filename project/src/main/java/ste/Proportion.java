@@ -16,7 +16,7 @@ public final class Proportion {
             return 0;
         }
 
-        return (fv - iv) / (fv - ov);
+        return (int) Math.floor((float) (fv - iv) / (fv - ov));
     }
 
     private static int increment(List<Ticket> subTickets) {
