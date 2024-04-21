@@ -14,6 +14,8 @@ import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
 import ste.csv.CsvWriterException;
+import ste.analyzer.BugAnalyzer;
+import ste.analyzer.BugAnalyzerException;
 import ste.csv.CsvWriter;
 import ste.git.GitRepository;
 import ste.jirarest.JiraProject;
@@ -62,7 +64,7 @@ public final class App {
 
     public static void main(String[] args) 
             throws RequestException, GitAPIException, 
-                    IOException, CsvWriterException {
+                    IOException, CsvWriterException, BugAnalyzerException {
 
         logger.info("Setup phase...");
 
@@ -146,7 +148,7 @@ public final class App {
                         " the last extra release. This should be fast...");
 
         linkReleasesToCommits(stormReleases, stormGitRepo);
-        System.out.println("BOOKKEEPER============");
+        //System.out.println("BOOKKEEPER============");
         linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo);
 
         logger.info("After linking releases to commits" + 
@@ -234,11 +236,11 @@ public final class App {
         
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
-
-        /*
+        
+        /* 
         System.out.println("POST-PROPORTION========================");
 
-        ivs = 0;
+        int ivs = 0;
 
         for(Ticket t : stormTickets) {
 
@@ -415,9 +417,9 @@ public final class App {
         List<RevCommit> firstRelCommits = repo.getFilteredCommits(
             CommitTimeRevFilter.before(firstStart));
 
-        System.out.println("=================");
-        System.out.println(firstStart);
-        System.out.println(firstRelCommits.size());
+        //System.out.println("=================");
+        //System.out.println(firstStart);
+        //System.out.println(firstRelCommits.size());
 
         firstRel.setCommits(firstRelCommits);
         
@@ -441,10 +443,10 @@ public final class App {
             List<RevCommit> relCommits = repo.getFilteredCommits(
                 CommitTimeRevFilter.between(start, end));
 
-            System.out.println("===================");
-            System.out.println(start);
-            System.out.println(end);
-            System.out.println(relCommits.size());
+            //System.out.println("===================");
+            //System.out.println(start);
+            //System.out.println(end);
+            //System.out.println(relCommits.size());
 
             rightBoundaryRel.setCommits(relCommits);
         }
