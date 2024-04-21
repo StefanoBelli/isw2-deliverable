@@ -99,6 +99,7 @@ public final class App {
     }
 
     private static final String STAT_INFO_FMT = "project {} - rem. tickets: {} - rem. releases: {}";
+    private static final String STAT_INFO_ONLYREL_FMT = "project {} - rem. releases: {}";
     private static final String STAT_IVINFO_FMT = "project {} - tickets with IV: {}";
 
     private static void filteringSequence(
@@ -112,11 +113,24 @@ public final class App {
 
         logger.info(
             "Removing releases that have no release date" +
-            ", sorting them and then cutting them in half (including one extra release" + 
+            ", sorting them and then cutting them in half (but includes one extra release" + 
             ", which will be removed later)...");
 
         stormReleases = sortReleasesByDate(jsp);
         bookKeeperReleases = sortReleasesByDate(jbkp);
+        
+        logger.info("Linking releases to commits, then removing" + 
+                        " the last extra release. This should be fast...");
+
+        linkReleasesToCommits(stormReleases, stormGitRepo);
+        linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo);
+
+        logger.info("After linking releases to commits" + 
+                    " and *removing* the last extra release:");
+        
+        logger.info(STAT_INFO_ONLYREL_FMT, STORM, stormReleases.size());
+        logger.info(STAT_INFO_ONLYREL_FMT, BOOKKEEPER, bookKeeperReleases.size());
+
 
         logger.info("Getting relevant infos about tickets OVs, FVs and AVs...");
 
@@ -227,17 +241,7 @@ public final class App {
         System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
         */
         
-        logger.info("Linking releases to commits. This should be fast...");
-
-        linkReleasesToCommits(stormReleases, stormGitRepo);
-        System.out.println("BOOKKEEPER====================");
-        linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo);
-
-        logger.info("After linking releases to commits and REMOVING the last extra release:");
-        
-        logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
-        logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
-
+        /*
         for(Release rel : stormReleases) {
             if(rel.getCommits() != null) {
                 System.out.println(rel.getCommits().size());
@@ -254,7 +258,7 @@ public final class App {
             } else {
                 System.out.println("null");
             }
-        }
+        }*/
 
         logger.info("Filtering sequence done");
     }
@@ -279,7 +283,7 @@ public final class App {
         String csvFilename = getVersionInfoCsvFilename(project.getName());
         CsvWriter.writeAll(csvFilename, Release.class, rel);
 
-        int halfSize = Math.round(rel.size() / 2f);
+        int halfSize = (int) Math.floor(rel.size() / 2f);
 
         //extra release will be cut out when linking rel -> commits
         //we need the extra rel to get end date of last release
@@ -397,9 +401,11 @@ public final class App {
             List<RevCommit> relCommits = repo.getFilteredCommits(
                 CommitTimeRevFilter.between(relStartDate, relEndDate));
 
+            /*
             System.out.println("===================");
             System.out.println(relStartDate);
             System.out.println(relEndDate);
+            */
 
             leftBoundaryRel.setCommits(relCommits);
         }

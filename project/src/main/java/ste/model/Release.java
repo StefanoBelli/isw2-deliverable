@@ -30,14 +30,9 @@ public final class Release {
         return releaseDate;
     }
     
-    @CsvColumn(order = 4, name = "Date")
-    public String getFormattedReleaseDate() {
-        return new SimpleDateFormat("yyyy-MM-dd").format(releaseDate);
-    }
-
-    @CsvColumn(order = 3, name = "Version Name")
-    public String getVersion() {
-        return version;
+    @CsvColumn(order = 1, name = "Index")
+    public int getIndex() {
+        return index;
     }
 
     @CsvColumn(order = 2, name = "Version ID")
@@ -45,9 +40,14 @@ public final class Release {
         return id;
     }
 
-    @CsvColumn(order = 1, name = "Index")
-    public int getIndex() {
-        return index;
+    @CsvColumn(order = 3, name = "Version Name")
+    public String getVersion() {
+        return version;
+    }
+
+    @CsvColumn(order = 4, name = "Date")
+    public String getFormattedReleaseDate() {
+        return new SimpleDateFormat("yyyy-MM-dd").format(releaseDate);
     }
 
     public List<RevCommit> getCommits() {
