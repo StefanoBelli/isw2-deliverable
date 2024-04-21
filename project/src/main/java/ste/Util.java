@@ -65,4 +65,21 @@ public final class Util {
           return k;
       }
    }
+   public static final class Pair<I,J> {
+      private final I i;
+      private final J j;
+
+      public Pair(I i, J j) {
+         this.i = i;
+         this.j = j;
+      }
+
+      public I getFirst() {
+          return i;
+      }
+
+      public J getSecond() {
+          return j;
+      }
+   }
 }

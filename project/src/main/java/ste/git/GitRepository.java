@@ -17,6 +17,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
+import ste.Util.Pair;
+
 public final class GitRepository {
     private final Repository repo;
     private final Git git;
@@ -43,7 +45,7 @@ public final class GitRepository {
         repo = git.getRepository();
     }
     
-    public List<ObjectId> getObjsForCommit(RevCommit commit) 
+    public List<Pair<String, ObjectId>> getObjsForCommit(RevCommit commit) 
             throws IOException {
         List<RevCommit> singleCommit = new ArrayList<>();
         singleCommit.add(commit);
@@ -51,9 +53,9 @@ public final class GitRepository {
         return getObjsForCommits(singleCommit);
     }
 
-    public List<ObjectId> getObjsForCommits(List<RevCommit> commits) 
+    public List<Pair<String, ObjectId>> getObjsForCommits(List<RevCommit> commits) 
             throws IOException {
-        List<ObjectId> objs = new ArrayList<>();
+        List<Pair<String, ObjectId>> objs = new ArrayList<>();
         
         for (RevCommit commit : commits) {
             ObjectId treeId = commit.getTree();
@@ -63,7 +65,7 @@ public final class GitRepository {
                 treeWalk.setRecursive(true);
 
                 while (treeWalk.next()) {
-                    objs.add(treeWalk.getObjectId(0));
+                    objs.add(new Pair<>(treeWalk.getPathString(), treeWalk.getObjectId(0)));
                 }
 
             }

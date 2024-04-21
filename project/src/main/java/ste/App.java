@@ -90,6 +90,14 @@ public final class App {
             jiraStormTickets, 
             jiraBookKeeperTickets);
         
+        BugAnalyzer stormAnalyzer = 
+            new BugAnalyzer(stormReleases, stormTickets, stormGitRepo);
+        BugAnalyzer bookKeeperAnalyzer = 
+            new BugAnalyzer(bookKeeperReleases, bookKeeperTickets, bookKeeperGitRepo);
+
+        stormAnalyzer.startAnalysis();
+        bookKeeperAnalyzer.startAnalysis();
+
         logger.info("Terminating...");
 
         stormGitRepo.close();
