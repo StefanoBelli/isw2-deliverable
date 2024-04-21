@@ -7,7 +7,7 @@ import ste.csv.annotations.CsvDescriptor;
 public final class JavaSourceFile {
     private Release release;
     private String filename;
-    private int loc;
+    private long loc;
     private int locTouched;
     private int numRev;
     private int numAuthors;
@@ -30,7 +30,7 @@ public final class JavaSourceFile {
     }
     
     @CsvColumn(order = 3, name = "LOC")
-    public int getLoc() {
+    public long getLoc() {
         return loc;
     }
 
@@ -112,7 +112,7 @@ public final class JavaSourceFile {
         this.filename = filename;
     }
     
-    public void setLoc(int loc) {
+    public void setLoc(long loc) {
         this.loc = loc;
     }
 
@@ -142,5 +142,14 @@ public final class JavaSourceFile {
 
     public void setRelease(Release release) {
         this.release = release;
+    }
+
+    public static JavaSourceFile build(String filename, Release release) {
+        JavaSourceFile jsf = new JavaSourceFile();
+        jsf.setFilename(filename);
+        jsf.setRelease(release);
+        jsf.setBuggy(false);
+
+        return jsf;
     }
 }

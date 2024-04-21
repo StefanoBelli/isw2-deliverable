@@ -70,6 +70,7 @@ public final class CsvWriter {
         f.getParentFile().mkdirs();
         try (FileOutputStream fos = new FileOutputStream(filename)) {
             fos.write(csvBuilder.toString().getBytes());
+            fos.flush();
         }
     }
 

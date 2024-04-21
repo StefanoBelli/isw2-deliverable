@@ -19,6 +19,7 @@ import ste.git.GitRepository;
 import ste.jirarest.JiraProject;
 import ste.jirarest.JiraTicket;
 import ste.jirarest.http.Http.RequestException;
+import ste.model.JavaSourceFile;
 import ste.model.Release;
 import ste.model.Ticket;
 
@@ -46,6 +47,10 @@ public final class App {
 
     private static String getVersionInfoCsvFilename(String proj) {
         return String.format("csv_output/%s-VersionInfo.csv", proj);
+    }
+    
+    private static String getDatasetCsvFilename(String proj) {
+        return String.format("csv_output/%s-Dataset.csv", proj);
     }
 
     private static GitRepository stormGitRepo;
@@ -97,6 +102,16 @@ public final class App {
 
         stormAnalyzer.startAnalysis();
         bookKeeperAnalyzer.startAnalysis();
+
+        CsvWriter.writeAll(
+            getDatasetCsvFilename(jiraStormProject.getName()), 
+            JavaSourceFile.class, 
+            stormAnalyzer.getResults());
+
+        CsvWriter.writeAll(
+            getDatasetCsvFilename(jiraBookKeeperProject.getName()), 
+            JavaSourceFile.class, 
+            bookKeeperAnalyzer.getResults());
 
         logger.info("Terminating...");
 

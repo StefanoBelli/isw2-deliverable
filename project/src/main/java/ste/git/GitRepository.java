@@ -1,5 +1,6 @@
 package ste.git;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -43,6 +45,20 @@ public final class GitRepository {
             .call();
         
         repo = git.getRepository();
+    }
+
+    public byte[] readObjContent(ObjectId obj) 
+            throws IOException {
+        ObjectLoader objLoader = repo.open(obj);
+        if(objLoader.isLarge()) {
+            ByteArrayOutputStream outStream = 
+                new ByteArrayOutputStream();
+
+            objLoader.copyTo(outStream);
+            return outStream.toByteArray();
+        }
+
+        return objLoader.getBytes();
     }
     
     public List<Pair<String, ObjectId>> getObjsForCommit(RevCommit commit) 

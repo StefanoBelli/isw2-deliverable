@@ -2,6 +2,7 @@ package ste;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jgit.lib.ObjectId;
@@ -30,19 +31,34 @@ public final class BugAnalyzer {
         return results;
     }
 
-    public void startAnalysis() throws IOException {
+    private void initResults() throws IOException {
+        results = new ArrayList<>();
+
         for(int iRel = 0; iRel < rels.size(); ++iRel) {
-            List<JavaSourceFile> relSrcs = new ArrayList<>();
-            List<RevCommit> commits = rels.get(iRel).getCommits();
+            Release rel = rels.get(iRel);
+            List<RevCommit> commits = rel.getCommits();
             if(!commits.isEmpty()) {
-                System.out.println("==================================COMMIT");
+                //System.out.println("==================================COMMIT");
                 List<Pair<String, ObjectId>> objs = repo.getObjsForCommit(commits.getLast());
 
                 for(Pair<String, ObjectId> obj : objs) {
-                    System.out.println(obj.getFirst());
+                    //System.out.println(obj.getFirst());
+                    String relPath = obj.getFirst();
+                    if(relPath.endsWith(".java")) {
+                        JavaSourceFile jsf = JavaSourceFile.build(relPath, rel);
+                        //System.out.println(obj.getFirst());
+                        if(!results.contains(jsf)) {
+                            String javaSourceCode = new String(repo.readObjContent(obj.getSecond()));
+                            jsf.setLoc(javaSourceCode.lines().count());
+                            results.add(jsf);
+                        }
+                    }
                 }
             }
-
         }
+    }
+
+    public void startAnalysis() throws IOException {
+        initResults();
     }
 }
