@@ -34,8 +34,7 @@ public final class BugAnalyzer {
     private void initResults() throws IOException {
         results = new ArrayList<>();
 
-        for(int iRel = 0; iRel < rels.size(); ++iRel) {
-            Release rel = rels.get(iRel);
+        for(Release rel : rels) {
             List<RevCommit> commits = rel.getCommits();
             if(!commits.isEmpty()) {
                 //System.out.println("==================================COMMIT");

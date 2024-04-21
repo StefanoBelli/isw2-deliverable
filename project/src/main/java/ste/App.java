@@ -146,6 +146,7 @@ public final class App {
                         " the last extra release. This should be fast...");
 
         linkReleasesToCommits(stormReleases, stormGitRepo);
+        System.out.println("BOOKKEEPER============");
         linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo);
 
         logger.info("After linking releases to commits" + 
@@ -424,11 +425,9 @@ public final class App {
             List<RevCommit> relCommits = repo.getFilteredCommits(
                 CommitTimeRevFilter.between(relStartDate, relEndDate));
 
-            /*
             System.out.println("===================");
             System.out.println(relStartDate);
             System.out.println(relEndDate);
-            */
 
             leftBoundaryRel.setCommits(relCommits);
         }
