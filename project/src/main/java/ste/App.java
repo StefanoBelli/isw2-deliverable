@@ -403,33 +403,50 @@ public final class App {
     }
 
     private static void linkReleasesToCommits(List<Release> rels, GitRepository repo) throws IOException {
-        Calendar cal = Calendar.getInstance();
+        Release firstRel = rels.get(0);
+        
+        //Calendar cal = Calendar.getInstance();
 
-        for(int i = 1; i < rels.size(); ++i) {
-            Release leftBoundaryRel = rels.get(i - 1);
-            Release rightBoundaryRel = rels.get(i);
+        //cal.setTime(firstRel.getReleaseDate());
+        //cal.add(Calendar.DAY_OF_MONTH, -1);
 
-            Date tmpStart = leftBoundaryRel.getReleaseDate();
-            Date tmpEnd = rightBoundaryRel.getReleaseDate();
+        Date firstStart = firstRel.getReleaseDate();
 
-            cal.setTime(tmpStart);
-            cal.add(Calendar.DAY_OF_MONTH, 1);
+        List<RevCommit> firstRelCommits = repo.getFilteredCommits(
+            CommitTimeRevFilter.before(firstStart));
 
-            Date relStartDate = cal.getTime();
+        System.out.println("=================");
+        System.out.println(firstStart);
+        System.out.println(firstRelCommits.size());
 
-            cal.setTime(tmpEnd);
-            cal.add(Calendar.DAY_OF_MONTH, -1);
+        firstRel.setCommits(firstRelCommits);
+        
+        for(int i = 0; i < rels.size() - 1; ++i) {
+            Release leftBoundaryRel = rels.get(i);
+            Release rightBoundaryRel = rels.get(i + 1);
 
-            Date relEndDate = cal.getTime();
+            Date start = leftBoundaryRel.getReleaseDate();
+            Date end = rightBoundaryRel.getReleaseDate();
+
+            //cal.setTime(tmpStart);
+            //cal.add(Calendar.DAY_OF_MONTH, 1);
+
+            //Date relStartDate = cal.getTime();
+
+            //cal.setTime(tmpEnd);
+            //cal.add(Calendar.DAY_OF_MONTH, -1);
+
+            //Date relEndDate = cal.getTime();
 
             List<RevCommit> relCommits = repo.getFilteredCommits(
-                CommitTimeRevFilter.between(relStartDate, relEndDate));
+                CommitTimeRevFilter.between(start, end));
 
             System.out.println("===================");
-            System.out.println(relStartDate);
-            System.out.println(relEndDate);
+            System.out.println(start);
+            System.out.println(end);
+            System.out.println(relCommits.size());
 
-            leftBoundaryRel.setCommits(relCommits);
+            rightBoundaryRel.setCommits(relCommits);
         }
 
         rels.removeLast();
