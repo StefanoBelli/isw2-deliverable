@@ -8,7 +8,8 @@ public final class JavaSourceFile {
     private Release release;
     private String filename;
     private long loc;
-    private int locTouched;
+    private int avgChgSet;
+    private int maxChgSet;
     private int numRev;
     private int numAuthors;
     private int locAdded;
@@ -39,47 +40,52 @@ public final class JavaSourceFile {
         return locAdded;
     }
 
-    @CsvColumn(order = 5, name = "LOC touched")
-    public int getLocTouched() {
-        return locTouched;
-    }
-    
-    @CsvColumn(order = 6, name = "Avg LOC added")
+    @CsvColumn(order = 5, name = "Avg LOC added")
     public int getAvgLocAdded() {
         return avgLocAdded;
     }
     
-    @CsvColumn(order = 7, name = "Max LOC added")
+    @CsvColumn(order = 6, name = "Max LOC added")
     public int getMaxLocAdded() {
         return maxLocAdded;
     }
 
-    @CsvColumn(order = 8, name = "Churn")
+    @CsvColumn(order = 7, name = "Churn")
     public int getChurn() {
         return churn;
     }
 
-    @CsvColumn(order = 9, name = "Avg churn")
+    @CsvColumn(order = 8, name = "Avg churn")
     public int getAvgChurn() {
         return avgChurn;
     }
 
-    @CsvColumn(order = 10, name = "Max churn")
+    @CsvColumn(order = 9, name = "Max churn")
     public int getMaxChurn() {
         return maxChurn;
     }
 
-    @CsvColumn(order = 11, name = "Num. of authors")
+    @CsvColumn(order = 10, name = "Avg chg set")
+    public int getAvgChgSet() {
+        return avgChgSet;
+    }
+
+    @CsvColumn(order = 11, name = "Max chg set")
+    public int getMaxChgSet() {
+        return maxChgSet;
+    }
+
+    @CsvColumn(order = 12, name = "Num. of authors")
     public int getNumAuthors() {
         return numAuthors;
     }
 
-    @CsvColumn(order = 12, name = "Num. of revs.")
+    @CsvColumn(order = 13, name = "Num. of revs.")
     public int getNumRev() {
         return numRev;
     }
 
-    @CsvColumn(order = 13, name = "Buggy")
+    @CsvColumn(order = 14, name = "Buggy")
     public String getPrettyIsBuggy() {
         return buggy ? "yes" : "no";
     }
@@ -120,8 +126,8 @@ public final class JavaSourceFile {
         this.locAdded = locAdded;
     }
 
-    public void setLocTouched(int locTouched) {
-        this.locTouched = locTouched;
+    public void setAvgChgSet(int avgChgSet) {
+        this.avgChgSet = avgChgSet;
     }
 
     public void setMaxChurn(int maxChurn) {
@@ -142,6 +148,10 @@ public final class JavaSourceFile {
 
     public void setRelease(Release release) {
         this.release = release;
+    }
+
+    public void setMaxChgSet(int maxChgSet) {
+        this.maxChgSet = maxChgSet;
     }
 
     public static JavaSourceFile build(String filename, Release release) {

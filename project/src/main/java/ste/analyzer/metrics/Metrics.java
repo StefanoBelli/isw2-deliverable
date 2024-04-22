@@ -35,6 +35,8 @@ public final class Metrics {
 
         Set<String> authorsEmails = new HashSet<>(10);
 
+        List<Integer> chgSet = new ArrayList<>();
+
         int numRevs = 0;
 
         for(RevCommit relCommit : relCommits) {
@@ -66,21 +68,48 @@ public final class Metrics {
             if(hasMyFile == 1) {
                 locAdded.add(locAddedPerRevision);
                 locDeleted.add(locDeletedPerRevision);
+                chgSet.add(calculateChangeSet(diffs));
             }
         }
 
         List<Integer> churn = Util.IntListWide.eachSub(locAdded, locDeleted);
 
-        jsf.setMaxLocAdded(Collections.max(locAdded));
-        jsf.setAvgLocAdded(Util.IntListWide.avg(locAdded));
-        jsf.setLocAdded(Util.IntListWide.sum(locAdded));
-        jsf.setMaxChurn(Collections.max(churn));
+        aggregateAndSetProps(jsf, locAdded, locDeleted, numRevs, authorsEmails.size(), chgSet, churn);
+    }
+
+    private int calculateChangeSet(List<DiffEntry> diffEntries) {
+        Set<String> chgFilenames = new HashSet<>();
+
+        for(DiffEntry diff : diffEntries) {
+            if(diff.getNewPath().endsWith(".java")) {
+                chgFilenames.add(diff.getNewPath());
+            }
+        }
+
+        return chgFilenames.size();
+    }
+    
+    private void aggregateAndSetProps(
+            JavaSourceFile jsf, 
+            List<Integer> locAdd, 
+            List<Integer> locDel, 
+            int numRevs, 
+            int numAuthors, 
+            List<Integer> chgSet, 
+            List<Integer> churn) {
+
+        jsf.setMaxLocAdded(locAdd.isEmpty() ? 0 : Collections.max(locAdd));
+        jsf.setAvgLocAdded(Util.IntListWide.avg(locAdd));
+        jsf.setLocAdded(Util.IntListWide.sum(locAdd));
+        jsf.setMaxChurn(churn.isEmpty() ? 0 : Collections.max(churn));
         jsf.setAvgChurn(Util.IntListWide.avg(churn));
         jsf.setChurn(Util.IntListWide.sum(churn));
         jsf.setNumRev(numRevs);
-        jsf.setNumAuthors(authorsEmails.size());
+        jsf.setNumAuthors(numAuthors);
+        jsf.setMaxChgSet(chgSet.isEmpty() ? 0 : Collections.max(chgSet));
+        jsf.setAvgChgSet(Util.IntListWide.avg(chgSet));
     }
-    
+
     private List<RevCommit> getJsfCommitsForRelease(JavaSourceFile jsf) 
             throws MetricsException {
 

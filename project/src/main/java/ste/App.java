@@ -63,6 +63,9 @@ public final class App {
     private static List<Ticket> stormTickets;
     private static List<Ticket> bookKeeperTickets;
 
+    private static final String INFO_WROTE_FMT = "project {} - wrote csv @ {}";
+    private static final String INFO_ANALYSIS_FMT = "project {} - running analysis, this may take some time...";
+
     public static void main(String[] args) 
             throws RequestException, GitAPIException, 
                     IOException, CsvWriterException, 
@@ -98,24 +101,41 @@ public final class App {
             jiraBookKeeperProject, 
             jiraStormTickets, 
             jiraBookKeeperTickets);
-        
+            
+        logger.info("Project analysis phase");
+
         BugAnalyzer stormAnalyzer = 
             new BugAnalyzer(stormReleases, stormTickets, stormGitRepo);
         BugAnalyzer bookKeeperAnalyzer = 
             new BugAnalyzer(bookKeeperReleases, bookKeeperTickets, bookKeeperGitRepo);
 
+        logger.info(INFO_ANALYSIS_FMT, STORM);
         stormAnalyzer.startAnalysis();
+
+        logger.info("Done.");
+        logger.info(INFO_ANALYSIS_FMT, BOOKKEEPER);
         bookKeeperAnalyzer.startAnalysis();
 
+        logger.info("Done.");
+        logger.info("Writing results...");
+
+        String stormDatasetCsv = getDatasetCsvFilename(jiraStormProject.getName());
+
         CsvWriter.writeAll(
-            getDatasetCsvFilename(jiraStormProject.getName()), 
+            stormDatasetCsv, 
             JavaSourceFile.class, 
             stormAnalyzer.getResults());
 
+        logger.info(INFO_WROTE_FMT, STORM, stormDatasetCsv);
+
+        String bookKeeperDatasetCsv = getDatasetCsvFilename(jiraBookKeeperProject.getName());
+
         CsvWriter.writeAll(
-            getDatasetCsvFilename(jiraBookKeeperProject.getName()), 
+            bookKeeperDatasetCsv, 
             JavaSourceFile.class, 
             bookKeeperAnalyzer.getResults());
+
+        logger.info(INFO_WROTE_FMT, BOOKKEEPER, bookKeeperDatasetCsv);
 
         logger.info("Terminating...");
 

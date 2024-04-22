@@ -37,8 +37,12 @@ public final class BugAnalyzer {
             throws IOException, BugAnalyzerException, MetricsException {
 
         initResults();
+
         Metrics m = new Metrics(rels, repo);
-        m.oneshotCalculate(results.get(0));
+
+        for(JavaSourceFile jsf : results) {
+            m.oneshotCalculate(jsf);
+        }
     }
     
     private void initResults() throws IOException, BugAnalyzerException {

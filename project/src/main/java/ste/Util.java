@@ -53,13 +53,13 @@ public final class Util {
       }
       
       public static int avg(List<Integer> lst) {
-         return (int) Math.round(
+         return lst.isEmpty() ? 0 : (int) Math.round(
                asStream(lst).average().orElse(0f)
          );
       }
 
       public static int sum(List<Integer> lst) {
-         return asStream(lst).sum();
+         return lst.isEmpty() ? 0 : asStream(lst).sum();
       }
 
       public static List<Integer> eachSub(List<Integer> l1, List<Integer> l2) {
