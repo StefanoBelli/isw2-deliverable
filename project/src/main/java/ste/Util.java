@@ -1,7 +1,9 @@
 package ste;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import ste.jirarest.JiraTicket;
 import ste.model.Release;
@@ -40,6 +42,35 @@ public final class Util {
       }
 
       return -1;
+   }
+
+   public static final class IntListWide {
+
+      private IntListWide() {}
+
+      private static IntStream asStream(List<Integer> lst) {
+         return lst.stream().mapToInt(e -> e);
+      }
+      
+      public static int avg(List<Integer> lst) {
+         return (int) Math.round(
+               asStream(lst).average().orElse(0f)
+         );
+      }
+
+      public static int sum(List<Integer> lst) {
+         return asStream(lst).sum();
+      }
+
+      public static List<Integer> eachSub(List<Integer> l1, List<Integer> l2) {
+         List<Integer> res = new ArrayList<>();
+
+         for(int i1 = 0; i1 < l1.size(); ++i1) {
+            res.add(l1.get(i1) - l2.get(i1));
+         }
+
+         return res;
+      }
    }
 
    public static final class Threeple<I,J,K> {

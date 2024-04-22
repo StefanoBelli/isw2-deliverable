@@ -38,7 +38,7 @@ public final class BugAnalyzer {
 
         initResults();
         Metrics m = new Metrics(rels, repo);
-        m.calculateNumOfAuthors(results.get(0));
+        m.oneshotCalculate(results.get(0));
     }
     
     private void initResults() throws IOException, BugAnalyzerException {

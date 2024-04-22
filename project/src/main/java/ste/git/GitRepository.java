@@ -3,7 +3,6 @@ package ste.git;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -53,7 +53,20 @@ public final class GitRepository {
         
         repo = git.getRepository();
     }
-    
+
+    public List<Edit> getEditsByDiffEntry(DiffEntry diffEntry) 
+            throws IOException {
+        
+        try (DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+            df.setRepository(repo);
+            df.setContext(0);
+            df.setDiffComparator(RawTextComparator.DEFAULT);
+            df.setDetectRenames(true);
+
+            return df.toFileHeader(diffEntry).toEditList();
+        }
+    }
+
     public List<DiffEntry> getCommitDiffEntries(RevCommit commit) 
             throws IOException {
 
