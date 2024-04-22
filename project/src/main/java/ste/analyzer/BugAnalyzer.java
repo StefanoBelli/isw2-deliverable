@@ -41,8 +41,10 @@ public final class BugAnalyzer {
         Metrics m = new Metrics(rels, repo);
 
         for(JavaSourceFile jsf : results) {
-            m.oneshotCalculate(jsf);
+            m.oneshot(jsf);
         }
+        
+        m.fixupEmptyCommitReleases(results);
     }
     
     private void initResults() throws IOException, BugAnalyzerException {

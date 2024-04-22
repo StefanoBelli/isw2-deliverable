@@ -25,7 +25,7 @@ public final class Metrics {
         this.rels = rels;
     }
 
-    public void oneshotCalculate(JavaSourceFile jsf) 
+    public void oneshot(JavaSourceFile jsf) 
             throws MetricsException, IOException {
         
         List<RevCommit> relCommits = getJsfCommitsForRelease(jsf);
@@ -75,6 +75,62 @@ public final class Metrics {
         List<Integer> churn = Util.IntListWide.eachSub(locAdded, locDeleted);
 
         aggregateAndSetProps(jsf, locAdded, locDeleted, numRevs, authorsEmails.size(), chgSet, churn);
+    }
+
+    public void fixupEmptyCommitReleases(List<JavaSourceFile> allJsfs) {
+        
+        for(int i = 0; i < rels.size(); ++i) {
+            Release relWithNoCommits = rels.get(i);
+
+            if(relWithNoCommits.getCommits().isEmpty()) {
+                for(int j = 0; j < allJsfs.size(); ++j) {
+                    JavaSourceFile jsf = allJsfs.get(j);
+
+                    if(jsf.getRelease().equals(relWithNoCommits)) {
+                        JavaSourceFile nextJsf = 
+                            getNextJsf(
+                                allJsfs, 
+                                rels.get(i + 1), 
+                                jsf.getFilename(), 
+                                i);
+
+                        if(nextJsf != null) {
+                            copyJsfMetrics(jsf, nextJsf);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private JavaSourceFile getNextJsf(
+            List<JavaSourceFile> jsfs, Release nextRel, String filename, int startIdx) {
+
+        for(int k = startIdx; k < jsfs.size(); ++k) {
+            JavaSourceFile nextJsf = jsfs.get(k);
+
+            if(
+                nextJsf.getRelease().equals(nextRel) && 
+                nextJsf.getFilename().equals(filename)
+            ) {
+                return nextJsf;
+            }
+        }
+
+        return null;
+    }
+
+    private void copyJsfMetrics(JavaSourceFile dst, JavaSourceFile src) {
+        dst.setAvgChgSet(src.getAvgChgSet());
+        dst.setMaxChgSet(src.getMaxChgSet());
+        dst.setLocAdded(src.getLocAdded());
+        dst.setMaxLocAdded(src.getMaxLocAdded());
+        dst.setAvgLocAdded(src.getAvgLocAdded());
+        dst.setChurn(src.getChurn());
+        dst.setAvgChurn(src.getAvgChurn());
+        dst.setMaxChurn(src.getMaxChurn());
+        dst.setNumAuthors(src.getNumAuthors());
+        dst.setNumRev(src.getNumRev());
     }
 
     private int calculateChangeSet(List<DiffEntry> diffEntries) {

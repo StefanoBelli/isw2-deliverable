@@ -109,16 +109,19 @@ public final class App {
         BugAnalyzer bookKeeperAnalyzer = 
             new BugAnalyzer(bookKeeperReleases, bookKeeperTickets, bookKeeperGitRepo);
 
+        /*
         logger.info(INFO_ANALYSIS_FMT, STORM);
         stormAnalyzer.startAnalysis();
-
+        
         logger.info("Done.");
+        */
         logger.info(INFO_ANALYSIS_FMT, BOOKKEEPER);
         bookKeeperAnalyzer.startAnalysis();
 
         logger.info("Done.");
         logger.info("Writing results...");
 
+        /*
         String stormDatasetCsv = getDatasetCsvFilename(jiraStormProject.getName());
 
         CsvWriter.writeAll(
@@ -127,6 +130,7 @@ public final class App {
             stormAnalyzer.getResults());
 
         logger.info(INFO_WROTE_FMT, STORM, stormDatasetCsv);
+        */
 
         String bookKeeperDatasetCsv = getDatasetCsvFilename(jiraBookKeeperProject.getName());
 
