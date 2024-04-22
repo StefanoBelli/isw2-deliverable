@@ -2,14 +2,15 @@ package ste.analyzer;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import ste.Util;
 import ste.Util.Pair;
+import ste.analyzer.metrics.Metrics;
+import ste.analyzer.metrics.MetricsException;
 import ste.git.GitRepository;
 import ste.model.JavaSourceFile;
 import ste.model.Release;
@@ -31,26 +32,15 @@ public final class BugAnalyzer {
     public List<JavaSourceFile> getResults() {
         return results;
     }
+    
+    public void startAnalysis() 
+            throws IOException, BugAnalyzerException, MetricsException {
 
-    private void populateResults(List<RevCommit> commits, Release rel) throws IOException {
-        //System.out.println("==================================COMMIT");
-        List<Pair<String, ObjectId>> objs = repo.getObjsForCommit(commits.getLast());
-
-        for(Pair<String, ObjectId> obj : objs) {
-            //System.out.println(obj.getFirst());
-            String relPath = obj.getFirst();
-            if(relPath.endsWith(".java")) {
-                JavaSourceFile jsf = JavaSourceFile.build(relPath, rel);
-                //System.out.println(obj.getFirst());
-                if(!results.contains(jsf)) {
-                    String javaSourceCode = new String(repo.readObjContent(obj.getSecond()));
-                    jsf.setLoc(javaSourceCode.lines().count());
-                    results.add(jsf);
-                }
-            }
-        }
+        initResults();
+        Metrics m = new Metrics(rels, repo);
+        m.calculateNumOfAuthors(results.get(0));
     }
-
+    
     private void initResults() throws IOException, BugAnalyzerException {
         results = new ArrayList<>();
 
@@ -70,7 +60,22 @@ public final class BugAnalyzer {
         }
     }
 
-    public void startAnalysis() throws IOException, BugAnalyzerException {
-        initResults();
+    private void populateResults(List<RevCommit> commits, Release rel) throws IOException {
+        //System.out.println("==================================COMMIT");
+        List<Pair<String, ObjectId>> objs = repo.getObjsForCommit(commits.getLast());
+
+        for(Pair<String, ObjectId> obj : objs) {
+            //System.out.println(obj.getFirst());
+            String relPath = obj.getFirst();
+            if(relPath.endsWith(".java")) {
+                JavaSourceFile jsf = JavaSourceFile.build(relPath, rel);
+                //System.out.println(obj.getFirst());
+                if(!results.contains(jsf)) {
+                    String javaSourceCode = new String(repo.readObjContent(obj.getSecond()));
+                    jsf.setLoc(javaSourceCode.lines().count());
+                    results.add(jsf);
+                }
+            }
+        }
     }
 }

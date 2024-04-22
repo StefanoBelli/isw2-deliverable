@@ -16,6 +16,7 @@ import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 import ste.csv.CsvWriterException;
 import ste.analyzer.BugAnalyzer;
 import ste.analyzer.BugAnalyzerException;
+import ste.analyzer.metrics.MetricsException;
 import ste.csv.CsvWriter;
 import ste.git.GitRepository;
 import ste.jirarest.JiraProject;
@@ -64,7 +65,8 @@ public final class App {
 
     public static void main(String[] args) 
             throws RequestException, GitAPIException, 
-                    IOException, CsvWriterException, BugAnalyzerException {
+                    IOException, CsvWriterException, 
+                    BugAnalyzerException, MetricsException {
 
         logger.info("Setup phase...");
 

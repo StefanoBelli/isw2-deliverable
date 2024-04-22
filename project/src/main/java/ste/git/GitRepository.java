@@ -3,11 +3,15 @@ package ste.git;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -18,6 +22,9 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 
 import ste.Util.Pair;
 
@@ -45,6 +52,28 @@ public final class GitRepository {
             .call();
         
         repo = git.getRepository();
+    }
+    
+    public List<DiffEntry> getCommitDiffEntries(RevCommit commit) 
+            throws IOException {
+
+        try (DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+            df.setRepository(repo);
+            df.setContext(0);
+            df.setDiffComparator(RawTextComparator.DEFAULT);
+            df.setDetectRenames(true);
+
+            if(commit.getParentCount() != 0) {
+                RevCommit parent = (RevCommit) commit.getParent(0).getId();
+                return df.scan(parent.getTree(), commit.getTree());
+            } else {
+                try(RevWalk rw = new RevWalk(repo)) {
+                    return df.scan(
+                        new EmptyTreeIterator(), 
+                        new CanonicalTreeParser(null, rw.getObjectReader(), commit.getTree()));
+                }
+            }
+        }
     }
 
     public byte[] readObjContent(ObjectId obj) 
