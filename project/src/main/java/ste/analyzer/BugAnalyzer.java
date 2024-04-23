@@ -100,15 +100,14 @@ public final class BugAnalyzer {
                 for(DiffEntry diffEntry : diffEntries) {
                     if(diffEntry.toString().endsWith(".java")) {
                         ChangeType changeType = diffEntry.getChangeType();
+                        
                         switch(changeType) {
-                            case ChangeType.DELETE:
-                            case ChangeType.RENAME:
+                            case ChangeType.DELETE, ChangeType.RENAME:
                                 buggyFiles.add(diffEntry.getOldPath());
                                 break;
-                            case ChangeType.MODIFY:
+                            case ChangeType.MODIFY, ChangeType.COPY:
                                 buggyFiles.add(diffEntry.getNewPath());
                                 break;
-                            case ChangeType.COPY:
                             case ChangeType.ADD:
                                 break;
                         }

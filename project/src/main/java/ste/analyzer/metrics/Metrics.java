@@ -72,8 +72,7 @@ public final class Metrics {
                 ChangeType changeType = diff.getChangeType();
                 String path;
                 switch (changeType) {
-                    case ChangeType.DELETE:
-                    case ChangeType.RENAME:
+                    case ChangeType.DELETE, ChangeType.RENAME:
                         path = diff.getOldPath();
                         break;
                     default:
