@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -68,8 +69,18 @@ public final class Metrics {
             int hasMyFile = 0;
 
             for(DiffEntry diff : diffs) {
-                
-                if(diff.getNewPath().equals(jsf.getFilename())) {
+                ChangeType changeType = diff.getChangeType();
+                String path;
+                switch (changeType) {
+                    case ChangeType.DELETE:
+                    case ChangeType.RENAME:
+                        path = diff.getOldPath();
+                        break;
+                    default:
+                        path = diff.getNewPath();
+                }
+
+                if(path.equals(jsf.getFilename())) {
                     hasMyFile = 1;
 
                     authorsEmails.add(relCommit.getAuthorIdent().getEmailAddress());
