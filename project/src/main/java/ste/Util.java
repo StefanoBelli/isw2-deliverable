@@ -1,5 +1,7 @@
 package ste;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -7,9 +9,6 @@ import java.util.stream.IntStream;
 
 import ste.jirarest.JiraTicket;
 import ste.model.Release;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
 
 public final class Util {
    private Util() {}
@@ -42,6 +41,10 @@ public final class Util {
       }
 
       return -1;
+   }
+
+   public static int countLines(String s) {
+      return s.split("\r\n|\r|\n").length;
    }
 
    public static final class IntListWide {

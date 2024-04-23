@@ -2,7 +2,6 @@ package ste;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -445,7 +444,8 @@ public final class App {
 
         firstRel.setCommits(firstRelCommits);
         
-        for(int i = 0; i < rels.size() - 1; ++i) {
+        int relsSize = rels.size();
+        for(int i = 0; i < relsSize - 1; ++i) {
             Release leftBoundaryRel = rels.get(i);
             Release rightBoundaryRel = rels.get(i + 1);
 
@@ -473,7 +473,9 @@ public final class App {
             rightBoundaryRel.setCommits(relCommits);
         }
 
-        rels.removeLast();
+        //DO NOT CHANGE (compat issues)
+        //JDK/JRE may not know about removeLast() method!
+        rels.remove(relsSize - 1);
     }
 
     private static int statTicketsWithIv(List<Ticket> tkts) {

@@ -8,6 +8,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import ste.Util;
 import ste.Util.Pair;
 import ste.analyzer.metrics.Metrics;
 import ste.analyzer.metrics.MetricsException;
@@ -34,17 +35,13 @@ public final class BugAnalyzer {
     }
     
     public void startAnalysis() 
-            throws IOException, BugAnalyzerException, MetricsException {
+            throws IOException, BugAnalyzerException, 
+                    MetricsException {
 
         initResults();
 
-        Metrics m = new Metrics(rels, repo);
-
-        for(JavaSourceFile jsf : results) {
-            m.oneshot(jsf);
-        }
-        
-        m.fixupEmptyCommitReleases(results);
+        Metrics metrics = new Metrics(results, rels, repo);
+        metrics.calculate();
     }
     
     private void initResults() throws IOException, BugAnalyzerException {
@@ -68,7 +65,8 @@ public final class BugAnalyzer {
 
     private void populateResults(List<RevCommit> commits, Release rel) throws IOException {
         //System.out.println("==================================COMMIT");
-        List<Pair<String, ObjectId>> objs = repo.getObjsForCommit(commits.getLast());
+        List<Pair<String, ObjectId>> objs = 
+            repo.getObjsForCommit(commits.get(commits.size() - 1));
 
         for(Pair<String, ObjectId> obj : objs) {
             //System.out.println(obj.getFirst());
@@ -78,7 +76,7 @@ public final class BugAnalyzer {
                 //System.out.println(obj.getFirst());
                 if(!results.contains(jsf)) {
                     String javaSourceCode = new String(repo.readObjContent(obj.getSecond()));
-                    jsf.setLoc(javaSourceCode.lines().count());
+                    jsf.setLoc(Util.countLines(javaSourceCode));
                     results.add(jsf);
                 }
             }

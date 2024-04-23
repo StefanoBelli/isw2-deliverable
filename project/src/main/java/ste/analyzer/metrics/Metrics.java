@@ -19,13 +19,25 @@ import ste.model.Release;
 public final class Metrics {
     private final GitRepository repo;
     private final List<Release> rels;
+    private final List<JavaSourceFile> jsfs;
 
-    public Metrics(List<Release> rels, GitRepository repo) {
+    public Metrics(List<JavaSourceFile> jsfs, List<Release> rels, GitRepository repo) {
         this.repo = repo;    
         this.rels = rels;
+        this.jsfs = jsfs;
     }
 
-    public void oneshot(JavaSourceFile jsf) 
+    public void calculate() 
+            throws MetricsException, IOException {
+
+        for(JavaSourceFile jsf : jsfs) {
+            oneshot(jsf);       
+        }
+
+        fixupEmptyCommitReleases(jsfs);
+    }
+
+    private void oneshot(JavaSourceFile jsf) 
             throws MetricsException, IOException {
         
         List<RevCommit> relCommits = getJsfCommitsForRelease(jsf);
@@ -74,10 +86,12 @@ public final class Metrics {
 
         List<Integer> churn = Util.IntListWide.eachSub(locAdded, locDeleted);
 
-        aggregateAndSetProps(jsf, locAdded, locDeleted, numRevs, authorsEmails.size(), chgSet, churn);
+        aggregateAndSetProps(
+            jsf, locAdded, numRevs, 
+            authorsEmails.size(), chgSet, churn);
     }
 
-    public void fixupEmptyCommitReleases(List<JavaSourceFile> allJsfs) {
+    private void fixupEmptyCommitReleases(List<JavaSourceFile> allJsfs) {
         
         for(int i = 0; i < rels.size(); ++i) {
             Release relWithNoCommits = rels.get(i);
@@ -148,7 +162,6 @@ public final class Metrics {
     private void aggregateAndSetProps(
             JavaSourceFile jsf, 
             List<Integer> locAdd, 
-            List<Integer> locDel, 
             int numRevs, 
             int numAuthors, 
             List<Integer> chgSet, 
