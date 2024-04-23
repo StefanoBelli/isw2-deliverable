@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -21,13 +20,15 @@ public final class BugAnalyzer {
     private final List<Release> rels;
     private final List<Ticket> tkts;
     private final GitRepository repo;
+    private final String projName;
 
     private List<JavaSourceFile> results;
     
-    public BugAnalyzer(List<Release> rels, List<Ticket> tkts, GitRepository repo) {
+    public BugAnalyzer(String projName, List<Release> rels, List<Ticket> tkts, GitRepository repo) {
         this.rels = rels;
         this.tkts = tkts;
         this.repo = repo;
+        this.projName = projName;
     }
 
     public List<JavaSourceFile> getResults() {
@@ -40,7 +41,7 @@ public final class BugAnalyzer {
 
         initResults();
 
-        Metrics metrics = new Metrics(results, rels, repo);
+        Metrics metrics = new Metrics(projName, results, rels, repo);
         metrics.calculate();
     }
     

@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
 import ste.jirarest.JiraTicket;
 import ste.model.Release;
 
@@ -45,6 +48,15 @@ public final class Util {
 
    public static int countLines(String s) {
       return s.split("\r\n|\r|\n").length;
+   }
+
+   public static ProgressBar buildProgressBar(String msg, int max) {
+      ProgressBarBuilder builder = new ProgressBarBuilder();
+      return builder
+         .setTaskName(msg)
+         .setStyle(ProgressBarStyle.ASCII)
+         .setInitialMax(max)
+         .build();
    }
 
    public static final class IntListWide {

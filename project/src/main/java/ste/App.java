@@ -104,9 +104,9 @@ public final class App {
         logger.info("Project analysis phase");
 
         BugAnalyzer stormAnalyzer = 
-            new BugAnalyzer(stormReleases, stormTickets, stormGitRepo);
+            new BugAnalyzer(STORM, stormReleases, stormTickets, stormGitRepo);
         BugAnalyzer bookKeeperAnalyzer = 
-            new BugAnalyzer(bookKeeperReleases, bookKeeperTickets, bookKeeperGitRepo);
+            new BugAnalyzer(BOOKKEEPER, bookKeeperReleases, bookKeeperTickets, bookKeeperGitRepo);
 
         logger.info(INFO_ANALYSIS_FMT, STORM);
         stormAnalyzer.startAnalysis();

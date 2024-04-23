@@ -11,6 +11,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import me.tongfei.progressbar.ProgressBar;
 import ste.Util;
 import ste.git.GitRepository;
 import ste.model.JavaSourceFile;
@@ -20,18 +21,25 @@ public final class Metrics {
     private final GitRepository repo;
     private final List<Release> rels;
     private final List<JavaSourceFile> jsfs;
+    private final String projName;
 
-    public Metrics(List<JavaSourceFile> jsfs, List<Release> rels, GitRepository repo) {
+    public Metrics(String projName, List<JavaSourceFile> jsfs, List<Release> rels, GitRepository repo) {
         this.repo = repo;    
         this.rels = rels;
         this.jsfs = jsfs;
+        this.projName = projName;
     }
 
     public void calculate() 
             throws MetricsException, IOException {
+        
+        String pbMsg = String.format("Calculating %s metrics...", projName);
 
-        for(JavaSourceFile jsf : jsfs) {
-            oneshot(jsf);       
+        try(ProgressBar pb = Util.buildProgressBar(pbMsg, jsfs.size())) {
+            for(JavaSourceFile jsf : jsfs) {
+                oneshot(jsf);       
+                pb.step();
+            }   
         }
 
         fixupEmptyCommitReleases(jsfs);
@@ -45,7 +53,7 @@ public final class Metrics {
         List<Integer> locAdded = new ArrayList<>();
         List<Integer> locDeleted = new ArrayList<>();
 
-        Set<String> authorsEmails = new HashSet<>(10);
+        Set<String> authorsEmails = new HashSet<>();
 
         List<Integer> chgSet = new ArrayList<>();
 
@@ -92,27 +100,30 @@ public final class Metrics {
     }
 
     private void fixupEmptyCommitReleases(List<JavaSourceFile> allJsfs) {
-        
-        for(int i = 0; i < rels.size(); ++i) {
-            Release relWithNoCommits = rels.get(i);
+        String pbMsg = String.format("Checking %s releases...", projName);
+        try(ProgressBar pb = Util.buildProgressBar(pbMsg, rels.size())) {
+            for(int i = 0; i < rels.size(); ++i) {
+                Release relWithNoCommits = rels.get(i);
 
-            if(relWithNoCommits.getCommits().isEmpty()) {
-                for(int j = 0; j < allJsfs.size(); ++j) {
-                    JavaSourceFile jsf = allJsfs.get(j);
+                if(relWithNoCommits.getCommits().isEmpty()) {
+                    for(int j = 0; j < allJsfs.size(); ++j) {
+                        JavaSourceFile jsf = allJsfs.get(j);
 
-                    if(jsf.getRelease().equals(relWithNoCommits)) {
-                        JavaSourceFile nextJsf = 
-                            getNextJsf(
-                                allJsfs, 
-                                rels.get(i + 1), 
-                                jsf.getFilename(), 
-                                i);
+                        if(jsf.getRelease().equals(relWithNoCommits)) {
+                            JavaSourceFile nextJsf = 
+                                getNextJsf(
+                                    allJsfs, 
+                                    rels.get(i + 1), 
+                                    jsf.getFilename(), 
+                                    i);
 
-                        if(nextJsf != null) {
-                            copyJsfMetrics(jsf, nextJsf);
+                            if(nextJsf != null) {
+                                copyJsfMetrics(jsf, nextJsf);
+                            }
                         }
                     }
                 }
+                pb.step();
             }
         }
     }
