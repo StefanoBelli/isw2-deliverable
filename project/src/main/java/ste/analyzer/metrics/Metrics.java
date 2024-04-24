@@ -164,8 +164,9 @@ public final class Metrics {
         Set<String> chgFilenames = new HashSet<>();
 
         for(DiffEntry diff : diffEntries) {
-            if(diff.getNewPath().endsWith(".java")) {
-                chgFilenames.add(diff.getNewPath());
+            String path = getPathByChangeType(diff);
+            if(path.endsWith(".java")) {
+                chgFilenames.add(path);
             }
         }
 

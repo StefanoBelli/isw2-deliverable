@@ -101,7 +101,7 @@ public final class BugAnalyzer {
                     List<DiffEntry> diffEntries = repo.getCommitDiffEntries(commit);
 
                     for(DiffEntry diffEntry : diffEntries) {
-                        if(diffEntry.toString().endsWith(".java")) {
+                        if(diffEntry.toString().endsWith(".java]")) {
                             addToBuggyFilesByChangeType(buggyFiles, diffEntry);
                         }
                     }
