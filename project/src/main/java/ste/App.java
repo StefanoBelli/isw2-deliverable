@@ -168,15 +168,13 @@ public final class App {
         stormReleases = sortReleasesByDate(jsp);
         bookKeeperReleases = sortReleasesByDate(jbkp);
         
-        logger.info("Linking releases to commits, then removing" + 
-                        " the last extra release. This should be fast...");
+        logger.info("Linking releases to commits. This should be fast...");
 
         linkReleasesToCommits(stormReleases, stormGitRepo, STORM);
         //System.out.println("BOOKKEEPER============");
         linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo, BOOKKEEPER);
 
-        logger.info("After linking releases to commits" + 
-                    " and *removing* the last extra release:");
+        logger.info("After linking releases to commits:");
         
         logger.info(STAT_INFO_ONLYREL_FMT, STORM, stormReleases.size());
         logger.info(STAT_INFO_ONLYREL_FMT, BOOKKEEPER, bookKeeperReleases.size());
@@ -211,7 +209,7 @@ public final class App {
         bookKeeperReleases.remove(bookKeeperReleases.size() - 1);
         stormReleases.remove(stormReleases.size() - 1);
 
-        logger.info("After removing tickets if no matching commit could be found:");
+        logger.info("After removing tickets if no matching commit could be found, and the extra release:");
         
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
