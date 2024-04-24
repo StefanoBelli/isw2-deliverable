@@ -266,6 +266,7 @@ public final class App {
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
         
+        /*
         System.out.println("POST-PROPORTION========================");
 
         int ivs = 0;
@@ -311,6 +312,7 @@ public final class App {
                 System.out.println("null");
             }
         }
+        */
 
         logger.info("Filtering sequence done");
     }
@@ -405,9 +407,7 @@ public final class App {
             int ov = t.getOpeningVersionIdx();
             int fv = t.getFixedVersionIdx();
 
-            //alt-cond iv >= fv || iv > ov /*|| ov > fv*/;
             return !(iv < fv && ov >= iv);
-            //alt-cond iv == fv || ov > fv;
         });
     }
 
