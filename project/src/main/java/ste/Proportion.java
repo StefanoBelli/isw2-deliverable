@@ -9,7 +9,7 @@ public final class Proportion {
 
     public static final String STRATEGY_NAME = "increment";
 
-    private static int proportion(Ticket t) {
+    private static int proportion(Ticket t, int numRels) {
         int iv = t.getInjectedVersionIdx() + 1;
         int ov = t.getOpeningVersionIdx() + 1;
         int fv = t.getFixedVersionIdx() + 1;
@@ -18,22 +18,24 @@ public final class Proportion {
             return 0;
         }
 
+        if(iv >= numRels || ov >= numRels || fv >= numRels) {
+            return 0;
+        }
+
         return (int) Math.floor((float) (fv - iv) / (fv - ov));
     }
 
-    private static int increment(List<Ticket> subTickets) {
+    private static int increment(List<Ticket> subTickets, int numRels) {
         int realProportion = 0;
         int effectiveTickets = 0;
 
         for(Ticket ticket : subTickets) {
             if(!ticket.isArtificialInjectedVersion()) {
-                int tmpProportion = proportion(ticket);
+                int tmpProportion = proportion(ticket, numRels);
                 if(tmpProportion >= 1) {
                     realProportion += tmpProportion;
                     ++effectiveTickets;
-                } /*else {
-                    System.err.println("ERRORED WARNING: PROPORTION neg");
-                }*/
+                }
             }
         }
 
@@ -44,7 +46,7 @@ public final class Proportion {
         return (int) Math.floor((float) realProportion / effectiveTickets);
     }
 
-    public static void apply(List<Ticket> allTickets) {
+    public static void apply(List<Ticket> allTickets, int numRels) {
         for(int i = 0; i < allTickets.size(); ++i) {
             Ticket ticket = allTickets.get(i);
 
@@ -56,12 +58,8 @@ public final class Proportion {
                 if(ov == fv) {
                     newIv = ov;
                 } else {
-                    int pIncrement = increment(allTickets.subList(0, i));
+                    int pIncrement = increment(allTickets.subList(0, i), numRels);
                     newIv = fv - ((fv - ov) * pIncrement);
-                    //newIv = Math.min(newIv, ov);
-                    /*if(newIv - 1 < 0) {
-                        System.err.println("FIXUP WARNING");
-                    }*/
                 }
 
                 ticket.setInjectedVersionIdx(newIv - 1);

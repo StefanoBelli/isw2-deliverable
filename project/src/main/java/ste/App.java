@@ -187,8 +187,10 @@ public final class App {
         stormTickets = initProjectTickets(stormReleases, jst);
         bookKeeperTickets = initProjectTickets(bookKeeperReleases, jbkt);
 
+        /*
         removeTicketsIfInvlRelease(stormTickets);
         removeTicketsIfInvlRelease(bookKeeperTickets);
+        */
 
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
@@ -205,6 +207,9 @@ public final class App {
         
         removeTicketsIfNoCommits(stormTickets);
         removeTicketsIfNoCommits(bookKeeperTickets);
+
+        bookKeeperReleases.remove(bookKeeperReleases.size() - 1);
+        stormReleases.remove(stormReleases.size() - 1);
 
         logger.info("After removing tickets if no matching commit could be found:");
         
@@ -250,8 +255,8 @@ public final class App {
 
         logger.info("Applying proportion ({} strategy)...", Proportion.STRATEGY_NAME);
 
-        Proportion.apply(stormTickets);
-        Proportion.apply(bookKeeperTickets);
+        Proportion.apply(stormTickets, stormTickets.size());
+        Proportion.apply(bookKeeperTickets, bookKeeperTickets.size());
 
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
@@ -261,7 +266,6 @@ public final class App {
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
         
-        /* 
         System.out.println("POST-PROPORTION========================");
 
         int ivs = 0;
@@ -289,9 +293,7 @@ public final class App {
         }
         
         System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
-        */
         
-        /*
         for(Release rel : stormReleases) {
             if(rel.getCommits() != null) {
                 System.out.println(rel.getCommits().size());
@@ -308,7 +310,7 @@ public final class App {
             } else {
                 System.out.println("null");
             }
-        }*/
+        }
 
         logger.info("Filtering sequence done");
     }
@@ -388,12 +390,14 @@ public final class App {
         return tickets;
     }
 
+    /*
     private static void removeTicketsIfInvlRelease(List<Ticket> tkts) {
         tkts.removeIf(t ->
             t.getFixedVersionIdx() == -1 || 
             (t.isInjectedVersionAvail() && t.getInjectedVersionIdx() == -1)
         );
     }
+    */
 
     private static void removeTicketsIfInconsistent(List<Ticket> tkts) {
         tkts.removeIf(t -> {
@@ -462,7 +466,7 @@ public final class App {
 
         //DO NOT CHANGE (compat issues)
         //JDK/JRE may not know about removeLast() method!
-        rels.remove(relsSize - 1);
+        //rels.remove(relsSize - 1);
     }
 
     private static int statTicketsWithIv(List<Ticket> tkts) {
