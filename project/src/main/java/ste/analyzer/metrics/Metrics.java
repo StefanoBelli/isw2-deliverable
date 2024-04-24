@@ -48,6 +48,8 @@ public final class Metrics {
 
     private void oneshot(JavaSourceFile jsf) 
             throws MetricsException, IOException {
+
+        String filename = jsf.getFilename();
         
         List<RevCommit> relCommits = getJsfCommitsForRelease(jsf);
 
@@ -69,17 +71,7 @@ public final class Metrics {
             int hasMyFile = 0;
 
             for(DiffEntry diff : diffs) {
-                ChangeType changeType = diff.getChangeType();
-                String path;
-                switch (changeType) {
-                    case ChangeType.DELETE, ChangeType.RENAME:
-                        path = diff.getOldPath();
-                        break;
-                    default:
-                        path = diff.getNewPath();
-                }
-
-                if(path.equals(jsf.getFilename())) {
+                if(getPathByChangeType(diff).equals(filename)) {
                     hasMyFile = 1;
 
                     authorsEmails.add(relCommit.getAuthorIdent().getEmailAddress());
@@ -212,5 +204,15 @@ public final class Metrics {
         }
 
         throw new MetricsException("Unable to find matching release");
+    }
+
+    private String getPathByChangeType(DiffEntry diffEntry) {
+        ChangeType changeType = diffEntry.getChangeType();
+
+        if(changeType == ChangeType.DELETE || changeType == ChangeType.RENAME) {
+            return diffEntry.getOldPath();
+        } 
+
+        return diffEntry.getNewPath();
     }
 }

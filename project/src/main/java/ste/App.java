@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import me.tongfei.progressbar.ProgressBar;
+
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
@@ -168,9 +171,9 @@ public final class App {
         logger.info("Linking releases to commits, then removing" + 
                         " the last extra release. This should be fast...");
 
-        linkReleasesToCommits(stormReleases, stormGitRepo);
+        linkReleasesToCommits(stormReleases, stormGitRepo, STORM);
         //System.out.println("BOOKKEEPER============");
-        linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo);
+        linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo, BOOKKEEPER);
 
         logger.info("After linking releases to commits" + 
                     " and *removing* the last extra release:");
@@ -197,8 +200,8 @@ public final class App {
 
         logger.info("Linking tickets to commits. This may take a while, please wait...");
         
-        linkTicketsToCommits(bookKeeperTickets, bookKeeperGitRepo);
-        linkTicketsToCommits(stormTickets, stormGitRepo);
+        linkTicketsToCommits(bookKeeperTickets, bookKeeperGitRepo, BOOKKEEPER);
+        linkTicketsToCommits(stormTickets, stormGitRepo, STORM);
         
         removeTicketsIfNoCommits(stormTickets);
         removeTicketsIfNoCommits(bookKeeperTickets);
@@ -405,15 +408,19 @@ public final class App {
     }
 
     private static void linkTicketsToCommits(
-            List<Ticket> tkts, GitRepository repo) throws IOException {
+            List<Ticket> tkts, GitRepository repo, String projName) throws IOException {
+        
+        String pbMsg = String.format("Linking tickets to commits for project %s", projName);
+        try(ProgressBar pb = Util.buildProgressBar(pbMsg, tkts.size())) {
+            for(Ticket tkt : tkts) {
+                List<RevCommit> tktCommits = 
+                    repo.getFilteredCommits(
+                        MessageRevFilter.create(
+                            tkt.getKey()));
 
-        for(Ticket tkt : tkts) {
-            List<RevCommit> tktCommits = 
-                repo.getFilteredCommits(
-                    MessageRevFilter.create(
-                        tkt.getKey()));
-
-            tkt.setCommits(tktCommits);
+                tkt.setCommits(tktCommits);
+                pb.step();
+            }
         }
     }
 
@@ -425,52 +432,32 @@ public final class App {
         Collections.reverse(tkts);
     }
 
-    private static void linkReleasesToCommits(List<Release> rels, GitRepository repo) throws IOException {
+    private static void linkReleasesToCommits(List<Release> rels, GitRepository repo, String projName) throws IOException {
         Release firstRel = rels.get(0);
-        
-        //Calendar cal = Calendar.getInstance();
-
-        //cal.setTime(firstRel.getReleaseDate());
-        //cal.add(Calendar.DAY_OF_MONTH, -1);
 
         Date firstStart = firstRel.getReleaseDate();
 
         List<RevCommit> firstRelCommits = repo.getFilteredCommits(
             CommitTimeRevFilter.before(firstStart));
 
-        //System.out.println("=================");
-        //System.out.println(firstStart);
-        //System.out.println(firstRelCommits.size());
-
         firstRel.setCommits(firstRelCommits);
         
         int relsSize = rels.size();
-        for(int i = 0; i < relsSize - 1; ++i) {
-            Release leftBoundaryRel = rels.get(i);
-            Release rightBoundaryRel = rels.get(i + 1);
+        String pbMsg = String.format("Linking releases to commits for project %s", projName);
+        try(ProgressBar pb = Util.buildProgressBar(pbMsg, relsSize - 1)) {
+            for(int i = 0; i < relsSize - 1; ++i) {
+                Release leftBoundaryRel = rels.get(i);
+                Release rightBoundaryRel = rels.get(i + 1);
 
-            Date start = leftBoundaryRel.getReleaseDate();
-            Date end = rightBoundaryRel.getReleaseDate();
+                Date start = leftBoundaryRel.getReleaseDate();
+                Date end = rightBoundaryRel.getReleaseDate();
+                List<RevCommit> relCommits = repo.getFilteredCommits(
+                    CommitTimeRevFilter.between(start, end));
 
-            //cal.setTime(tmpStart);
-            //cal.add(Calendar.DAY_OF_MONTH, 1);
+                rightBoundaryRel.setCommits(relCommits);
 
-            //Date relStartDate = cal.getTime();
-
-            //cal.setTime(tmpEnd);
-            //cal.add(Calendar.DAY_OF_MONTH, -1);
-
-            //Date relEndDate = cal.getTime();
-
-            List<RevCommit> relCommits = repo.getFilteredCommits(
-                CommitTimeRevFilter.between(start, end));
-
-            //System.out.println("===================");
-            //System.out.println(start);
-            //System.out.println(end);
-            //System.out.println(relCommits.size());
-
-            rightBoundaryRel.setCommits(relCommits);
+                pb.step();
+            }
         }
 
         //DO NOT CHANGE (compat issues)

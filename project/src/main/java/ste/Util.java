@@ -56,6 +56,7 @@ public final class Util {
          .setTaskName(msg)
          .setStyle(ProgressBarStyle.ASCII)
          .setInitialMax(max)
+         .continuousUpdate()
          .build();
    }
 

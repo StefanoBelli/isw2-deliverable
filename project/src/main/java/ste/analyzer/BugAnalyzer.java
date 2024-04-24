@@ -9,6 +9,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import me.tongfei.progressbar.ProgressBar;
 import ste.Util;
 import ste.Util.Pair;
 import ste.analyzer.metrics.Metrics;
@@ -89,36 +90,30 @@ public final class BugAnalyzer {
     } 
 
     private void determineBuggyness() throws IOException {
-        for(Ticket tkt : tkts) {
-            List<RevCommit> fixCommits = tkt.getCommits();
+        String pbMsg = String.format("Determining buggyness for project: %s", projName);
+        try(ProgressBar pb = Util.buildProgressBar(pbMsg, tkts.size())) {
+            for(Ticket tkt : tkts) {
+                List<RevCommit> fixCommits = tkt.getCommits();
 
-            List<String> buggyFiles = new ArrayList<>();
+                List<String> buggyFiles = new ArrayList<>();
 
-            for(RevCommit commit : fixCommits) {
-                List<DiffEntry> diffEntries = repo.getCommitDiffEntries(commit);
+                for(RevCommit commit : fixCommits) {
+                    List<DiffEntry> diffEntries = repo.getCommitDiffEntries(commit);
 
-                for(DiffEntry diffEntry : diffEntries) {
-                    if(diffEntry.toString().endsWith(".java")) {
-                        ChangeType changeType = diffEntry.getChangeType();
-                        
-                        switch(changeType) {
-                            case ChangeType.DELETE, ChangeType.RENAME:
-                                buggyFiles.add(diffEntry.getOldPath());
-                                break;
-                            case ChangeType.MODIFY, ChangeType.COPY:
-                                buggyFiles.add(diffEntry.getNewPath());
-                                break;
-                            case ChangeType.ADD:
-                                break;
+                    for(DiffEntry diffEntry : diffEntries) {
+                        if(diffEntry.toString().endsWith(".java")) {
+                            addToBuggyFilesByChangeType(buggyFiles, diffEntry);
                         }
                     }
                 }
-            }
 
-            buggyFilesForVerRange(
-                buggyFiles, 
-                tkt.getInjectedVersionIdx(), 
-                tkt.getFixedVersionIdx());
+                buggyFilesForVerRange(
+                    buggyFiles, 
+                    tkt.getInjectedVersionIdx(), 
+                    tkt.getFixedVersionIdx());
+
+                pb.step();
+            }
         }
     }
 
@@ -143,5 +138,15 @@ public final class BugAnalyzer {
         }
 
         return false;
+    }
+
+    private void addToBuggyFilesByChangeType(List<String> buggyFiles, DiffEntry diffEntry) {
+        ChangeType changeType = diffEntry.getChangeType();
+
+        if(changeType == ChangeType.DELETE || changeType == ChangeType.RENAME) {
+            buggyFiles.add(diffEntry.getOldPath());
+        } else if(changeType == ChangeType.MODIFY || changeType == ChangeType.COPY) {
+            buggyFiles.add(diffEntry.getNewPath());
+        }
     }
 }
