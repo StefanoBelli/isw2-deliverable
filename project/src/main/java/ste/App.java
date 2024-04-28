@@ -405,7 +405,7 @@ public final class App {
             int ov = t.getOpeningVersionIdx();
             int fv = t.getFixedVersionIdx();
 
-            return !(iv < fv && ov >= iv);
+            return !(iv < fv && ov >= iv && fv >= ov);
         });
     }
 
