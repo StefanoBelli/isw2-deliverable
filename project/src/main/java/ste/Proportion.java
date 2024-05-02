@@ -15,7 +15,7 @@ public final class Proportion {
         int fv = t.getFixedVersionIdx() + 1;
 
         if(fv == ov) {
-            return 0;
+            return fv - iv;
         }
 
         if(iv >= numRels || ov >= numRels || fv >= numRels) {

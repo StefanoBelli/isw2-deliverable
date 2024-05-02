@@ -179,7 +179,6 @@ public final class App {
         logger.info(STAT_INFO_ONLYREL_FMT, STORM, stormReleases.size());
         logger.info(STAT_INFO_ONLYREL_FMT, BOOKKEEPER, bookKeeperReleases.size());
 
-
         logger.info("Getting relevant infos about tickets OVs, FVs and AVs...");
 
         stormTickets = initProjectTickets(stormReleases, jst);
