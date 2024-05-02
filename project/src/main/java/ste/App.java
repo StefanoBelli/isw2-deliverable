@@ -171,7 +171,6 @@ public final class App {
         logger.info("Linking releases to commits. This should be fast...");
 
         linkReleasesToCommits(stormReleases, stormGitRepo, STORM);
-        //System.out.println("BOOKKEEPER============");
         linkReleasesToCommits(bookKeeperReleases, bookKeeperGitRepo, BOOKKEEPER);
 
         logger.info("After linking releases to commits:");
@@ -184,15 +183,13 @@ public final class App {
         stormTickets = initProjectTickets(stormReleases, jst);
         bookKeeperTickets = initProjectTickets(bookKeeperReleases, jbkt);
 
-        /*
-        removeTicketsIfInvlRelease(stormTickets);
-        removeTicketsIfInvlRelease(bookKeeperTickets);
-        */
+        bookKeeperReleases.remove(bookKeeperReleases.size() - 1);
+        stormReleases.remove(stormReleases.size() - 1);
 
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
 
-        logger.info("After ticket inconsistency fixup:");
+        logger.info("After ticket inconsistency fixup (and extra rel removal):");
 
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
@@ -205,10 +202,7 @@ public final class App {
         removeTicketsIfNoCommits(stormTickets);
         removeTicketsIfNoCommits(bookKeeperTickets);
 
-        bookKeeperReleases.remove(bookKeeperReleases.size() - 1);
-        stormReleases.remove(stormReleases.size() - 1);
-
-        logger.info("After removing tickets if no matching commit could be found, and the extra release:");
+        logger.info("After removing tickets if no matching commit could be found:");
         
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
@@ -252,8 +246,8 @@ public final class App {
 
         logger.info("Applying proportion ({} strategy)...", Proportion.STRATEGY_NAME);
 
-        Proportion.apply(stormTickets, stormTickets.size());
-        Proportion.apply(bookKeeperTickets, bookKeeperTickets.size());
+        Proportion.apply(stormTickets, stormReleases.size() + 1);
+        Proportion.apply(bookKeeperTickets, bookKeeperReleases.size() + 1);
 
         removeTicketsIfInconsistent(stormTickets);
         removeTicketsIfInconsistent(bookKeeperTickets);
