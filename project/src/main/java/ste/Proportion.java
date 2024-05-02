@@ -14,12 +14,12 @@ public final class Proportion {
         int ov = t.getOpeningVersionIdx() + 1;
         int fv = t.getFixedVersionIdx() + 1;
 
-        if(fv == ov) {
-            return fv - iv;
-        }
-
         if(iv >= numRels || ov >= numRels || fv >= numRels) {
             return 0;
+        }
+
+        if(fv == ov) {
+            return fv - iv;
         }
 
         return (int) Math.floor((float) (fv - iv) / (fv - ov));
