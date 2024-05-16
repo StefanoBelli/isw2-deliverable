@@ -43,7 +43,7 @@ public final class Metrics {
             }   
         }
 
-        //fixupEmptyCommitReleases(jsfs);
+        removeAllEmptyCommitReleases();
     }
 
     private void oneshot(JavaSourceFile jsf) 
@@ -101,19 +101,18 @@ public final class Metrics {
             authorsEmails.size(), chgSet, churn);
     }
 
-    /*
-    private void fixupEmptyCommitReleases(List<JavaSourceFile> allJsfs) {
-        String pbMsg = String.format("Checking %s releases...", projName);
+    private void removeAllEmptyCommitReleases() {
+        String pbMsg = String.format("Removing empty releases for project %s...", projName);
         try(ProgressBar pb = Util.buildProgressBar(pbMsg, rels.size())) {
             for(int i = 0; i < rels.size(); ++i) {
                 Release relWithNoCommits = rels.get(i);
 
                 if(relWithNoCommits.getCommits().isEmpty()) {
-                    for(int j = 0; j < allJsfs.size(); ++j) {
-                        JavaSourceFile jsf = allJsfs.get(j);
+                    for(int j = 0; j < jsfs.size(); ++j) {
+                        JavaSourceFile jsf = jsfs.get(j);
 
                         if(jsf.getRelease().equals(relWithNoCommits)) {
-                            JavaSourceFile nextJsf = 
+                            /*JavaSourceFile nextJsf = 
                                 getNextJsf(
                                     allJsfs, 
                                     rels.get(i + 1), 
@@ -122,7 +121,9 @@ public final class Metrics {
 
                             if(nextJsf != null) {
                                 copyJsfMetrics(jsf, nextJsf);
-                            }
+                            }*/
+
+                            jsfs.remove(jsf);
                         }
                     }
                 }
@@ -131,6 +132,7 @@ public final class Metrics {
         }
     }
 
+    /*
     private JavaSourceFile getNextJsf(
             List<JavaSourceFile> jsfs, Release nextRel, String filename, int startIdx) {
 
