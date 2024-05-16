@@ -43,7 +43,7 @@ public final class Metrics {
             }   
         }
 
-        fixupEmptyCommitReleases(jsfs);
+        //fixupEmptyCommitReleases(jsfs);
     }
 
     private void oneshot(JavaSourceFile jsf) 
@@ -101,6 +101,7 @@ public final class Metrics {
             authorsEmails.size(), chgSet, churn);
     }
 
+    /*
     private void fixupEmptyCommitReleases(List<JavaSourceFile> allJsfs) {
         String pbMsg = String.format("Checking %s releases...", projName);
         try(ProgressBar pb = Util.buildProgressBar(pbMsg, rels.size())) {
@@ -159,6 +160,7 @@ public final class Metrics {
         dst.setNumAuthors(src.getNumAuthors());
         dst.setNumRev(src.getNumRev());
     }
+    */
 
     private int calculateChangeSet(List<DiffEntry> diffEntries) {
         Set<String> chgFilenames = new HashSet<>();

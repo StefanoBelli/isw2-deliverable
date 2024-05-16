@@ -110,6 +110,8 @@ public final class App {
             new BugAnalyzer(STORM, stormReleases, stormTickets, stormGitRepo);
         BugAnalyzer bookKeeperAnalyzer = 
             new BugAnalyzer(BOOKKEEPER, bookKeeperReleases, bookKeeperTickets, bookKeeperGitRepo);
+            
+        logReleasesWithNoCommit(stormReleases, bookKeeperReleases);
 
         logger.info(INFO_ANALYSIS_FMT, STORM);
         stormAnalyzer.startAnalysis();
@@ -145,6 +147,25 @@ public final class App {
         bookKeeperGitRepo.close();
 
         logger.info("Graceful termination. Exiting...");
+    }
+
+    private static final String EMPTY_COMMIT_REL_FMT = "project {}: rel {} - has no commit";
+
+    private static void logReleasesWithNoCommit(
+            List<Release> storm, List<Release> bookKeeper) {
+
+        
+        for(Release rel : storm) {
+            if(rel.getCommits().isEmpty()) {
+                logger.warn(EMPTY_COMMIT_REL_FMT, STORM, rel.getVersion());
+            }
+        }
+
+        for(Release rel : bookKeeper) {
+            if(rel.getCommits().isEmpty()) {
+                logger.warn(EMPTY_COMMIT_REL_FMT, BOOKKEEPER, rel.getVersion());
+            }
+        }
     }
 
     private static final String STAT_INFO_FMT = "project {} - rem. tickets: {} - rem. releases: {}";
