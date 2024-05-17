@@ -104,65 +104,15 @@ public final class Metrics {
     private void removeAllEmptyCommitReleases() {
         String pbMsg = String.format("Removing empty releases for project %s...", projName);
         try(ProgressBar pb = Util.buildProgressBar(pbMsg, rels.size())) {
-            for(int i = 0; i < rels.size(); ++i) {
-                Release relWithNoCommits = rels.get(i);
-
-                if(relWithNoCommits.getCommits().isEmpty()) {
-                    for(int j = 0; j < jsfs.size(); ++j) {
-                        JavaSourceFile jsf = jsfs.get(j);
-
-                        if(jsf.getRelease().equals(relWithNoCommits)) {
-                            /*JavaSourceFile nextJsf = 
-                                getNextJsf(
-                                    allJsfs, 
-                                    rels.get(i + 1), 
-                                    jsf.getFilename(), 
-                                    i);
-
-                            if(nextJsf != null) {
-                                copyJsfMetrics(jsf, nextJsf);
-                            }*/
-
-                            jsfs.remove(jsf);
-                        }
-                    }
+            for(Release rel : rels) {
+                if(rel.getCommits().isEmpty()) {
+                    String noCommitRelVer = rel.getVersion();
+                    jsfs.removeIf(jsf -> jsf.getRelease().getVersion().equals(noCommitRelVer));
                 }
                 pb.step();
             }
         }
     }
-
-    /*
-    private JavaSourceFile getNextJsf(
-            List<JavaSourceFile> jsfs, Release nextRel, String filename, int startIdx) {
-
-        for(int k = startIdx; k < jsfs.size(); ++k) {
-            JavaSourceFile nextJsf = jsfs.get(k);
-
-            if(
-                nextJsf.getRelease().equals(nextRel) && 
-                nextJsf.getFilename().equals(filename)
-            ) {
-                return nextJsf;
-            }
-        }
-
-        return null;
-    }
-
-    private void copyJsfMetrics(JavaSourceFile dst, JavaSourceFile src) {
-        dst.setAvgChgSet(src.getAvgChgSet());
-        dst.setMaxChgSet(src.getMaxChgSet());
-        dst.setLocAdded(src.getLocAdded());
-        dst.setMaxLocAdded(src.getMaxLocAdded());
-        dst.setAvgLocAdded(src.getAvgLocAdded());
-        dst.setChurn(src.getChurn());
-        dst.setAvgChurn(src.getAvgChurn());
-        dst.setMaxChurn(src.getMaxChurn());
-        dst.setNumAuthors(src.getNumAuthors());
-        dst.setNumRev(src.getNumRev());
-    }
-    */
 
     private int calculateChangeSet(List<DiffEntry> diffEntries) {
         Set<String> chgFilenames = new HashSet<>();
