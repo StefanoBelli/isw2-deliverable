@@ -102,7 +102,7 @@ public final class Metrics {
     }
 
     private void removeAllEmptyCommitReleases() {
-        String pbMsg = String.format("Removing empty releases for project %s...", projName);
+        String pbMsg = String.format("Removing empty-commit releases for project %s...", projName);
         try(ProgressBar pb = Util.buildProgressBar(pbMsg, rels.size())) {
             for(Release rel : rels) {
                 if(rel.getCommits().isEmpty()) {
