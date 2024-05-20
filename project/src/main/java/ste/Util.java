@@ -1,17 +1,27 @@
 package ste;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.io.InputStream;
 
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import ste.jirarest.JiraTicket;
 import ste.model.Release;
+import weka.core.Instances;
+import weka.core.converters.ArffSaver;
+import weka.core.converters.CSVLoader;
 
 public final class Util {
    private Util() {}
@@ -48,6 +58,26 @@ public final class Util {
 
    public static int countLines(String s) {
       return s.split("\r\n|\r|\n").length;
+   }
+
+   public static String readAllFile(String path) 
+         throws IOException {
+      return new String(Files.readAllBytes(Paths.get("file")), StandardCharsets.UTF_8);
+   }
+
+   public static void csv2Arff(String csvContent, String outArff) throws IOException {
+      InputStream csvContentIstream = new ByteArrayInputStream(csvContent.getBytes(StandardCharsets.UTF_8));
+
+      CSVLoader csvLoader = new CSVLoader();
+      csvLoader.setSource(csvContentIstream);
+      Instances entries = csvLoader.getDataSet();
+
+      csvContentIstream.close();
+
+      ArffSaver arffSaver = new ArffSaver();
+      arffSaver.setInstances(entries);
+      arffSaver.setFile(new File(outArff));
+      arffSaver.writeBatch();
    }
 
    public static ProgressBar buildProgressBar(String msg, int max) {

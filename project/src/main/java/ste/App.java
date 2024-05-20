@@ -73,6 +73,18 @@ public final class App {
                     IOException, CsvWriterException, 
                     BugAnalyzerException, MetricsException {
 
+        boolean skipDsCreat = false;
+
+        if(args.length > 0) {
+            for(String arg : args) {
+                if(arg.equals("--skip-ds-creat") || arg.equals("-s")) {
+                    logger.warn("SKIPPING dataset creation, as requested by user");
+                    skipDsCreat = true;
+                    break;
+                }
+            }
+        }
+
         logger.info("Setup phase...");
 
         logger.info("Fetching projects for {} and {}...", STORM, BOOKKEEPER);
@@ -80,6 +92,16 @@ public final class App {
         JiraProject jiraStormProject = JiraProject.getProjectByName(STORM);
         JiraProject jiraBookKeeperProject = JiraProject.getProjectByName(BOOKKEEPER);
 
+        if(!skipDsCreat) {
+            dsCreat(jiraStormProject, jiraBookKeeperProject);
+        }
+
+        logger.info("Graceful termination. Exiting...");
+    }
+
+    private static void dsCreat(JiraProject jiraStormProject, JiraProject jiraBookKeeperProject) 
+            throws RequestException, CsvWriterException, IOException, 
+                    GitAPIException, BugAnalyzerException, MetricsException {
         logger.info("Fetching tickets for {} and {}...", STORM, BOOKKEEPER);
 
         JiraTicket[] jiraStormTickets = JiraTicket.getAllTicketsByName(STORM);
@@ -141,19 +163,14 @@ public final class App {
 
         logger.info(INFO_WROTE_FMT, BOOKKEEPER, bookKeeperDatasetCsv);
 
-        logger.info("Terminating...");
-
         stormGitRepo.close();
         bookKeeperGitRepo.close();
-
-        logger.info("Graceful termination. Exiting...");
     }
 
     private static final String EMPTY_COMMIT_REL_FMT = "project {}: rel {} - has no commit";
 
     private static void logReleasesWithNoCommit(
             List<Release> storm, List<Release> bookKeeper) {
-
         
         for(Release rel : storm) {
             if(rel.getCommits().isEmpty()) {
@@ -231,34 +248,6 @@ public final class App {
         reverseTicketsOrder(stormTickets);
         reverseTicketsOrder(bookKeeperTickets);
 
-        /*
-        int ivs = 0;
-
-        for(Ticket t : stormTickets) {
-
-            if(t.isInjectedVersionAvail()) {
-                ++ivs;
-                System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
-                    t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
-            }
-        }
-        System.out.println(stormTickets.size() + ", with IV = " + ivs); 
-        System.out.println("BOOKKEEPER-----");
-
-        ivs = 0;
-        
-        for(Ticket t : bookKeeperTickets) {
-
-            if(t.isInjectedVersionAvail()) {
-                ++ivs;
-                System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
-                    t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
-            }
-        }
-
-        System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
-        */
-
         int stormTicketsWithIv = statTicketsWithIv(stormTickets);
         int bookKeeperTicketsWithIv = statTicketsWithIv(bookKeeperTickets);
 
@@ -277,54 +266,6 @@ public final class App {
         
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
-        
-        /*
-        System.out.println("POST-PROPORTION========================");
-
-        int ivs = 0;
-
-        for(Ticket t : stormTickets) {
-
-            if(t.isInjectedVersionAvail()) {
-                ++ivs;
-                System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
-                    t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
-            }
-        }
-        System.out.println(stormTickets.size() + ", with IV = " + ivs); 
-        System.out.println("BOOKKEEPER-----");
-
-        ivs = 0;
-        
-        for(Ticket t : bookKeeperTickets) {
-
-            if(t.isInjectedVersionAvail()) {
-                ++ivs;
-                System.out.println(String.format("IV = %d, OV = %d, FV = %d", 
-                    t.getInjectedVersionIdx(), t.getOpeningVersionIdx(), t.getFixedVersionIdx()));
-            }
-        }
-        
-        System.out.println(bookKeeperTickets.size() + ", with IV = " + ivs);
-        
-        for(Release rel : stormReleases) {
-            if(rel.getCommits() != null) {
-                System.out.println(rel.getCommits().size());
-            } else {
-                System.out.println("null");
-            }
-        }
-        
-        System.out.println("BOOKKEEPER============");
-
-        for(Release rel : bookKeeperReleases) {
-             if(rel.getCommits() != null) {
-                System.out.println(rel.getCommits().size());
-            } else {
-                System.out.println("null");
-            }
-        }
-        */
 
         logger.info("Filtering sequence done");
     }
@@ -379,19 +320,13 @@ public final class App {
             JiraTicket.Fields.Version[] affVer = tktFields.getVersions();
             if(affVer.length > 0) {
                 List<Integer> affRelIdx = new ArrayList<>();
-                //System.out.println("===============");
                 for(JiraTicket.Fields.Version jfv : affVer) {
                     int relIdx = Util.getReleaseIndexByTicketVersionField(rels, jfv);
                     affRelIdx.add(relIdx);
-                    //System.out.println(String.format("release %s, index %d", jfv.getReleaseDate(), relIdx));
                 }
 
                 affRelIdx.removeIf(e -> e == -1);
                 affRelIdx.sort((o1, o2) -> o1 - o2);
-
-                /*for(int i : affRelIdx) {
-                    System.out.println(i);
-                }*/
 
                 if(!affRelIdx.isEmpty()) {
                     realTkt.setInjectedVersionIdx(affRelIdx.get(0));
@@ -403,15 +338,6 @@ public final class App {
 
         return tickets;
     }
-
-    /*
-    private static void removeTicketsIfInvlRelease(List<Ticket> tkts) {
-        tkts.removeIf(t ->
-            t.getFixedVersionIdx() == -1 || 
-            (t.isInjectedVersionAvail() && t.getInjectedVersionIdx() == -1)
-        );
-    }
-    */
 
     private static void removeTicketsIfInconsistent(List<Ticket> tkts) {
         tkts.removeIf(t -> {
