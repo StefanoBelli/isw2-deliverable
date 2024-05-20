@@ -1,4 +1,4 @@
-package ste.evaluation;
+package ste.evaluation.component;
 
 public interface NamedEvaluationComponent {
     String getName(); 

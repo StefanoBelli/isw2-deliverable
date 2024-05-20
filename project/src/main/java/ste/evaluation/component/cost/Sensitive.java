@@ -1,4 +1,4 @@
-package ste.evaluation.cost;
+package ste.evaluation.component.cost;
 
 public enum Sensitive {
     NONE,

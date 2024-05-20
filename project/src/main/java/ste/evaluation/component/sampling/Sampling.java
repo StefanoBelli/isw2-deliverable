@@ -1,7 +1,7 @@
-package ste.evaluation.sampling;
+package ste.evaluation.component.sampling;
 
 import ste.Util;
-import ste.evaluation.NamedEvaluationComponent;
+import ste.evaluation.component.NamedEvaluationComponent;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Instances;

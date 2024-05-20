@@ -1,4 +1,4 @@
-package ste.evaluation.fesel;
+package ste.evaluation.component.fesel;
 
 import weka.attributeSelection.ASSearch;
 

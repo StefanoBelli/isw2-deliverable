@@ -1,6 +1,6 @@
-package ste.evaluation.sampling.impls;
+package ste.evaluation.component.sampling.impls;
 
-import ste.evaluation.sampling.ApplyFilter;
+import ste.evaluation.component.sampling.ApplyFilter;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.supervised.instance.SpreadSubsample;

@@ -1,6 +1,6 @@
-package ste.evaluation.classifier.impls;
+package ste.evaluation.component.classifier.impls;
 
-import ste.evaluation.classifier.Classifier;
+import ste.evaluation.component.classifier.Classifier;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.bayes.NaiveBayes;
 

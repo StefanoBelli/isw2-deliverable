@@ -1,4 +1,4 @@
-package ste.evaluation.sampling;
+package ste.evaluation.component.sampling;
 
 import weka.core.Instances;
 import weka.filters.Filter;

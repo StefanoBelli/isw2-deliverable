@@ -1,6 +1,6 @@
-package ste.evaluation.cost;
+package ste.evaluation.component.cost;
 
-import ste.evaluation.NamedEvaluationComponent;
+import ste.evaluation.component.NamedEvaluationComponent;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.CostMatrix;
 import weka.classifiers.meta.CostSensitiveClassifier;

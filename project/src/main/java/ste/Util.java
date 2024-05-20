@@ -62,7 +62,7 @@ public final class Util {
 
    public static String readAllFile(String path) 
          throws IOException {
-      return new String(Files.readAllBytes(Paths.get("file")), StandardCharsets.UTF_8);
+      return new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
    }
 
    public static void csv2Arff(String csvContent, String outArff) throws IOException {

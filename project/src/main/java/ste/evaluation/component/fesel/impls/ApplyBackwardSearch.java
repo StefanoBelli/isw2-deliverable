@@ -1,6 +1,6 @@
-package ste.evaluation.fesel.impls;
+package ste.evaluation.component.fesel.impls;
 
-import ste.evaluation.fesel.ApplyFeatureSelection;
+import ste.evaluation.component.fesel.ApplyFeatureSelection;
 import weka.attributeSelection.ASSearch;
 import weka.attributeSelection.GreedyStepwise;
 

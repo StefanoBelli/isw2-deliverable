@@ -1,6 +1,6 @@
-package ste.evaluation.classifier;
+package ste.evaluation.component.classifier;
 
-import ste.evaluation.NamedEvaluationComponent;
+import ste.evaluation.component.NamedEvaluationComponent;
 import weka.classifiers.AbstractClassifier;
 
 public interface Classifier extends NamedEvaluationComponent {
