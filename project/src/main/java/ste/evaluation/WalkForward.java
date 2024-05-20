@@ -9,10 +9,12 @@ public final class WalkForward {
     private static final class Project {
         private final Instances dataset;
         private final String name;
+        private final int maxRelIdx;
 
         public Project(Instances dataset, String name) {
             this.dataset = dataset;
             this.name = name;
+            maxRelIdx = (int) dataset.get(dataset.numAttributes() - 1).value(0);
         }
 
         public Instances getDataset() {
@@ -22,32 +24,23 @@ public final class WalkForward {
         public String getName() {
             return name;
         }
+
+        public int getMaxRelIdx() {
+            return maxRelIdx;
+        }
     }
 
-    private final Project storm;
-    private final Project bookKeeper;
+    private final Project project;
 
     private static String getDataSetArffFilename(String proj) {
         return String.format("%s-dataset.arff", proj);
     }
 
-    public WalkForward(
-            String stormProjectName, 
-            String bookKeeperProjectName, 
-            String stormDatasetCsv, 
-            String bookKeeperDatasetCsv) throws Exception {
-
-        String bookKeeperDatasetArffFilename = getDataSetArffFilename(bookKeeperProjectName);
-        String stormDatasetArffFilename = getDataSetArffFilename(stormProjectName);
-
-        Util.csv2Arff(bookKeeperDatasetCsv, bookKeeperDatasetArffFilename);
-        Util.csv2Arff(stormDatasetCsv, stormDatasetArffFilename);
-
-        Instances stormDataset = loadArff(stormDatasetArffFilename);
-        Instances bookKeeperDataset = loadArff(bookKeeperDatasetArffFilename);
-
-        storm = new Project(stormDataset, stormProjectName);
-        bookKeeper = new Project(bookKeeperDataset, bookKeeperProjectName);
+    public WalkForward(String projectName, String projectDatasetCsv) throws Exception {
+        String datasetArffFilename = getDataSetArffFilename(projectName);
+        Util.csv2Arff(projectDatasetCsv, datasetArffFilename);
+        Instances dataset = loadArff(datasetArffFilename);
+        project = new Project(dataset, projectName);
     }
 
     private Instances loadArff(String filename) throws Exception {
