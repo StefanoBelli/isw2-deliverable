@@ -6,15 +6,13 @@ import weka.classifiers.CostMatrix;
 import weka.classifiers.meta.CostSensitiveClassifier;
 
 public final class CostSensitivity implements NamedEvaluationComponent {
-    private final AbstractClassifier classifier;
     private final Sensitive sens;
 
-    public CostSensitivity(AbstractClassifier classifier, Sensitive sens) {
-        this.classifier = classifier;
+    public CostSensitivity(Sensitive sens) {
         this.sens = sens;
     }
 
-    public AbstractClassifier getCostSensititiveClassifier() {
+    public AbstractClassifier getCostSensititiveClassifier(AbstractClassifier classifier) {
         if(sens == Sensitive.NONE) {
             return classifier;
         }

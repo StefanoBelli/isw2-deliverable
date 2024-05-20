@@ -8,17 +8,13 @@ import weka.core.Instances;
 import weka.filters.Filter;
 
 public final class Sampling implements NamedEvaluationComponent {
-    private final AbstractClassifier classifier;
     private final ApplyFilter applyFilter;
-    private final Instances trainingSet;
 
-    protected Sampling(AbstractClassifier classifier, ApplyFilter applyFilter, Instances trainingSet) {
-        this.classifier = classifier;
+    public Sampling(ApplyFilter applyFilter) {
         this.applyFilter = applyFilter;
-        this.trainingSet = trainingSet;
     }
 
-    public final Util.Pair<AbstractClassifier,Instances> getFilteredClassifierWithSampledTrainingSet() {
+    public final Util.Pair<AbstractClassifier,Instances> getFilteredClassifierWithSampledTrainingSet(AbstractClassifier classifier, Instances trainingSet) {
         if(applyFilter == null) {
             return new Util.Pair<>(classifier, trainingSet);
         }

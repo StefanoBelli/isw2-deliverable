@@ -31,10 +31,6 @@ public final class FeatureSelection implements NamedEvaluationComponent {
         Instances filteredTraining = Filter.useFilter(training, filter);
         Instances filteredTesting = Filter.useFilter(testing, filter);
 
-        int numAttrFiltered = filteredTraining.numAttributes();
-        filteredTraining.setClassIndex(numAttrFiltered - 1);
-        filteredTesting.setClassIndex(numAttrFiltered - 1);
-
         return new Util.Pair<>(filteredTraining, filteredTesting);
     }
 
