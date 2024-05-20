@@ -6,14 +6,8 @@ import weka.filters.supervised.instance.SMOTE;
 import ste.evaluation.sampling.ApplyFilter;
 
 public final class ApplySmote implements ApplyFilter {
-    private final Instances insts;
-    
-    public ApplySmote(Instances insts) {
-        this.insts = insts;
-    }
-
     @Override
-    public Filter getFilter() throws Exception {
+    public Filter getFilter(Instances insts) throws Exception {
         SMOTE smote = new SMOTE();
         smote.setInputFormat(insts);
         return smote;

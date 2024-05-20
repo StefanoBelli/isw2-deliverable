@@ -80,6 +80,18 @@ public final class Util {
       arffSaver.writeBatch();
    }
 
+   public static int getNumOfPositiveInstances(Instances insts) {
+      int numPosInsts = 0;
+
+      for(int i = 0;i< insts.size() ; ++i) {
+         if(insts.get(i).toString(insts.numAttributes()-1).equals("yes")) {
+            ++numPosInsts;
+         }
+      }
+
+      return numPosInsts;
+   }
+
    public static ProgressBar buildProgressBar(String msg, int max) {
       ProgressBarBuilder builder = new ProgressBarBuilder();
       return builder

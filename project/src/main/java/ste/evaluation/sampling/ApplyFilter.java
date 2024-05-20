@@ -1,8 +1,9 @@
 package ste.evaluation.sampling;
 
+import weka.core.Instances;
 import weka.filters.Filter;
 
 public interface ApplyFilter {
-    public Filter getFilter() throws Exception;
+    public Filter getFilter(Instances i) throws Exception;
     public String getName(); 
 }
