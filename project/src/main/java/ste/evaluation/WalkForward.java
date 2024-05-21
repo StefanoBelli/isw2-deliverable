@@ -115,6 +115,8 @@ public final class WalkForward {
     private List<Result> results;
 
     public void start() throws Exception {
+        results = new ArrayList<>();
+
         for(int i = 0; i < project.getMaxRelIdx(); ++i) {
             var curDataset = getWfSplitAtIterNum(i);
 
@@ -124,6 +126,7 @@ public final class WalkForward {
             curTrainingSet.setClassIndex(curTrainingSet.numAttributes() - 1);
             curTestingSet.setClassIndex(curTestingSet.numAttributes() - 1);
 
+            calculateEarlyMetrics(i, curTrainingSet, curTestingSet);
             for(Classifier classifier : classifiers) {
 
                 AbstractClassifier vanillaClassifier = classifier.getClassifier();
@@ -162,5 +165,32 @@ public final class WalkForward {
 
     public List<Result> getResults() {
         return results;
+    }
+
+    private Result calculateEarlyMetrics(int wfIter, Instances trainingSet, Instances testingSet) {
+        Result currentResult = new Result();
+
+        currentResult.setNumTrainingRelease(wfIter);
+
+        float percDefTest = (numOfPositives(testingSet)*100) / (float) trainingSet.size();
+        currentResult.setPercDefectiveInTesting(percDefTest);
+
+
+        currentResult.setPercDefectiveInTraining(wfIter);
+        currentResult.setPercTrainingData(wfIter);
+
+        return currentResult;
+    }
+
+    private static int numOfPositives(Instances insts) {
+        int positives = 0;
+        int classColumnIdx = insts.numAttributes() - 1;
+
+        for(int i = 0; i < insts.size(); ++i) {
+            if(insts.get(i).toString(classColumnIdx).equals("yes")) {
+                ++positives;
+            }
+        }
+        return positives;
     }
 }
