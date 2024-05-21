@@ -115,25 +115,16 @@ public final class WalkForward {
     private List<Result> results;
 
     public void start() throws Exception {
-        results = new ArrayList<>();
-
         for(int i = 0; i < project.getMaxRelIdx(); ++i) {
-            Util.Pair<Instances,Instances> curDataset = getWfSplitAtIterNum(i);
+            var curDataset = getWfSplitAtIterNum(i);
+
+            var curTrainingSet = new Instances(curDataset.getFirst());
+            var curTestingSet = new Instances(curDataset.getSecond());
+
+            curTrainingSet.setClassIndex(curTrainingSet.numAttributes() - 1);
+            curTestingSet.setClassIndex(curTestingSet.numAttributes() - 1);
 
             for(Classifier classifier : classifiers) {
-                Instances curTrainingSet = new Instances(curDataset.getFirst());
-                Instances curTestingSet = new Instances(curDataset.getSecond());
-
-                /*
-                curTrainingSet.deleteAttributeAt(0);
-                curTrainingSet.deleteAttributeAt(1);
-
-                curTestingSet.deleteAttributeAt(0);
-                curTestingSet.deleteAttributeAt(1);
-                */
-
-                curTrainingSet.setClassIndex(curTrainingSet.numAttributes() - 1);
-                curTestingSet.setClassIndex(curTestingSet.numAttributes() - 1);
 
                 AbstractClassifier vanillaClassifier = classifier.getClassifier();
 
@@ -143,27 +134,25 @@ public final class WalkForward {
 
                         for(CostSensitivity costSensitivity : costSensitivities) {
 
-                            Util.Pair<Instances, Instances> curFilteredDataset = 
-                                featureSelection.getFilteredDataSets(
+                            var curFilteredDataset = featureSelection.getFilteredDataSets(
                                     curTrainingSet, curTestingSet);
-
-                            curFilteredDataset.getFirst().setClassIndex(
-                                curFilteredDataset.getFirst().numAttributes() - 1);
-                            curFilteredDataset.getSecond().setClassIndex(
-                                curFilteredDataset.getSecond().numAttributes() - 1);
-
-                            Util.Pair<AbstractClassifier, Instances> curSamplingResult = 
-                                sampling.getFilteredClassifierWithSampledTrainingSet(
-                                    vanillaClassifier, curFilteredDataset.getFirst());
                             
-                            AbstractClassifier curCostSensitiveClassifier =
-                                costSensitivity.getCostSensititiveClassifier(
+                            var curFilteredTrainingSet = curFilteredDataset.getFirst();
+                            var curFilteredTestingSet = curFilteredDataset.getSecond();
+
+                            curFilteredTrainingSet.setClassIndex(curFilteredTrainingSet.numAttributes() - 1);
+                            curFilteredTestingSet.setClassIndex(curFilteredTestingSet.numAttributes() - 1);
+
+                            var curSamplingResult = sampling.getFilteredClassifierWithSampledTrainingSet(
+                                    vanillaClassifier, curFilteredTrainingSet);
+                            
+                            var curCostSensitiveClassifier = costSensitivity.getCostSensititiveClassifier(
                                     curSamplingResult.getFirst());
 
                             curCostSensitiveClassifier.buildClassifier(curSamplingResult.getSecond());
 
-                            Evaluation eval = new Evaluation(curFilteredDataset.getSecond());
-                            eval.evaluateModel(curCostSensitiveClassifier, curFilteredDataset.getSecond());
+                            Evaluation eval = new Evaluation(curFilteredTestingSet);
+                            eval.evaluateModel(curCostSensitiveClassifier, curFilteredTestingSet);
                         }
                     }
                 }
