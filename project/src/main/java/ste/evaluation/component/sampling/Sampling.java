@@ -29,7 +29,6 @@ public final class Sampling implements NamedEvaluationComponent {
             usedFilter = applyFilter.getFilter(trainingSet);
             fi = Filter.useFilter(trainingSet, usedFilter);
         } catch(Exception e) {
-            e.printStackTrace();
             return null;
         }
 
