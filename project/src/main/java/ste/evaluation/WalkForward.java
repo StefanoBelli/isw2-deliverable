@@ -129,7 +129,7 @@ public final class WalkForward {
             curTrainingSet.setClassIndex(curTrainingSet.numAttributes() - 1);
             curTestingSet.setClassIndex(curTestingSet.numAttributes() - 1);
 
-            Result earlyResult = setEarlyMetrics(i, curTrainingSet, curTestingSet);
+            Result earlyResult = setEarlyMetricsForResult(i, curTrainingSet, curTestingSet);
             for(Classifier classifier : classifiers) {
 
                 AbstractClassifier vanillaClassifier = classifier.getClassifier();
@@ -140,7 +140,7 @@ public final class WalkForward {
 
                         for(CostSensitivity costSensitivity : costSensitivities) {
                             Result finalResult = 
-                                setConfig(earlyResult, classifier, 
+                                setConfigForResult(earlyResult, classifier, 
                                         featureSelection, sampling, costSensitivity);
 
                             var curFilteredDataset = featureSelection.getFilteredDataSets(
@@ -163,7 +163,7 @@ public final class WalkForward {
                             Evaluation eval = new Evaluation(curFilteredTestingSet);
                             eval.evaluateModel(curCostSensitiveClassifier, curFilteredTestingSet);
 
-                            setPerfMetrics(finalResult, eval);
+                            setPerfMetricsForResult(finalResult, eval);
                             results.add(finalResult);
                         }
                     }
@@ -176,7 +176,7 @@ public final class WalkForward {
         return results;
     }
 
-    private Result setEarlyMetrics(int wfIter, Instances trainingSet, Instances testingSet) {
+    private Result setEarlyMetricsForResult(int wfIter, Instances trainingSet, Instances testingSet) {
         Result currentResult = new Result();
 
         currentResult.setDataset(project.getName());
@@ -195,7 +195,7 @@ public final class WalkForward {
         return currentResult;
     }
 
-    private Result setConfig(
+    private Result setConfigForResult(
             Result orig, Classifier classif, FeatureSelection fs, 
             Sampling sampl, CostSensitivity costSens) {
 
@@ -209,7 +209,7 @@ public final class WalkForward {
         return configResult;
     }
 
-    private void setPerfMetrics(
+    private void setPerfMetricsForResult(
             Result orig, Evaluation eval) {
 
         orig.setAuc((float)eval.areaUnderROC(1));

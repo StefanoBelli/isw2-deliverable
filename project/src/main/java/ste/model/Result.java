@@ -28,10 +28,10 @@ public final class Result {
 
    public Result(Result old) {
        auc = old.auc;
-       balancing = new String(old.balancing);
-       classifier = new String(old.classifier);
-       dataset = new String(old.dataset);
-       featureSelection = new String(old.featureSelection);
+       balancing = String.valueOf(old.balancing);
+       classifier = String.valueOf(old.classifier);
+       dataset = String.valueOf(old.dataset);
+       featureSelection = String.valueOf(old.featureSelection);
        fn = old.fn;
        fp = old.fp;
        kappa = old.kappa;
@@ -42,7 +42,7 @@ public final class Result {
        percTrainingData = old.percTrainingData;
        precision = old.precision;
        recall = old.recall;
-       sensitivity = new String(old.sensitivity);
+       sensitivity = String.valueOf(old.sensitivity);
        tn = old.tn;
        tp = old.tp;
    }

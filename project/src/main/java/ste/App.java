@@ -292,8 +292,6 @@ public final class App {
 
         int halfSize = (int) Math.floor(rel.size() / 2f);
 
-        //extra release will be cut out when linking rel -> commits
-        //we need the extra rel to get end date of last release
         return rel.subList(0, halfSize + 1);
     }
 
@@ -401,10 +399,6 @@ public final class App {
                 pb.step();
             }
         }
-
-        //DO NOT CHANGE (compat issues)
-        //JDK/JRE may not know about removeLast() method!
-        //rels.remove(relsSize - 1);
     }
 
     private static int statTicketsWithIv(List<Ticket> tkts) {
