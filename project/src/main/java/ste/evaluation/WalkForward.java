@@ -123,10 +123,13 @@ public final class WalkForward {
             var curTrainingSet = new Instances(curDataset.getFirst());
             var curTestingSet = new Instances(curDataset.getSecond());
 
+            //delete attrs
+            //delete attrs
+
             curTrainingSet.setClassIndex(curTrainingSet.numAttributes() - 1);
             curTestingSet.setClassIndex(curTestingSet.numAttributes() - 1);
 
-            calculateEarlyMetrics(i, curTrainingSet, curTestingSet);
+            Result earlyResult = setEarlyMetrics(i, curTrainingSet, curTestingSet);
             for(Classifier classifier : classifiers) {
 
                 AbstractClassifier vanillaClassifier = classifier.getClassifier();
@@ -136,6 +139,9 @@ public final class WalkForward {
                     for(Sampling sampling : samplings) {
 
                         for(CostSensitivity costSensitivity : costSensitivities) {
+                            Result finalResult = 
+                                setConfig(earlyResult, classifier, 
+                                        featureSelection, sampling, costSensitivity);
 
                             var curFilteredDataset = featureSelection.getFilteredDataSets(
                                     curTrainingSet, curTestingSet);
@@ -156,6 +162,9 @@ public final class WalkForward {
 
                             Evaluation eval = new Evaluation(curFilteredTestingSet);
                             eval.evaluateModel(curCostSensitiveClassifier, curFilteredTestingSet);
+
+                            setPerfMetrics(finalResult, eval);
+                            results.add(finalResult);
                         }
                     }
                 }
@@ -167,19 +176,50 @@ public final class WalkForward {
         return results;
     }
 
-    private Result calculateEarlyMetrics(int wfIter, Instances trainingSet, Instances testingSet) {
+    private Result setEarlyMetrics(int wfIter, Instances trainingSet, Instances testingSet) {
         Result currentResult = new Result();
+
+        currentResult.setDataset(project.getName());
 
         currentResult.setNumTrainingRelease(wfIter);
 
         float percDefTest = (numOfPositives(testingSet)*100) / (float) trainingSet.size();
         currentResult.setPercDefectiveInTesting(percDefTest);
 
+        float percDefTrain = (numOfPositives(trainingSet)*100) / (float) testingSet.size();
+        currentResult.setPercDefectiveInTraining(percDefTrain);
 
-        currentResult.setPercDefectiveInTraining(wfIter);
-        currentResult.setPercTrainingData(wfIter);
+        float percTrain = (trainingSet.size() * 100) / (float) project.getDataset().size();
+        currentResult.setPercTrainingData(percTrain);
 
         return currentResult;
+    }
+
+    private Result setConfig(
+            Result orig, Classifier classif, FeatureSelection fs, 
+            Sampling sampl, CostSensitivity costSens) {
+
+        Result configResult = new Result(orig);
+
+        configResult.setBalancing(sampl.getName());
+        configResult.setClassifier(classif.getName());
+        configResult.setFeatureSelection(fs.getName());
+        configResult.setSensitivity(costSens.getName());
+
+        return configResult;
+    }
+
+    private void setPerfMetrics(
+            Result orig, Evaluation eval) {
+
+        orig.setAuc((float)eval.areaUnderROC(1));
+        orig.setKappa((float)eval.kappa());
+        orig.setFn((float)eval.numFalseNegatives(1));
+        orig.setFp((float)eval.numFalsePositives(1));
+        orig.setTp((float)eval.numTruePositives(1));
+        orig.setTn((float)eval.numTrueNegatives(1));
+        orig.setPrecision((float)eval.precision(1));
+        orig.setRecall((float)eval.recall(1));
     }
 
     private static int numOfPositives(Instances insts) {

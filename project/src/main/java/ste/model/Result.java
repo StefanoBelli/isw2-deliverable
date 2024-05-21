@@ -23,6 +23,29 @@ public final class Result {
    private float auc;
    private float kappa;
    private float nPofB20;
+
+   public Result() {}
+
+   public Result(Result old) {
+       auc = old.auc;
+       balancing = new String(old.balancing);
+       classifier = new String(old.classifier);
+       dataset = new String(old.dataset);
+       featureSelection = new String(old.featureSelection);
+       fn = old.fn;
+       fp = old.fp;
+       kappa = old.kappa;
+       nPofB20 = old.nPofB20;
+       numTrainingRelease = old.numTrainingRelease;
+       percDefectiveInTesting = old.percDefectiveInTesting;
+       percDefectiveInTraining = old.percDefectiveInTraining;
+       percTrainingData = old.percTrainingData;
+       precision = old.precision;
+       recall = old.recall;
+       sensitivity = new String(old.sensitivity);
+       tn = old.tn;
+       tp = old.tp;
+   }
    
    @CsvColumn(order = 1, name = "Dataset")
    public String getDataset() {
