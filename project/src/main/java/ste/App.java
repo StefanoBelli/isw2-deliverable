@@ -82,9 +82,9 @@ public final class App {
         if(args.length > 0) {
             for(String arg : args) {
                 if(arg.equals("--skip-ds-creat") || arg.equals("-s")) {
-                    logger.warn("SKIPPING dataset creation, as requested by user");
                     skipDsCreat = true;
-                    break;
+                } else if(arg.equals("--no-skip-ds-creat") || arg.equals("-d")) {
+                    skipDsCreat = false;
                 }
             }
         }
@@ -98,7 +98,19 @@ public final class App {
 
         if(!skipDsCreat) {
             dsCreat(jiraStormProject, jiraBookKeeperProject);
+        } else {
+            logger.warn("SKIPPING dataset creation, as requested by user");
         }
+
+        evaluate(jiraStormProject, jiraBookKeeperProject);
+
+        logger.info("Graceful termination. Exiting...");
+    }
+
+    private static void evaluate(JiraProject jiraStormProject, JiraProject jiraBookKeeperProject) 
+            throws Exception {
+
+        logger.info("Evaluating projects {} and {}...", STORM, BOOKKEEPER);
 
         String stormName = jiraStormProject.getName();
         String bookKeeperName = jiraBookKeeperProject.getName();
@@ -106,22 +118,34 @@ public final class App {
         WalkForward stormWf = new WalkForward(
             stormName, 
             Util.readAllFile(getDatasetCsvFilename(stormName)));
+        
         stormWf.start();
-        CsvWriter.writeAll(
-            getResultCsvFilename(stormName), 
-            Result.class, 
-            stormWf.getResults());
 
         WalkForward bookKeeperWf = new WalkForward(
             bookKeeperName, 
             Util.readAllFile(getDatasetCsvFilename(bookKeeperName)));
+
         bookKeeperWf.start();
+
+        logger.info("Writing results...");
+
+        String resultCsvStorm = getResultCsvFilename(stormName);
+
         CsvWriter.writeAll(
-            getResultCsvFilename(bookKeeperName), 
+            resultCsvStorm, 
+            Result.class, 
+            stormWf.getResults());
+        
+        logger.info(INFO_WROTE_FMT, STORM, resultCsvStorm);
+
+        String resultCsvBookKeeper = getResultCsvFilename(bookKeeperName);
+
+        CsvWriter.writeAll(
+            resultCsvBookKeeper, 
             Result.class, 
             bookKeeperWf.getResults());
 
-        logger.info("Graceful termination. Exiting...");
+        logger.info(INFO_WROTE_FMT, BOOKKEEPER, resultCsvBookKeeper);
     }
 
     private static void dsCreat(JiraProject jiraStormProject, JiraProject jiraBookKeeperProject) 
