@@ -14,7 +14,6 @@ import ste.evaluation.component.fesel.FeatureSelection;
 import ste.evaluation.component.fesel.impls.ApplyBackwardSearch;
 import ste.evaluation.component.fesel.impls.ApplyBestFirst;
 import ste.evaluation.component.sampling.Sampling;
-import ste.evaluation.component.sampling.exception.ApplyFilterException;
 import ste.evaluation.component.sampling.impls.ApplyOversampling;
 import ste.evaluation.component.sampling.impls.ApplySmote;
 import ste.evaluation.component.sampling.impls.ApplyUndersampling;
@@ -119,6 +118,7 @@ public final class WalkForward {
         results = new ArrayList<>();
 
         for(int i = 0; i < project.getMaxRelIdx(); ++i) {
+            System.out.println("cycle");
             var curDataset = getWfSplitAtIterNum(i);
 
             var curTrainingSet = new Instances(curDataset.getFirst());
@@ -134,14 +134,19 @@ public final class WalkForward {
 
             Result earlyResult = setEarlyMetricsForResult(i, curTrainingSet, curTestingSet);
             for(Classifier classifier : classifiers) {
+                System.out.println("new classifier");
 
                 AbstractClassifier vanillaClassifier = classifier.getClassifier();
 
                 for(FeatureSelection featureSelection : featureSelections) {
+                    System.out.println("new fs");
 
                     for(Sampling sampling : samplings) {
+                        System.out.println("new sampling");
 
                         for(CostSensitivity costSensitivity : costSensitivities) {
+                            System.out.println("new cs");
+
                             Result finalResult = 
                                 setConfigForResult(earlyResult, classifier, 
                                         featureSelection, sampling, costSensitivity);
@@ -168,6 +173,7 @@ public final class WalkForward {
 
                             setPerfMetricsForResult(finalResult, eval);
                             results.add(finalResult);
+                            System.out.println("DONE");
                         }
                     }
                 }
