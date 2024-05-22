@@ -83,21 +83,21 @@ public final class WalkForward {
     private void initEvalConfigs() {
         classifiers = new Classifier[]{
             new NaiveBayesClassifier(),
-            //new RandomForestClassifier(),
+            new RandomForestClassifier(),
             new IBkClassifier() 
         };
 
         featureSelections = new FeatureSelection[]{
             new FeatureSelection(null),
-            //new FeatureSelection(new ApplyBestFirst()),
-            //new FeatureSelection(new ApplyBackwardSearch())
+            new FeatureSelection(new ApplyBestFirst()),
+            new FeatureSelection(new ApplyBackwardSearch())
         };
 
         samplings = new Sampling[]{
             new Sampling(null),
             new Sampling(new ApplyOversampling()),
             new Sampling(new ApplyUndersampling()),
-            //new Sampling(new ApplySmote()),
+            new Sampling(new ApplySmote()),
         };
  
         costSensitivities = new CostSensitivity[]{
@@ -133,8 +133,6 @@ public final class WalkForward {
 
             curTrainingSet.setClassIndex(curTrainingSet.numAttributes() - 1);
             curTestingSet.setClassIndex(curTestingSet.numAttributes() - 1);
-            System.out.println(curTrainingSet);
-            System.out.println(curTestingSet);
 
             Result earlyResult = setEarlyMetricsForResult(i, curTrainingSet, curTestingSet);
             for(Classifier classifier : classifiers) {
@@ -146,7 +144,7 @@ public final class WalkForward {
                     System.out.println("new fs");
 
                     for(Sampling sampling : samplings) {
-                        System.out.println("new sampling");
+                        System.out.println("new sampling" + sampling.getName());
 
                         for(CostSensitivity costSensitivity : costSensitivities) {
                             System.out.println("new cs");
@@ -170,8 +168,12 @@ public final class WalkForward {
                             var curCostSensitiveClassifier = costSensitivity.getCostSensititiveClassifier(
                                     curSamplingResult.getFirst());
 
-                            curCostSensitiveClassifier.buildClassifier(curSamplingResult.getSecond());
-
+                            try {
+                                curCostSensitiveClassifier.buildClassifier(curSamplingResult.getSecond());
+                            } catch(Exception e) {
+                                System.out.println("--> ERRORED:: " + e.getMessage());
+                                continue;
+                            }
                             Evaluation eval = new Evaluation(curFilteredTestingSet);
                             eval.evaluateModel(curCostSensitiveClassifier, curFilteredTestingSet);
 
