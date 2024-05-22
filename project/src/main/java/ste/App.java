@@ -27,6 +27,7 @@ import ste.jirarest.JiraTicket;
 import ste.jirarest.http.Http.RequestException;
 import ste.model.JavaSourceFile;
 import ste.model.Release;
+import ste.model.Result;
 import ste.model.Ticket;
 
 public final class App {
@@ -57,6 +58,10 @@ public final class App {
     
     private static String getDatasetCsvFilename(String proj) {
         return String.format("csv_output/%s-Dataset.csv", proj);
+    }
+    
+    private static String getResultCsvFilename(String proj) {
+        return String.format("csv_output/%s-Result.csv", proj);
     }
 
     private static GitRepository stormGitRepo;
@@ -102,11 +107,19 @@ public final class App {
             stormName, 
             Util.readAllFile(getDatasetCsvFilename(stormName)));
         stormWf.start();
+        CsvWriter.writeAll(
+            getResultCsvFilename(stormName), 
+            Result.class, 
+            stormWf.getResults());
 
         WalkForward bookKeeperWf = new WalkForward(
             bookKeeperName, 
             Util.readAllFile(getDatasetCsvFilename(bookKeeperName)));
         bookKeeperWf.start();
+        CsvWriter.writeAll(
+            getResultCsvFilename(bookKeeperName), 
+            Result.class, 
+            bookKeeperWf.getResults());
 
         logger.info("Graceful termination. Exiting...");
     }

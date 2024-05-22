@@ -83,21 +83,21 @@ public final class WalkForward {
     private void initEvalConfigs() {
         classifiers = new Classifier[]{
             new NaiveBayesClassifier(),
-            new RandomForestClassifier(),
+            //new RandomForestClassifier(),
             new IBkClassifier() 
         };
 
         featureSelections = new FeatureSelection[]{
             new FeatureSelection(null),
-            new FeatureSelection(new ApplyBestFirst()),
-            new FeatureSelection(new ApplyBackwardSearch())
+            //new FeatureSelection(new ApplyBestFirst()),
+            //new FeatureSelection(new ApplyBackwardSearch())
         };
 
         samplings = new Sampling[]{
             new Sampling(null),
             new Sampling(new ApplyOversampling()),
             new Sampling(new ApplyUndersampling()),
-            new Sampling(new ApplySmote()),
+            //new Sampling(new ApplySmote()),
         };
  
         costSensitivities = new CostSensitivity[]{
@@ -117,20 +117,24 @@ public final class WalkForward {
     public void start() throws Exception {
         results = new ArrayList<>();
 
-        for(int i = 0; i < project.getMaxRelIdx(); ++i) {
-            System.out.println("cycle");
+        System.out.println(project.getMaxRelIdx());
+
+        for(int i = 1; i < project.getMaxRelIdx(); ++i) {
+            System.out.println("cycle " + i);
             var curDataset = getWfSplitAtIterNum(i);
 
             var curTrainingSet = new Instances(curDataset.getFirst());
             var curTestingSet = new Instances(curDataset.getSecond());
 
             curTrainingSet.deleteAttributeAt(0);
-            curTrainingSet.deleteAttributeAt(1);
+            curTrainingSet.deleteAttributeAt(0);
             curTestingSet.deleteAttributeAt(0);
-            curTestingSet.deleteAttributeAt(1);
+            curTestingSet.deleteAttributeAt(0);
 
             curTrainingSet.setClassIndex(curTrainingSet.numAttributes() - 1);
             curTestingSet.setClassIndex(curTestingSet.numAttributes() - 1);
+            System.out.println(curTrainingSet);
+            System.out.println(curTestingSet);
 
             Result earlyResult = setEarlyMetricsForResult(i, curTrainingSet, curTestingSet);
             for(Classifier classifier : classifiers) {
