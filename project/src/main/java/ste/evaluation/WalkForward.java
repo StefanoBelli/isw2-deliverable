@@ -14,6 +14,7 @@ import ste.evaluation.component.fesel.FeatureSelection;
 import ste.evaluation.component.fesel.impls.ApplyBackwardSearch;
 import ste.evaluation.component.fesel.impls.ApplyBestFirst;
 import ste.evaluation.component.sampling.Sampling;
+import ste.evaluation.component.sampling.exception.ApplyFilterException;
 import ste.evaluation.component.sampling.impls.ApplyOversampling;
 import ste.evaluation.component.sampling.impls.ApplySmote;
 import ste.evaluation.component.sampling.impls.ApplyUndersampling;
@@ -123,8 +124,10 @@ public final class WalkForward {
             var curTrainingSet = new Instances(curDataset.getFirst());
             var curTestingSet = new Instances(curDataset.getSecond());
 
-            //delete attrs
-            //delete attrs
+            curTrainingSet.deleteAttributeAt(0);
+            curTrainingSet.deleteAttributeAt(1);
+            curTestingSet.deleteAttributeAt(0);
+            curTestingSet.deleteAttributeAt(1);
 
             curTrainingSet.setClassIndex(curTrainingSet.numAttributes() - 1);
             curTestingSet.setClassIndex(curTestingSet.numAttributes() - 1);
@@ -183,10 +186,10 @@ public final class WalkForward {
 
         currentResult.setNumTrainingRelease(wfIter);
 
-        float percDefTest = (numOfPositives(testingSet)*100) / (float) trainingSet.size();
+        float percDefTest = (Util.numOfPositives(testingSet)*100) / (float) trainingSet.size();
         currentResult.setPercDefectiveInTesting(percDefTest);
 
-        float percDefTrain = (numOfPositives(trainingSet)*100) / (float) testingSet.size();
+        float percDefTrain = (Util.numOfPositives(trainingSet)*100) / (float) testingSet.size();
         currentResult.setPercDefectiveInTraining(percDefTrain);
 
         float percTrain = (trainingSet.size() * 100) / (float) project.getDataset().size();
@@ -220,17 +223,5 @@ public final class WalkForward {
         orig.setTn((float)eval.numTrueNegatives(1));
         orig.setPrecision((float)eval.precision(1));
         orig.setRecall((float)eval.recall(1));
-    }
-
-    private static int numOfPositives(Instances insts) {
-        int positives = 0;
-        int classColumnIdx = insts.numAttributes() - 1;
-
-        for(int i = 0; i < insts.size(); ++i) {
-            if(insts.get(i).toString(classColumnIdx).equals("yes")) {
-                ++positives;
-            }
-        }
-        return positives;
     }
 }

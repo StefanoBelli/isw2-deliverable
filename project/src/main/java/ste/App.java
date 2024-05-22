@@ -16,6 +16,7 @@ import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
 import ste.csv.CsvWriterException;
+import ste.evaluation.WalkForward;
 import ste.analyzer.BugAnalyzer;
 import ste.analyzer.BugAnalyzerException;
 import ste.analyzer.metrics.MetricsException;
@@ -69,9 +70,7 @@ public final class App {
     private static final String INFO_ANALYSIS_FMT = "project {} - running analysis, this may take some time...";
 
     public static void main(String[] args) 
-            throws RequestException, GitAPIException, 
-                    IOException, CsvWriterException, 
-                    BugAnalyzerException, MetricsException {
+            throws Exception {
 
         boolean skipDsCreat = false;
 
@@ -95,6 +94,19 @@ public final class App {
         if(!skipDsCreat) {
             dsCreat(jiraStormProject, jiraBookKeeperProject);
         }
+
+        String stormName = jiraStormProject.getName();
+        String bookKeeperName = jiraBookKeeperProject.getName();
+
+        WalkForward stormWf = new WalkForward(
+            stormName, 
+            Util.readAllFile(getDatasetCsvFilename(stormName)));
+        stormWf.start();
+
+        WalkForward bookKeeperWf = new WalkForward(
+            bookKeeperName, 
+            Util.readAllFile(getDatasetCsvFilename(bookKeeperName)));
+        bookKeeperWf.start();
 
         logger.info("Graceful termination. Exiting...");
     }

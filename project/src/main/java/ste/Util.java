@@ -80,11 +80,12 @@ public final class Util {
       arffSaver.writeBatch();
    }
 
-   public static int getNumOfPositiveInstances(Instances insts) {
+   public static int numOfPositives(Instances insts) {
       int numPosInsts = 0;
+      int attrIdx = insts.numAttributes() - 1;
 
       for(int i = 0;i< insts.size() ; ++i) {
-         if(insts.get(i).toString(insts.numAttributes()-1).equals("yes")) {
+         if(insts.get(i).toString(attrIdx).equals("yes")) {
             ++numPosInsts;
          }
       }
