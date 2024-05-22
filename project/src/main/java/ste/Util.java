@@ -100,6 +100,7 @@ public final class Util {
          .setStyle(ProgressBarStyle.ASCII)
          .setInitialMax(max)
          .continuousUpdate()
+         .setMaxRenderedLength(150)
          .build();
    }
 

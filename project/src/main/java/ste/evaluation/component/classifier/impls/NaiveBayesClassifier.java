@@ -12,7 +12,7 @@ public class NaiveBayesClassifier implements Classifier {
     }
 
     @Override
-    public AbstractClassifier getClassifier() {
+    public AbstractClassifier buildClassifier() {
         return new NaiveBayes();
     }
     

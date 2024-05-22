@@ -12,7 +12,7 @@ public final class IBkClassifier implements Classifier {
     }
 
     @Override
-    public AbstractClassifier getClassifier() {
+    public AbstractClassifier buildClassifier() {
         return new IBk();
     }
     

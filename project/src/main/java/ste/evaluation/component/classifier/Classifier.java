@@ -4,5 +4,5 @@ import ste.evaluation.component.NamedEvaluationComponent;
 import weka.classifiers.AbstractClassifier;
 
 public interface Classifier extends NamedEvaluationComponent {
-    AbstractClassifier getClassifier();
+    AbstractClassifier buildClassifier();
 }
