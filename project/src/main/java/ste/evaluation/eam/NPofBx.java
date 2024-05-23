@@ -1,7 +1,6 @@
 package ste.evaluation.eam;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import ste.csv.annotations.CsvColumn;
@@ -9,7 +8,6 @@ import ste.csv.annotations.CsvDescriptor;
 import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.pmml.jaxbbindings.TableLocator;
 
 public final class NPofBx {
 
@@ -62,9 +60,7 @@ public final class NPofBx {
 
     private List<TableEntry> entries;
     
-    public double indexFor(
-            int x, 
-            Instances testingSet, 
+    public float indexFor(int x, Instances testingSet, 
             AbstractClassifier classifier) 
                 throws Exception {
 
@@ -73,12 +69,18 @@ public final class NPofBx {
         int lastAttrIdx = testingSet.numAttributes() - 1;
         int totalSize = 0;
 
+        int totalActual = 0;
+
         for(int i = 0; i < testingSet.numInstances(); ++i) {
             Instance cur = testingSet.get(i);
 
             double size = cur.value(0);
             double pred = classifier.classifyInstance(cur);
             boolean actual = cur.toString(lastAttrIdx).equals("yes");
+
+            if(actual) {
+                ++totalActual;
+            }
 
             TableEntry entry = new TableEntry(
                 i + 1, 
@@ -92,15 +94,37 @@ public final class NPofBx {
             entries.add(entry);
         }
 
+        return calcIndexCore(totalSize, x, totalActual);
+    }
+
+    public List<TableEntry> getEntries() {
+        return entries;
+    }
+
+    private float calcIndexCore(int totalSize, int topX, int totalActuallyBuggy) {
+        //rank by normalized probability of buggyness
         entries.sort(
             (e1, e2) -> 
                 (int) (e1.getNormProbYes() - e2.getNormProbYes()) 
         );
 
-        double totalSizeX = totalSize * (x / 100);
-    }
+        int topXPercSize = totalSize * (topX / 100);
+        int sizeSoFar = 0;
 
-    public List<TableEntry> getEntries() {
-        return entries;
+        int topXActuallyBuggy = 0;
+
+        for(TableEntry entry : entries) {
+            sizeSoFar += entry.getSize();
+
+            if(sizeSoFar > topXPercSize) {
+                break;
+            }
+
+            if(entry.isActual()) {
+                ++topXActuallyBuggy;
+            }
+        }
+
+        return (float) topXActuallyBuggy / totalActuallyBuggy;
     }
 }
