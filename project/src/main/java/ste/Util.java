@@ -84,7 +84,7 @@ public final class Util {
       int numPosInsts = 0;
       int attrIdx = insts.numAttributes() - 1;
 
-      for(int i = 0;i< insts.size() ; ++i) {
+      for(int i = 0; i < insts.size(); ++i) {
          if(insts.get(i).toString(attrIdx).equals("yes")) {
             ++numPosInsts;
          }
