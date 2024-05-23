@@ -148,7 +148,7 @@ public final class WalkForward {
 
                             Result finalResult = setConfigForResult(earlyResult, profile);
 
-                            Evaluation evaluation = evaluate(i + 1, profile, curDataset);
+                            var evaluation = evaluate(i + 1, profile, curDataset);
 
                             addResultingEvaluation(finalResult, evaluation);
 
@@ -214,14 +214,16 @@ public final class WalkForward {
         }
     }
 
-    private void addResultingEvaluation(Result currentResult, Evaluation evaluation) {
+    private void addResultingEvaluation(Result currentResult, Util.Pair<Evaluation, Float> evaluation) {
         if(evaluation != null) {
-            setPerfMetricsForResult(currentResult, evaluation);
+            setPerfMetricsForResult(currentResult, evaluation.getFirst());
+            currentResult.setNPofB20(evaluation.getSecond());
             results.add(currentResult);
         }
     }
 
-    private Evaluation evaluate(int wfRun, EvaluationProfile profile, Util.Pair<Instances, Instances> datasets) {
+    private Util.Pair<Evaluation, Float> evaluate(
+            int wfRun, EvaluationProfile profile, Util.Pair<Instances, Instances> datasets) {
         try {
             var resultingPair = obtainClassifierWithFilteredTestingSet(
                     profile,
@@ -232,7 +234,7 @@ public final class WalkForward {
             var classifier = resultingPair.getFirst();
 
             NPofBx npofbx = new NPofBx();
-            npofbx.indexFor(20, testingSet, classifier);
+            float nPofBxIndex = npofbx.indexFor(20, testingSet, classifier);
             CsvWriter.writeAll(
                 getNPofBxFilename(wfRun, profile), 
                 NPofBx.TableEntry.class, 
@@ -241,7 +243,7 @@ public final class WalkForward {
             Evaluation eval = new Evaluation(testingSet);
             eval.evaluateModel(classifier, testingSet);
 
-            return eval;
+            return new Util.Pair<>(eval, nPofBxIndex);
         } catch (Exception e) {
             LoggerFactory
                 .getLogger(WalkForward.class.getName())
