@@ -217,7 +217,7 @@ public final class WalkForward {
     private void addResultingEvaluation(Result currentResult, Util.Pair<Evaluation, Float> evaluation) {
         if(evaluation != null) {
             setPerfMetricsForResult(currentResult, evaluation.getFirst());
-            currentResult.setNPofB20(evaluation.getSecond());
+            currentResult.setNPofB20(evaluation.getSecond() * 100);
             results.add(currentResult);
         }
     }

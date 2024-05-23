@@ -119,7 +119,7 @@ public final class NPofBx {
             }
         );
 
-        int topXPercSize = totalSize * (topX / 100);
+        int topXPercSize = Math.round(totalSize * (topX / 100f));
         int sizeSoFar = 0;
 
         int topXActuallyBuggy = 0;
@@ -136,7 +136,7 @@ public final class NPofBx {
             }
         }
 
-        return (float) topXActuallyBuggy / totalActuallyBuggy;
+        return totalActuallyBuggy > 0 ? (float) topXActuallyBuggy / totalActuallyBuggy : 0f;
     }
 
     private static double getPredictionPercForYesLabel(Instance inst, AbstractClassifier classifier) 
