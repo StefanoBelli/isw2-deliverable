@@ -3,8 +3,11 @@ package ste.evaluation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+
 import me.tongfei.progressbar.ProgressBar;
 import ste.Util;
+import ste.csv.CsvWriter;
 import ste.evaluation.component.classifier.Classifier;
 import ste.evaluation.component.classifier.impls.IBkClassifier;
 import ste.evaluation.component.classifier.impls.NaiveBayesClassifier;
@@ -18,6 +21,7 @@ import ste.evaluation.component.sampling.Sampling;
 import ste.evaluation.component.sampling.impls.ApplyOversampling;
 import ste.evaluation.component.sampling.impls.ApplySmote;
 import ste.evaluation.component.sampling.impls.ApplyUndersampling;
+import ste.evaluation.eam.NPofBx;
 import ste.model.Result;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
@@ -54,6 +58,17 @@ public final class WalkForward {
 
     private static String getDataSetArffFilename(String proj) {
         return String.format("%s-dataset.arff", proj);
+    }
+
+    private String getNPofBxFilename(int wfRunNo, EvaluationProfile profile) {
+        return String.format("csv_output/npofbx/%s/%s_%s_%s_%s_%s_%d.csv",
+                                project.getName(),
+                                project.getName().toUpperCase(),
+                                profile.getClassifier().getName().toUpperCase(),
+                                profile.getFeatureSelection().getName().toUpperCase(),
+                                profile.getSampling().getName().toUpperCase(),
+                                profile.getCostSensitivity().getName().toUpperCase(),
+                                wfRunNo);
     }
 
     public WalkForward(String projectName, String projectDatasetCsv) throws Exception {
@@ -133,10 +148,10 @@ public final class WalkForward {
 
                             Result finalResult = setConfigForResult(earlyResult, profile);
 
-                            Evaluation evaluation = evaluate(profile, curDataset);
+                            Evaluation evaluation = evaluate(i + 1, profile, curDataset);
 
                             addResultingEvaluation(finalResult, evaluation);
-                            
+
                             pb.setExtraMessage(profile.toString());
                             pb.step();
                         }
@@ -206,21 +221,32 @@ public final class WalkForward {
         }
     }
 
-    private static Evaluation evaluate(EvaluationProfile profile, Util.Pair<Instances, Instances> datasets) {
+    private Evaluation evaluate(int wfRun, EvaluationProfile profile, Util.Pair<Instances, Instances> datasets) {
         try {
             var resultingPair = obtainClassifierWithFilteredTestingSet(
                     profile,
                     datasets.getFirst(),
                     datasets.getSecond());
 
-            var trainingSet = resultingPair.getSecond();
+            var testingSet = resultingPair.getSecond();
             var classifier = resultingPair.getFirst();
 
-            Evaluation eval = new Evaluation(trainingSet);
-            eval.evaluateModel(classifier, trainingSet);
+            NPofBx npofbx = new NPofBx();
+            npofbx.indexFor(20, testingSet, classifier);
+            CsvWriter.writeAll(
+                getNPofBxFilename(wfRun, profile), 
+                NPofBx.TableEntry.class, 
+                npofbx.getEntries());
+
+            Evaluation eval = new Evaluation(testingSet);
+            eval.evaluateModel(classifier, testingSet);
 
             return eval;
         } catch (Exception e) {
+            LoggerFactory
+                .getLogger(WalkForward.class.getName())
+                .warn(e.getMessage());
+
             return null;
         }
     }

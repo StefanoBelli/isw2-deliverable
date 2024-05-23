@@ -5,6 +5,7 @@ import java.util.List;
 
 import ste.csv.annotations.CsvColumn;
 import ste.csv.annotations.CsvDescriptor;
+import ste.evaluation.eam.exception.NPofBxException;
 import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -75,7 +76,7 @@ public final class NPofBx {
             Instance cur = testingSet.get(i);
 
             double size = cur.value(0);
-            double pred = classifier.classifyInstance(cur);
+            double pred = getPredictionPercForYesLabel(cur, classifier);
             boolean actual = cur.toString(lastAttrIdx).equals("yes");
 
             if(actual) {
@@ -104,8 +105,18 @@ public final class NPofBx {
     private float calcIndexCore(int totalSize, int topX, int totalActuallyBuggy) {
         //rank by normalized probability of buggyness
         entries.sort(
-            (e1, e2) -> 
-                (int) (e1.getNormProbYes() - e2.getNormProbYes()) 
+            (e1, e2) -> {
+                float npy1 = e1.getNormProbYes();
+                float npy2 = e2.getNormProbYes();
+
+                if (npy1 < npy2) {
+                    return 1;
+                } else if(npy1 == npy2) {
+                    return 0;
+                } else {
+                    return -1;
+                }
+            }
         );
 
         int topXPercSize = totalSize * (topX / 100);
@@ -126,5 +137,21 @@ public final class NPofBx {
         }
 
         return (float) topXActuallyBuggy / totalActuallyBuggy;
+    }
+
+    private static double getPredictionPercForYesLabel(Instance inst, AbstractClassifier classifier) 
+            throws Exception {
+
+        classifier.classifyInstance(inst);
+
+        double[] predDist = classifier.distributionForInstance(inst);
+
+        for(int i = 0; i < predDist.length; ++i) {
+            if(inst.classAttribute().value(i).equals("yes")) {
+                return predDist[i];
+            }
+        }
+
+        throw new NPofBxException();
     }
 }
