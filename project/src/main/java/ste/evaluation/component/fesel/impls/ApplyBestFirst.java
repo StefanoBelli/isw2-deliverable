@@ -13,7 +13,7 @@ public final class ApplyBestFirst implements ApplyFeatureSelection {
 
     @Override
     public String getName() {
-        return "Best first";
+        return "BestFirst";
     }
     
 }

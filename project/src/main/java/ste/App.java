@@ -79,13 +79,11 @@ public final class App {
 
         boolean skipDsCreat = false;
 
-        if(args.length > 0) {
-            for(String arg : args) {
-                if(arg.equals("--skip-ds-creat") || arg.equals("-s")) {
-                    skipDsCreat = true;
-                } else if(arg.equals("--no-skip-ds-creat") || arg.equals("-d")) {
-                    skipDsCreat = false;
-                }
+        for(String arg : args) {
+            if(arg.equals("--skip-ds-creat") || arg.equals("-s")) {
+                skipDsCreat = true;
+            } else if(arg.equals("--no-skip-ds-creat") || arg.equals("-d")) {
+                skipDsCreat = false;
             }
         }
 

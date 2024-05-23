@@ -31,7 +31,7 @@ public final class ApplyUndersampling implements ApplyFilter {
 
     @Override
     public String getName() {
-        return "undersampling";
+        return "Undersampling";
     }
     
 }

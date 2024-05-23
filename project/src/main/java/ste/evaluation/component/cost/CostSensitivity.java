@@ -29,11 +29,11 @@ public final class CostSensitivity implements NamedEvaluationComponent {
     public String getName() {
         switch(sens) {
             case LEARNING:
-            return "learning";
+            return "Learning";
             case NONE:
-            return "none";
+            return "None";
             case THRESHOLD:
-            return "threshold";
+            return "Threshold";
         }
 
         return "";

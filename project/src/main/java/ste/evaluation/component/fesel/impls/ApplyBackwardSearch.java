@@ -15,7 +15,7 @@ public final class ApplyBackwardSearch implements ApplyFeatureSelection {
 
     @Override
     public String getName() {
-        return "Backward search";
+        return "BackwardSearch";
     }
     
 }

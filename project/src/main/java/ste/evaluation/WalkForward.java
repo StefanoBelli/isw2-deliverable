@@ -98,13 +98,13 @@ public final class WalkForward {
     public void start() {
         String msg = String.format("Evaluating project %s...", project.getName());
 
-        int nRels = project.getMaxRelIdx();
+        int nWfIters = project.getMaxRelIdx();
         int nCl = classifiers.length;
         int nFs = featureSelections.length;
         int nSm = samplings.length;
         int nCs = costSensitivities.length;
 
-        ProgressBar pb = Util.buildProgressBar(msg, nRels * nCl * nFs * nSm * nCs);
+        ProgressBar pb = Util.buildProgressBar(msg, nWfIters * nCl * nFs * nSm * nCs);
         doStart(pb);
 
         pb.close();

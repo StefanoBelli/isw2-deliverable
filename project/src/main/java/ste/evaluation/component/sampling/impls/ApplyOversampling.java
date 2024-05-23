@@ -30,7 +30,7 @@ public final class ApplyOversampling implements ApplyFilter {
 
     @Override
     public String getName() {
-        return "oversampling";
+        return "Oversampling";
     }
     
 }
