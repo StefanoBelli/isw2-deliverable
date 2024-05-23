@@ -12,6 +12,7 @@ import weka.core.Instances;
 
 public final class NPofBx {
 
+    // Compatability with ACUME tool
     @CsvDescriptor
     public static final class TableEntry {
         private final int entryId;
@@ -33,7 +34,7 @@ public final class NPofBx {
             this.actual = actual;
         }
 
-        @CsvColumn(order = 1, name = "Id")
+        @CsvColumn(order = 1, name = "ID")
         public int getEntryId() {
             return entryId;
         }
@@ -43,17 +44,20 @@ public final class NPofBx {
             return size;
         }
 
-        @CsvColumn(order = 3, name = "Prob")
+        @CsvColumn(order = 3, name = "Predicted")
         public float getProbYes() {
             return probYes;
         }
 
-        @CsvColumn(order = 4, name = "NormProb")
+        @CsvColumn(order = 4, name = "Actual")
+        public String getActualAsYesNo() {
+            return actual ? "YES" : "NO";
+        }
+ 
         public float getNormProbYes() {
             return normProbYes;
         }
 
-        @CsvColumn(order = 5, name = "Actual")
         public boolean isActual() {
             return actual;
         }
@@ -84,7 +88,7 @@ public final class NPofBx {
             }
 
             TableEntry entry = new TableEntry(
-                i + 1, 
+                i, 
                 (int) size, 
                 (float) pred,
                 (float)(pred / size), 
