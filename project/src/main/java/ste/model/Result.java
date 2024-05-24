@@ -76,15 +76,15 @@ public final class Result {
    public String getClassifier() {
        return classifier;
    }
-
-   @CsvColumn(order = 7, name = "Balancing")
-   public String getBalancing() {
-       return balancing;
-   }
-
-   @CsvColumn(order = 8, name = "FeatureSelection")
+   
+   @CsvColumn(order = 7, name = "FeatureSelection")
    public String getFeatureSelection() {
        return featureSelection;
+   }
+
+   @CsvColumn(order = 8, name = "Balancing")
+   public String getBalancing() {
+       return balancing;
    }
 
    @CsvColumn(order = 9, name = "Sensitivity")
