@@ -40,7 +40,7 @@ public final class Sampling implements NamedEvaluationComponent {
     @Override
     public String getName() {
         if(applyFilter == null) {
-            return "none";
+            return "None";
         }
 
         return applyFilter.getName();

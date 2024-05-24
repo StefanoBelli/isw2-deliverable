@@ -233,15 +233,15 @@ public final class WalkForward {
             var testingSet = resultingPair.getSecond();
             var classifier = resultingPair.getFirst();
 
+            Evaluation eval = new Evaluation(testingSet);
+            eval.evaluateModel(classifier, testingSet);
+
             NPofBx npofbx = new NPofBx();
             float nPofBxIndex = npofbx.indexFor(20, testingSet, classifier);
             CsvWriter.writeAll(
                 getNPofBxFilename(wfRun, profile), 
                 NPofBx.TableEntry.class, 
                 npofbx.getEntries());
-
-            Evaluation eval = new Evaluation(testingSet);
-            eval.evaluateModel(classifier, testingSet);
 
             return new Util.Pair<>(eval, nPofBxIndex);
         } catch (Exception e) {

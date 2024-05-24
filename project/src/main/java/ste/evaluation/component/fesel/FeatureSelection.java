@@ -37,7 +37,7 @@ public final class FeatureSelection implements NamedEvaluationComponent {
     @Override
     public String getName() {
         if(applyFeatureSelection == null) {
-            return "none";
+            return "None";
         }
 
         return applyFeatureSelection.getName();

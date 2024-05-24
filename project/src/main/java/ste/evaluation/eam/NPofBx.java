@@ -15,23 +15,30 @@ public final class NPofBx {
     // Compatability with ACUME tool
     @CsvDescriptor
     public static final class TableEntry {
-        private final int entryId;
-        private final int size;
-        private final float probYes;
-        private final float normProbYes;
-        private final boolean actual;
+        private int entryId;
+        private int size;
+        private float probYes;
+        private float normProbYes;
+        private boolean actual;
 
-        public TableEntry(
-                int entryId, 
-                int size, 
-                float probYes, 
-                float normProbYes, 
-                boolean actual) {
-            this.entryId = entryId;
-            this.size = size;
-            this.probYes = probYes;
-            this.normProbYes = normProbYes;
+        public void setActual(boolean actual) {
             this.actual = actual;
+        }
+
+        public void setEntryId(int entryId) {
+            this.entryId = entryId;
+        }
+
+        public void setNormProbYes(float normProbYes) {
+            this.normProbYes = normProbYes;
+        }
+
+        public void setProbYes(float probYes) {
+            this.probYes = probYes;
+        }
+
+        public void setSize(int size) {
+            this.size = size;
         }
 
         @CsvColumn(order = 1, name = "ID")
@@ -87,12 +94,12 @@ public final class NPofBx {
                 ++totalActual;
             }
 
-            TableEntry entry = new TableEntry(
-                i, 
-                (int) size, 
-                (float) pred,
-                (float)(pred / size), 
-                actual);
+            TableEntry entry = new TableEntry();
+            entry.setActual(actual);
+            entry.setSize((int) size);
+            entry.setProbYes((float) pred);
+            entry.setNormProbYes((float) (pred / size));
+            entry.setEntryId(i);
 
             totalSize += (int) size;
             
@@ -145,9 +152,6 @@ public final class NPofBx {
 
     private static double getPredictionPercForYesLabel(Instance inst, AbstractClassifier classifier) 
             throws Exception {
-
-        classifier.classifyInstance(inst);
-
         double[] predDist = classifier.distributionForInstance(inst);
 
         for(int i = 0; i < predDist.length; ++i) {
