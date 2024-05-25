@@ -293,10 +293,10 @@ public final class WalkForward {
 
         orig.setAuc((float)eval.areaUnderROC(1));
         orig.setKappa((float)eval.kappa());
-        orig.setFn((float)eval.numFalseNegatives(1));
-        orig.setFp((float)eval.numFalsePositives(1));
-        orig.setTp((float)eval.numTruePositives(1));
-        orig.setTn((float)eval.numTrueNegatives(1));
+        orig.setFn((int)eval.numFalseNegatives(1));
+        orig.setFp((int)eval.numFalsePositives(1));
+        orig.setTp((int)eval.numTruePositives(1));
+        orig.setTn((int)eval.numTrueNegatives(1));
         orig.setPrecision((float)eval.precision(1));
         orig.setRecall((float)eval.recall(1));
     }

@@ -1,5 +1,6 @@
 package ste;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,6 +65,8 @@ public final class App {
         return String.format("csv_output/%s-Result.csv", proj);
     }
 
+    private static final String LOOKUP_PY_SCRIPT_FILENAME = "csv_output/lookup-npofb20.py";
+
     private static GitRepository stormGitRepo;
     private static GitRepository bookKeeperGitRepo;
     private static List<Release> stormReleases;
@@ -102,7 +105,37 @@ public final class App {
 
         evaluate(jiraStormProject, jiraBookKeeperProject);
 
+        logger.info("writing python lookup script for NPofB20...");
+
+        writeLookupPythonScript(LOOKUP_PY_SCRIPT_FILENAME);
+
         logger.info("Graceful termination. Exiting...");
+    }
+
+    private static void writeLookupPythonScript(String scriptPath) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        builder
+            .append("#!/usr/bin/python3\n")
+            .append("import csv\n")
+            .append("import sys\n")
+            .append("with open(f\"{sys.argv[1]}-Result.csv\") as csvf:\n")
+            .append("\treader = csv.reader(csvf)\n")
+            .append("\tfor row in reader:\n")
+            .append("\t\tif str.lower(row[5]) == str.lower(sys.argv[2]) and \\\n")
+            .append("\t\t\tstr.lower(row[6]) == str.lower(sys.argv[3]) and \\\n")
+            .append("\t\t\tstr.lower(row[7]) == str.lower(sys.argv[4]) and \\\n")
+            .append("\t\t\tstr.lower(row[8]) == str.lower(sys.argv[5]) and \\\n")
+            .append("\t\t\tstr(int(row[1]) + 1) == sys.argv[6]:\n")
+            .append("\t\t\tprint(f\"{row[17]}\")\n")
+            .append("\t\t\tbreak\n");
+
+        try(FileOutputStream fos = new FileOutputStream(scriptPath)) {
+            fos.write(builder.toString().getBytes());
+        }
+
+        logger.info("wrote python lookup script for NPofB20 @ {}", scriptPath);
+        logger.info("usage: python {} <Dataset> <Classifier> <FeatureSelection> <Balancing> <Sensitivity> <#TrainingReleases + 1>", 
+            scriptPath);
     }
 
     private static void evaluate(JiraProject jiraStormProject, JiraProject jiraBookKeeperProject) 

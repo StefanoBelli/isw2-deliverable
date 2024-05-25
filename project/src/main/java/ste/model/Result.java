@@ -14,10 +14,10 @@ public final class Result {
    private String balancing;
    private String featureSelection;
    private String sensitivity;
-   private float tp;
-   private float fp;
-   private float tn;
-   private float fn;
+   private int tp;
+   private int fp;
+   private int tn;
+   private int fn;
    private float precision;
    private float recall;
    private float auc;
@@ -93,22 +93,22 @@ public final class Result {
    }
 
    @CsvColumn(order = 10, name = "TP")
-   public float getTp() {
+   public int getTp() {
        return tp;
    }
 
    @CsvColumn(order = 11, name = "FP")
-   public float getFp() {
+   public int getFp() {
        return fp;
    }
 
    @CsvColumn(order = 12, name = "TN")
-   public float getTn() {
+   public int getTn() {
        return tn;
    }
 
    @CsvColumn(order = 13, name = "FN")
-   public float getFn() {
+   public int getFn() {
        return fn;
    }
 
@@ -157,11 +157,11 @@ public final class Result {
        this.featureSelection = featureSelection;
    }
 
-   public void setFn(float fn) {
+   public void setFn(int fn) {
        this.fn = fn;
    }
 
-   public void setFp(float fp) {
+   public void setFp(int fp) {
        this.fp = fp;
    }
 
@@ -197,11 +197,11 @@ public final class Result {
        this.sensitivity = sensitivity;
    }
    
-   public void setTn(float tn) {
+   public void setTn(int tn) {
        this.tn = tn;
    }
 
-   public void setTp(float tp) {
+   public void setTp(int tp) {
        this.tp = tp;
    }
 
