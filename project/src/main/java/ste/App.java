@@ -269,7 +269,7 @@ public final class App {
     private static class HalfReleaseCutter implements ReleaseCutter {
         @Override
         public int rightBorder(int nRels) {
-            return ((int) Math.round(nRels / 2f)) + 1;
+            return Math.round(nRels / 2f) + 1;
         }
     }
 

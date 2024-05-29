@@ -19,7 +19,7 @@ import ste.model.Release;
 import ste.model.Ticket;
 
 public final class Proportion {
-    private final static class ColdStart {
+    private static final class ColdStart {
         private static Logger log;
         static {
             log = LoggerFactory.getLogger(ColdStart.class.getName());
@@ -61,6 +61,10 @@ public final class Proportion {
                         avgP += p;
                     }
                 }
+            }
+
+            if(numP == 0) {
+                return 0;
             }
 
             return avgP / numP;
@@ -112,10 +116,10 @@ public final class Proportion {
         }
 
         if(fv == ov) {
-            return fv - iv;
+            return (double) fv - iv;
         }
 
-        return (fv - iv) / (fv - ov);
+        return (double) (fv - iv) / (fv - ov);
     }
 
     private static double increment(List<Ticket> subTickets, int numRels) {
@@ -166,7 +170,7 @@ public final class Proportion {
                     } else {
                         pIncrement = ColdStart.computeProportion();
                     }
-                    newIv = Long.valueOf(Math.round(fv - ((fv - ov) * pIncrement))).intValue();
+                    newIv = (int) Math.round(fv - ((fv - ov) * pIncrement));
                 }
 
                 ticket.setInjectedVersionIdx(newIv - 1);
