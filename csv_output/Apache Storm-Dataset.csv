@@ -8499,7 +8499,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.1,storm-core/src/jvm/org/apache/storm/scheduler/WorkerSlot.java,81,0,0,0,0,0,0,0,0,0,0,no
 1.0.1,storm-core/src/jvm/org/apache/storm/scheduler/multitenant/DefaultPool.java,219,0,0,0,0,0,0,0,0,0,0,no
 1.0.1,storm-core/src/jvm/org/apache/storm/scheduler/multitenant/FreePool.java,125,0,0,0,0,0,0,0,0,0,0,no
-1.0.1,storm-core/src/jvm/org/apache/storm/scheduler/multitenant/IsolatedPool.java,363,0,0,0,0,0,0,0,0,0,0,no
+1.0.1,storm-core/src/jvm/org/apache/storm/scheduler/multitenant/IsolatedPool.java,363,0,0,0,0,0,0,0,0,0,0,yes
 1.0.1,storm-core/src/jvm/org/apache/storm/scheduler/multitenant/MultitenantScheduler.java,98,0,0,0,0,0,0,0,0,0,0,no
 1.0.1,storm-core/src/jvm/org/apache/storm/scheduler/multitenant/Node.java,340,0,0,0,0,0,0,0,0,0,0,no
 1.0.1,storm-core/src/jvm/org/apache/storm/scheduler/multitenant/NodePool.java,296,0,0,0,0,0,0,0,0,0,0,no
