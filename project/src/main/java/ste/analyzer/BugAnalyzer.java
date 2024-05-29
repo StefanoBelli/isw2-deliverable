@@ -139,9 +139,14 @@ public final class BugAnalyzer {
     private void addToBuggyFilesByChangeType(List<String> buggyFiles, DiffEntry diffEntry) {
         ChangeType changeType = diffEntry.getChangeType();
 
-        if(changeType == ChangeType.DELETE || changeType == ChangeType.RENAME) {
+        if(changeType == ChangeType.DELETE) {
             buggyFiles.add(diffEntry.getOldPath());
-        } else if(changeType == ChangeType.MODIFY || changeType == ChangeType.COPY) {
+        } else if(changeType == ChangeType.RENAME) {
+            buggyFiles.add(diffEntry.getNewPath());
+            buggyFiles.add(diffEntry.getOldPath());  
+        } else if(changeType == ChangeType.MODIFY || 
+                changeType == ChangeType.COPY || 
+                changeType == ChangeType.ADD) {
             buggyFiles.add(diffEntry.getNewPath());
         }
     }

@@ -2385,7 +2385,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 4.3.0,bookkeeper-server/src/test/java/org/apache/bookkeeper/client/TestRackawareEnsemblePlacementPolicy.java,279,0,0,0,0,0,0,0,0,0,0,no
 4.3.0,bookkeeper-server/src/test/java/org/apache/bookkeeper/client/TestReadTimeout.java,101,2,1,1,1,1,1,42,72,2,2,yes
 4.3.0,bookkeeper-server/src/test/java/org/apache/bookkeeper/client/TestSpeculativeRead.java,343,2,1,1,1,1,1,42,72,2,2,yes
-4.3.0,bookkeeper-server/src/test/java/org/apache/bookkeeper/client/TestWatchEnsembleChange.java,71,71,71,71,71,71,71,11,11,1,1,no
+4.3.0,bookkeeper-server/src/test/java/org/apache/bookkeeper/client/TestWatchEnsembleChange.java,71,71,71,71,71,71,71,11,11,1,1,yes
 4.3.0,bookkeeper-server/src/test/java/org/apache/bookkeeper/conf/TestBKConfiguration.java,32,32,32,32,32,32,32,1,1,1,1,no
 4.3.0,bookkeeper-server/src/test/java/org/apache/bookkeeper/meta/GcLedgersTest.java,272,0,0,0,0,0,0,0,0,0,0,no
 4.3.0,bookkeeper-server/src/test/java/org/apache/bookkeeper/meta/LedgerLayoutTest.java,148,0,0,0,0,0,0,0,0,0,0,no
