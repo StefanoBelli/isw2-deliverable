@@ -287,17 +287,16 @@ public final class WalkForward {
         return configResult;
     }
 
-    private static void setPerfMetricsForResult(
+    private void setPerfMetricsForResult(
             Result orig, Evaluation eval) {
-
-        orig.setAuc((float)eval.areaUnderROC(1));
+        orig.setAuc((float)eval.areaUnderROC(posClassIdx));
         orig.setKappa((float)eval.kappa());
-        orig.setFn((int)eval.numFalseNegatives(1));
-        orig.setFp((int)eval.numFalsePositives(1));
-        orig.setTp((int)eval.numTruePositives(1));
-        orig.setTn((int)eval.numTrueNegatives(1));
-        orig.setPrecision((float)eval.precision(1));
-        orig.setRecall((float)eval.recall(1));
+        orig.setFn((int)eval.numFalseNegatives(posClassIdx));
+        orig.setFp((int)eval.numFalsePositives(posClassIdx));
+        orig.setTp((int)eval.numTruePositives(posClassIdx));
+        orig.setTn((int)eval.numTrueNegatives(posClassIdx));
+        orig.setPrecision((float)eval.precision(posClassIdx));
+        orig.setRecall((float)eval.recall(posClassIdx));
     }
 
     private Util.Pair<Instances, Instances> getWfSplitAtIterNum(int iterIdx) {
@@ -329,7 +328,9 @@ public final class WalkForward {
         return new Util.Pair<>(curTrainingSet, curTestingSet);
     }
 
-    private static Util.Pair<AbstractClassifier, Instances> obtainClassifierWithFilteredTestingSet(
+    private int posClassIdx;
+
+    private Util.Pair<AbstractClassifier, Instances> obtainClassifierWithFilteredTestingSet(
             EvaluationProfile evaluationProfile,
             Instances trainingSet,
             Instances testingSet) throws Exception {
@@ -342,6 +343,8 @@ public final class WalkForward {
 
         curFilteredTrainingSet.setClassIndex(curFilteredTrainingSet.numAttributes() - 1);
         curFilteredTestingSet.setClassIndex(curFilteredTestingSet.numAttributes() - 1);
+
+        posClassIdx = curFilteredTestingSet.classAttribute().indexOfValue("yes");
 
         var curSamplingResult = evaluationProfile.getSampling().getFilteredClassifierWithSampledTrainingSet(
                 evaluationProfile.getClassifier().buildClassifier(), curFilteredTrainingSet);
