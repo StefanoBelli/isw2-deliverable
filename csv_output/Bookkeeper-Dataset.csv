@@ -19,7 +19,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/client/DigestManager.java,185,23,6,16,1,0,1,72,171,2,4,yes
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/client/DistributionSchedule.java,61,5,3,4,0,0,0,94,171,2,2,yes
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/client/LedgerCreateOp.java,157,43,6,26,-10,-1,1,54,171,2,7,yes
-4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/client/LedgerDeleteOp.java,81,12,4,7,1,0,1,99,171,2,3,no
+4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/client/LedgerDeleteOp.java,81,12,4,7,1,0,1,99,171,2,3,yes
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/client/LedgerEntry.java,84,50,25,46,1,1,1,132,171,1,2,no
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/client/LedgerHandle.java,762,915,83,520,215,20,75,37,171,2,11,yes
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/client/LedgerMetadata.java,248,90,15,32,50,8,28,51,171,3,6,yes
@@ -54,7 +54,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/util/LocalBookKeeper.java,234,229,46,101,25,5,23,68,171,3,5,yes
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/util/Main.java,54,5,3,4,0,0,0,102,171,2,2,no
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/util/MathUtils.java,38,5,5,5,0,0,0,171,171,1,1,yes
-4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/util/OrderedSafeExecutor.java,98,4,4,4,0,0,0,171,171,1,1,no
+4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/util/OrderedSafeExecutor.java,98,4,4,4,0,0,0,171,171,1,1,yes
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/util/SafeRunnable.java,39,11,6,7,1,1,1,132,171,1,2,no
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/util/StringUtils.java,69,4,2,4,-25,-12,0,102,171,2,2,yes
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/util/ZkUtils.java,94,94,94,94,94,94,94,33,33,1,1,yes

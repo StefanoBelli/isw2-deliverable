@@ -15,7 +15,6 @@ import ste.evaluation.component.classifier.impls.RandomForestClassifier;
 import ste.evaluation.component.cost.CostSensitivity;
 import ste.evaluation.component.cost.Sensitive;
 import ste.evaluation.component.fesel.FeatureSelection;
-import ste.evaluation.component.fesel.impls.ApplyBackwardSearch;
 import ste.evaluation.component.fesel.impls.ApplyBestFirst;
 import ste.evaluation.component.sampling.Sampling;
 import ste.evaluation.component.sampling.impls.ApplyOversampling;
@@ -92,7 +91,7 @@ public final class WalkForward {
     private final FeatureSelection[] featureSelections = {
         new FeatureSelection(null),
         new FeatureSelection(new ApplyBestFirst()),
-        new FeatureSelection(new ApplyBackwardSearch())
+        //new FeatureSelection ctor arg new ApplyBackwardSearch()
     };
 
     private final Sampling[] samplings = {

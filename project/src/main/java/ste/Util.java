@@ -17,8 +17,12 @@ import java.io.InputStream;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
+import ste.csv.CsvWriter;
+import ste.csv.CsvWriterException;
+import ste.jirarest.JiraProject;
 import ste.jirarest.JiraTicket;
 import ste.model.Release;
+import ste.model.Ticket;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
@@ -101,7 +105,88 @@ public final class Util {
          .setInitialMax(max)
          .continuousUpdate()
          .setMaxRenderedLength(150)
-         .build();
+            .build();
+   }
+
+   private static String getVersionInfoCsvFilename(String proj) {
+      return String.format("csv_output/%s-VersionInfo.csv", proj);
+   }
+
+   public interface ReleaseCutter {
+      int rightBorder(int nRels);
+   }
+
+   public static List<Release> sortReleasesByDate(JiraProject project, ReleaseCutter cutter)
+         throws CsvWriterException, IOException {
+      List<Release> rel = new ArrayList<>();
+
+      JiraProject.Version[] vers = project.getVersions();
+      for (JiraProject.Version ver : vers) {
+         rel.add(Release.fromJiraVersion(ver));
+      }
+
+      rel.removeIf(release -> release.getReleaseDate() == null);
+
+      rel.sort((o1, o2) -> o1.getReleaseDate().compareTo(o2.getReleaseDate()));
+
+      for (int i = 0; i < rel.size(); ++i) {
+         rel.get(i).setIndex(i + 1);
+      }
+
+      String csvFilename = getVersionInfoCsvFilename(project.getName());
+      CsvWriter.writeAll(csvFilename, Release.class, rel);
+
+      return rel.subList(0, cutter.rightBorder(rel.size()));
+   }
+
+   public static List<Ticket> initProjectTickets(
+         List<Release> rels, JiraTicket[] tkts) {
+
+      List<Ticket> tickets = new ArrayList<>();
+
+      for (JiraTicket tkt : tkts) {
+         String key = tkt.getKey();
+
+         JiraTicket.Fields tktFields = tkt.getFields();
+
+         String rds = tktFields.getResolutionDate();
+         String cds = tktFields.getCreated();
+
+         int fixRelIdx = Util.getReleaseIndexByDate(rels, Util.dateFromString(rds.substring(0, 10)));
+         int openRelIdx = Util.getReleaseIndexByDate(rels, Util.dateFromString(cds.substring(0, 10)));
+
+         Ticket realTkt = new Ticket(key, openRelIdx, fixRelIdx);
+
+         JiraTicket.Fields.Version[] affVer = tktFields.getVersions();
+         if (affVer.length > 0) {
+            List<Integer> affRelIdx = new ArrayList<>();
+            for (JiraTicket.Fields.Version jfv : affVer) {
+               int relIdx = Util.getReleaseIndexByTicketVersionField(rels, jfv);
+               affRelIdx.add(relIdx);
+            }
+
+            affRelIdx.removeIf(e -> e == -1);
+            affRelIdx.sort((o1, o2) -> o1 - o2);
+
+            if (!affRelIdx.isEmpty()) {
+               realTkt.setInjectedVersionIdx(affRelIdx.get(0));
+            }
+         }
+
+         tickets.add(realTkt);
+      }
+
+      return tickets;
+   }
+
+   public static void removeTicketsIfInconsistent(List<Ticket> tkts) {
+      tkts.removeIf(t -> {
+         int iv = t.getInjectedVersionIdx();
+         int ov = t.getOpeningVersionIdx();
+         int fv = t.getFixedVersionIdx();
+
+         return !(iv < fv && ov >= iv && fv >= ov);
+      });
    }
 
    public static final class IntListWide {

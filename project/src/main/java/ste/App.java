@@ -18,6 +18,7 @@ import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
 import ste.csv.CsvWriterException;
 import ste.evaluation.WalkForward;
+import ste.Util.ReleaseCutter;
 import ste.analyzer.BugAnalyzer;
 import ste.analyzer.BugAnalyzerException;
 import ste.analyzer.metrics.MetricsException;
@@ -53,10 +54,6 @@ public final class App {
         return String.format("%s/.isw2repos/%s", System.getProperty("user.home"), rel);
     }
 
-    private static String getVersionInfoCsvFilename(String proj) {
-        return String.format("csv_output/%s-VersionInfo.csv", proj);
-    }
-    
     private static String getDatasetCsvFilename(String proj) {
         return String.format("csv_output/%s-Dataset.csv", proj);
     }
@@ -269,9 +266,16 @@ public final class App {
     private static final String STAT_INFO_ONLYREL_FMT = "project {} - rem. releases: {}";
     private static final String STAT_IVINFO_FMT = "project {} - tickets with IV: {}";
 
+    private static class HalfReleaseCutter implements ReleaseCutter {
+        @Override
+        public int rightBorder(int nRels) {
+            return ((int) Math.round(nRels / 2f)) + 1;
+        }
+    }
+
     private static void filteringSequence(
                 JiraProject jsp, JiraProject jbkp, JiraTicket[] jst, JiraTicket[] jbkt)
-            throws CsvWriterException, IOException {
+            throws CsvWriterException, IOException, RequestException {
                 
         logger.info("Starting filtering sequence...");
 
@@ -283,8 +287,10 @@ public final class App {
             ", sorting them and then cutting them in half (but includes one extra release" + 
             ", which will be removed later)...");
 
-        stormReleases = sortReleasesByDate(jsp);
-        bookKeeperReleases = sortReleasesByDate(jbkp);
+        HalfReleaseCutter halfReleaseCutter = new HalfReleaseCutter();
+
+        stormReleases = Util.sortReleasesByDate(jsp, halfReleaseCutter);
+        bookKeeperReleases = Util.sortReleasesByDate(jbkp, halfReleaseCutter);
         
         logger.info("Linking releases to commits. This should be fast...");
 
@@ -298,14 +304,14 @@ public final class App {
 
         logger.info("Getting relevant infos about tickets OVs, FVs and AVs...");
 
-        stormTickets = initProjectTickets(stormReleases, jst);
-        bookKeeperTickets = initProjectTickets(bookKeeperReleases, jbkt);
+        stormTickets = Util.initProjectTickets(stormReleases, jst);
+        bookKeeperTickets = Util.initProjectTickets(bookKeeperReleases, jbkt);
 
         bookKeeperReleases.remove(bookKeeperReleases.size() - 1);
         stormReleases.remove(stormReleases.size() - 1);
 
-        removeTicketsIfInconsistent(stormTickets);
-        removeTicketsIfInconsistent(bookKeeperTickets);
+        Util.removeTicketsIfInconsistent(stormTickets);
+        Util.removeTicketsIfInconsistent(bookKeeperTickets);
 
         logger.info("After ticket inconsistency fixup (and extra rel removal):");
 
@@ -336,95 +342,36 @@ public final class App {
 
         logger.info("Applying proportion ({} strategy)...", Proportion.STRATEGY_NAME);
 
+        logger.info("for project {}...", STORM);
         Proportion.apply(stormTickets, stormReleases.size() + 1);
+
+        logger.info("for project {}...", BOOKKEEPER);
         Proportion.apply(bookKeeperTickets, bookKeeperReleases.size() + 1);
 
-        removeTicketsIfInconsistent(stormTickets);
-        removeTicketsIfInconsistent(bookKeeperTickets);
+        Util.removeTicketsIfInconsistent(stormTickets);
+        Util.removeTicketsIfInconsistent(bookKeeperTickets);
         
+        List<List<Ticket>> projTkts = new ArrayList<>();
+        projTkts.add(stormTickets);
+        projTkts.add(bookKeeperTickets);
+        zeroIfNegIv(projTkts);
+
         logger.info("After proportion and inconistency fixup:");
-        
+
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
 
         logger.info("Filtering sequence done");
     }
 
-    private static List<Release> sortReleasesByDate(JiraProject project) 
-            throws CsvWriterException, IOException {
-        List<Release> rel = new ArrayList<>();
-
-        JiraProject.Version[] vers = project.getVersions();
-        for(JiraProject.Version ver : vers) {
-            rel.add(Release.fromJiraVersion(ver));
-        }
-
-        rel.removeIf(release -> release.getReleaseDate() == null);
-        
-        rel.sort((o1, o2) -> o1.getReleaseDate().compareTo(o2.getReleaseDate()));
-
-        for(int i = 0; i < rel.size(); ++i) {
-            rel.get(i).setIndex(i + 1);
-        }
-
-        String csvFilename = getVersionInfoCsvFilename(project.getName());
-        CsvWriter.writeAll(csvFilename, Release.class, rel);
-
-        int halfSize = (int) Math.floor(rel.size() / 2f);
-
-        return rel.subList(0, halfSize + 1);
-    }
-
-    private static List<Ticket> initProjectTickets(
-            List<Release> rels, JiraTicket[] tkts) {
-
-        List<Ticket> tickets = new ArrayList<>();
-
-        for(JiraTicket tkt : tkts) {
-            String key = tkt.getKey();
-            
-            JiraTicket.Fields tktFields = tkt.getFields();
-
-            String rds = tktFields.getResolutionDate();
-            String cds = tktFields.getCreated();
-            
-            int fixRelIdx = 
-                Util.getReleaseIndexByDate(rels, Util.dateFromString(rds.substring(0,10)));
-            int openRelIdx = 
-                Util.getReleaseIndexByDate(rels, Util.dateFromString(cds.substring(0,10)));
-                
-            Ticket realTkt = new Ticket(key, openRelIdx, fixRelIdx);
-
-            JiraTicket.Fields.Version[] affVer = tktFields.getVersions();
-            if(affVer.length > 0) {
-                List<Integer> affRelIdx = new ArrayList<>();
-                for(JiraTicket.Fields.Version jfv : affVer) {
-                    int relIdx = Util.getReleaseIndexByTicketVersionField(rels, jfv);
-                    affRelIdx.add(relIdx);
-                }
-
-                affRelIdx.removeIf(e -> e == -1);
-                affRelIdx.sort((o1, o2) -> o1 - o2);
-
-                if(!affRelIdx.isEmpty()) {
-                    realTkt.setInjectedVersionIdx(affRelIdx.get(0));
+    private static void zeroIfNegIv(List<List<Ticket>> tktsProjects) {
+        for(List<Ticket> tktForProject : tktsProjects) {
+            for(Ticket ticket : tktForProject) {
+                if(ticket.getInjectedVersionIdx() < 0) {
+                    ticket.setInjectedVersionIdx(0);
                 }
             }
-
-            tickets.add(realTkt);
         }
-
-        return tickets;
-    }
-
-    private static void removeTicketsIfInconsistent(List<Ticket> tkts) {
-        tkts.removeIf(t -> {
-            int iv = t.getInjectedVersionIdx();
-            int ov = t.getOpeningVersionIdx();
-            int fv = t.getFixedVersionIdx();
-
-            return !(iv < fv && ov >= iv && fv >= ov);
-        });
     }
 
     private static void linkTicketsToCommits(
