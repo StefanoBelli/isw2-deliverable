@@ -83,13 +83,21 @@ public final class Util {
       arffSaver.setFile(new File(outArff));
       arffSaver.writeBatch();
    }
-
+   
    public static int numOfPositives(Instances insts) {
+      return numOf(insts, "yes");
+   }
+
+   public static int numOfNegatives(Instances insts) {
+      return numOf(insts, "no");
+   }
+
+   private static int numOf(Instances insts, String label) {
       int numPosInsts = 0;
       int attrIdx = insts.numAttributes() - 1;
 
       for(int i = 0; i < insts.size(); ++i) {
-         if(insts.get(i).toString(attrIdx).equals("yes")) {
+         if(insts.get(i).toString(attrIdx).equals(label)) {
             ++numPosInsts;
          }
       }

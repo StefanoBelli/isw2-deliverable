@@ -19,11 +19,11 @@ public final class ApplyOversampling implements ApplyFilter {
             throw new ApplyFilterException(e);
         }
 
-        resampler.setBiasToUniformClass(1.0f);
+        resampler.setBiasToUniformClass(1f);
 
-        int numPos = Util.numOfPositives(insts);
-        double percPosInsts = (numPos * 100) / ((float) insts.size());
-        resampler.setSampleSizePercent(percPosInsts * 2);
+        int numNeg = Util.numOfNegatives(insts);
+        double percNegInsts = (numNeg * 100) / ((float) insts.size());
+        resampler.setSampleSizePercent(percNegInsts * 2);
 
         return resampler;
     }
