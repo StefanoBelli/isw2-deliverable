@@ -20,7 +20,7 @@ public final class CostSensitivity implements NamedEvaluationComponent {
         CostSensitiveClassifier csc = new CostSensitiveClassifier();
         csc.setClassifier(classifier);
         csc.setMinimizeExpectedCost(sens == Sensitive.THRESHOLD);
-        csc.setCostMatrix(buildCostMatrix(10.0, 1.0));
+        csc.setCostMatrix(buildCostMatrix(1f, 10f));
 
         return csc;
     }

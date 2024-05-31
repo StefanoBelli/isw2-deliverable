@@ -1,6 +1,6 @@
 package ste.evaluation.component.sampling.impls;
 
-import ste.Util;
+import ste.evaluation.component.SampleSizePercent;
 import ste.evaluation.component.sampling.ApplyFilter;
 import ste.evaluation.component.sampling.exception.ApplyFilterException;
 import weka.core.Instances;
@@ -19,11 +19,9 @@ public final class ApplyOversampling implements ApplyFilter {
             throw new ApplyFilterException(e);
         }
 
+        resampler.setNoReplacement(false);
         resampler.setBiasToUniformClass(1f);
-
-        int numNeg = Util.numOfNegatives(insts);
-        double percNegInsts = (numNeg * 100) / ((float) insts.size());
-        resampler.setSampleSizePercent(percNegInsts * 2);
+        resampler.setSampleSizePercent(SampleSizePercent.byInstances(insts));
 
         return resampler;
     }
