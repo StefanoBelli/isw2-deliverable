@@ -18,9 +18,7 @@ import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
 import ste.csv.CsvWriterException;
 import ste.evaluation.WalkForward;
-import ste.Util.ReleaseCutter;
 import ste.analyzer.BugAnalyzer;
-import ste.analyzer.BugAnalyzerException;
 import ste.analyzer.metrics.MetricsException;
 import ste.csv.CsvWriter;
 import ste.git.GitRepository;
@@ -178,7 +176,7 @@ public final class App {
 
     private static void dsCreat(JiraProject jiraStormProject, JiraProject jiraBookKeeperProject) 
             throws RequestException, CsvWriterException, IOException, 
-                    GitAPIException, BugAnalyzerException, MetricsException {
+                    GitAPIException, MetricsException {
         logger.info("Fetching tickets for {} and {}...", STORM, BOOKKEEPER);
 
         JiraTicket[] jiraStormTickets = JiraTicket.getAllTicketsByName(STORM);
@@ -292,8 +290,8 @@ public final class App {
             ", sorting them and then cutting them in half (but includes one extra release" + 
             ", which will be removed later)...");
 
-        stormReleases = Util.sortReleasesByDate(jsp, (s) -> s);
-        bookKeeperReleases = Util.sortReleasesByDate(jbkp, (s) -> s);
+        stormReleases = Util.sortReleasesByDate(jsp, nrels -> nrels);
+        bookKeeperReleases = Util.sortReleasesByDate(jbkp, nrels -> nrels);
         
         logger.info("Linking releases to commits. This should be fast...");
 

@@ -6,7 +6,6 @@ import weka.attributeSelection.BestFirst;
 
 abstract class ApplyBestFirst implements ApplyFeatureSelection {
     protected abstract String[] getBestFirstOptions();
-    public abstract String getName();
 
     @Override
     public final ASSearch getSearch() {

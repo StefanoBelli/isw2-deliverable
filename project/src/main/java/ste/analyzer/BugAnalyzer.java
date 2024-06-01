@@ -39,8 +39,7 @@ public final class BugAnalyzer {
     }
     
     public void startAnalysis() 
-            throws IOException, BugAnalyzerException, 
-                    MetricsException {
+            throws IOException, MetricsException {
 
         initResults();
 
@@ -50,7 +49,7 @@ public final class BugAnalyzer {
         metrics.calculate();
     }
     
-    private void initResults() throws IOException, BugAnalyzerException {
+    private void initResults() throws IOException {
         results = new ArrayList<>();
 
         for(int i = 0; i < rels.size(); ++i) {
