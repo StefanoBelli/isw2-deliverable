@@ -1,6 +1,5 @@
 package ste.evaluation.component.sampling.impls;
 
-import ste.evaluation.component.SampleSizePercent;
 import ste.evaluation.component.sampling.ApplyFilter;
 import ste.evaluation.component.sampling.exception.ApplyFilterException;
 import weka.core.Instances;

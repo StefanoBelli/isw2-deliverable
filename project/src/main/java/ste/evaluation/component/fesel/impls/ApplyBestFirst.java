@@ -4,18 +4,16 @@ import ste.evaluation.component.fesel.ApplyFeatureSelection;
 import weka.attributeSelection.ASSearch;
 import weka.attributeSelection.BestFirst;
 
-abstract class ApplyBestFirst implements ApplyFeatureSelection {
-    protected abstract String[] getBestFirstOptions();
+public final class ApplyBestFirst implements ApplyFeatureSelection {
 
     @Override
-    public final ASSearch getSearch() {
-        BestFirst bestFirst = new BestFirst();
-        try {
-            bestFirst.setOptions(getBestFirstOptions());
-        } catch (Exception e) {
-            return null;
-        }
-
-        return bestFirst;
+    public String getName() {
+        return "BestFirst";
     }
+
+    @Override
+    public ASSearch getSearch() {
+        return new BestFirst();
+    }
+    
 }
