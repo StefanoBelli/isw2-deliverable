@@ -58,12 +58,6 @@ public final class BugAnalyzer {
             List<RevCommit> commits = rel.getCommits();
             if(!commits.isEmpty()) {
                 populateResults(commits, rel);
-            } else {
-                List<RevCommit> nextCommits = rels.get(i + 1).getCommits(); 
-                if(nextCommits.isEmpty()) {
-                    throw new BugAnalyzerException("Empty commit release near another one");
-                }
-                populateResults(nextCommits, rel);
             }
         }
     }

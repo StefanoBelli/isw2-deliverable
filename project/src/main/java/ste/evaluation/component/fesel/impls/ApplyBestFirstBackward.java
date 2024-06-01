@@ -1,26 +1,14 @@
 package ste.evaluation.component.fesel.impls;
 
-import ste.evaluation.component.fesel.ApplyFeatureSelection;
-import weka.attributeSelection.ASSearch;
-import weka.attributeSelection.BestFirst;
-
-public final class ApplyBestFirstBackward implements ApplyFeatureSelection {
-    
+public final class ApplyBestFirstBackward extends ApplyBestFirst {
     @Override
-    public ASSearch getSearch() {
-        BestFirst bestFirst = new BestFirst();
-        try {
-            bestFirst.setOptions(new String[] { "-D", "0"});
-        } catch (Exception e) {
-            return null;
-        }
-
-        return bestFirst;
+    protected String[] getBestFirstOptions() {
+        return new String[] { "-D", "0" };
     }
 
     @Override
     public String getName() {
         return "BestFirstBackward";
     }
-    
 }
+

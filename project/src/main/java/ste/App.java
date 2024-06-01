@@ -212,25 +212,10 @@ public final class App {
             
         logReleasesWithNoCommit(stormReleases, bookKeeperReleases);
 
-        logger.info(INFO_ANALYSIS_FMT, STORM);
-        stormAnalyzer.startAnalysis();
-        
-        logger.info("Done.");
         logger.info(INFO_ANALYSIS_FMT, BOOKKEEPER);
         bookKeeperAnalyzer.startAnalysis();
-
-        logger.info("Done.");
-        logger.info("Writing results...");
-
-        String stormDatasetCsv = getDatasetCsvFilename(jiraStormProject.getName());
-
-        CsvWriter.writeAll(
-            stormDatasetCsv, 
-            JavaSourceFile.class, 
-            stormAnalyzer.getResults());
-
-        logger.info(INFO_WROTE_FMT, STORM, stormDatasetCsv);
-
+        
+        cutReleasesInHalf(bookKeeperReleases, bookKeeperAnalyzer.getResults());
         String bookKeeperDatasetCsv = getDatasetCsvFilename(jiraBookKeeperProject.getName());
 
         CsvWriter.writeAll(
@@ -240,8 +225,35 @@ public final class App {
 
         logger.info(INFO_WROTE_FMT, BOOKKEEPER, bookKeeperDatasetCsv);
 
+        logger.info(INFO_ANALYSIS_FMT, STORM);
+        stormAnalyzer.startAnalysis();
+
+        cutReleasesInHalf(stormReleases, stormAnalyzer.getResults());
+        String stormDatasetCsv = getDatasetCsvFilename(jiraStormProject.getName());
+
+        CsvWriter.writeAll(
+            stormDatasetCsv, 
+            JavaSourceFile.class, 
+            stormAnalyzer.getResults());
+
+        logger.info(INFO_WROTE_FMT, STORM, stormDatasetCsv);
+
         stormGitRepo.close();
         bookKeeperGitRepo.close();
+    }
+
+    private static void cutReleasesInHalf(List<Release> rels, List<JavaSourceFile> jsfs) {
+        List<Release> halfRels = rels.subList(0, Math.round(rels.size() / 2f));
+
+        jsfs.removeIf(elem -> {
+            for(Release r : halfRels) {
+                if(elem.getRelease().getVersion().equals(r.getVersion())) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
     }
 
     private static final String EMPTY_COMMIT_REL_FMT = "project {}: rel {} - has no commit";
@@ -266,13 +278,6 @@ public final class App {
     private static final String STAT_INFO_ONLYREL_FMT = "project {} - rem. releases: {}";
     private static final String STAT_IVINFO_FMT = "project {} - tickets with IV: {}";
 
-    private static class HalfReleaseCutter implements ReleaseCutter {
-        @Override
-        public int rightBorder(int nRels) {
-            return Math.round(nRels / 2f) + 1;
-        }
-    }
-
     private static void filteringSequence(
                 JiraProject jsp, JiraProject jbkp, JiraTicket[] jst, JiraTicket[] jbkt)
             throws CsvWriterException, IOException, RequestException {
@@ -287,10 +292,8 @@ public final class App {
             ", sorting them and then cutting them in half (but includes one extra release" + 
             ", which will be removed later)...");
 
-        HalfReleaseCutter halfReleaseCutter = new HalfReleaseCutter();
-
-        stormReleases = Util.sortReleasesByDate(jsp, halfReleaseCutter);
-        bookKeeperReleases = Util.sortReleasesByDate(jbkp, halfReleaseCutter);
+        stormReleases = Util.sortReleasesByDate(jsp, (s) -> s);
+        bookKeeperReleases = Util.sortReleasesByDate(jbkp, (s) -> s);
         
         logger.info("Linking releases to commits. This should be fast...");
 
@@ -306,9 +309,6 @@ public final class App {
 
         stormTickets = Util.initProjectTickets(stormReleases, jst);
         bookKeeperTickets = Util.initProjectTickets(bookKeeperReleases, jbkt);
-
-        bookKeeperReleases.remove(bookKeeperReleases.size() - 1);
-        stormReleases.remove(stormReleases.size() - 1);
 
         Util.removeTicketsIfInconsistent(stormTickets);
         Util.removeTicketsIfInconsistent(bookKeeperTickets);
@@ -347,14 +347,15 @@ public final class App {
 
         logger.info("for project {}...", BOOKKEEPER);
         Proportion.apply(bookKeeperTickets, bookKeeperReleases.size() + 1);
-
-        Util.removeTicketsIfInconsistent(stormTickets);
-        Util.removeTicketsIfInconsistent(bookKeeperTickets);
         
         List<List<Ticket>> projTkts = new ArrayList<>();
         projTkts.add(stormTickets);
         projTkts.add(bookKeeperTickets);
+
         zeroIfNegIv(projTkts);
+
+        Util.removeTicketsIfInconsistent(stormTickets);
+        Util.removeTicketsIfInconsistent(bookKeeperTickets);
 
         logger.info("After proportion and inconistency fixup:");
 
@@ -373,7 +374,7 @@ public final class App {
             }
         }
     }
-
+    
     private static void linkTicketsToCommits(
             List<Ticket> tkts, GitRepository repo, String projName) throws IOException {
         

@@ -193,7 +193,7 @@ public final class Util {
          int ov = t.getOpeningVersionIdx();
          int fv = t.getFixedVersionIdx();
 
-         return !(iv < fv && ov >= iv && fv >= ov);
+         return !(iv < fv && iv <= ov && ov <= fv);
       });
    }
 

@@ -16,6 +16,6 @@ public final class SampleSizePercent {
             majority = tmp;
         }
 
-        return 100 * (majority - minority) / minority;
+        return 100f * (majority - minority) / (double) minority;
     }
 }
