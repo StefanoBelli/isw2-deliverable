@@ -2,7 +2,6 @@ package ste;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -341,38 +340,22 @@ public final class App {
         logger.info("Applying proportion ({} strategy)...", Proportion.STRATEGY_NAME);
 
         logger.info("for project {}...", STORM);
-        Proportion.apply(stormTickets, stormReleases.size() + 1);
+        Proportion.apply(stormTickets, stormReleases.size());
 
         logger.info("for project {}...", BOOKKEEPER);
-        Proportion.apply(bookKeeperTickets, bookKeeperReleases.size() + 1);
-        
-        List<List<Ticket>> projTkts = new ArrayList<>();
-        projTkts.add(stormTickets);
-        projTkts.add(bookKeeperTickets);
-
-        zeroIfNegIv(projTkts);
+        Proportion.apply(bookKeeperTickets, bookKeeperReleases.size());
 
         Util.removeTicketsIfInconsistent(stormTickets);
         Util.removeTicketsIfInconsistent(bookKeeperTickets);
 
         logger.info("After proportion and inconistency fixup:");
-
+        
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
 
         logger.info("Filtering sequence done");
     }
 
-    private static void zeroIfNegIv(List<List<Ticket>> tktsProjects) {
-        for(List<Ticket> tktForProject : tktsProjects) {
-            for(Ticket ticket : tktForProject) {
-                if(ticket.getInjectedVersionIdx() < 0) {
-                    ticket.setInjectedVersionIdx(0);
-                }
-            }
-        }
-    }
-    
     private static void linkTicketsToCommits(
             List<Ticket> tkts, GitRepository repo, String projName) throws IOException {
         

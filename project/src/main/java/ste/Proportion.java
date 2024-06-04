@@ -209,19 +209,14 @@ public final class Proportion {
     }
 
     private static List<Ticket> filterUsedTickets(List<Ticket> allTickets, int targetTicketIdx) {
-        int targetTicketReleaseIdx = allTickets.get(targetTicketIdx).getOpeningVersionIdx();
-        if(targetTicketReleaseIdx == 0) {
-            return new ArrayList<>();
-        }
-
         List<Ticket> filtered = new ArrayList<>();
+
+        int tktMatchingVerIdx = allTickets.get(targetTicketIdx).getOpeningVersionIdx();
 
         for(int i = 0; i < targetTicketIdx; ++i) {
             Ticket currentTicket = allTickets.get(i);
-            if(currentTicket.getOpeningVersionIdx() < targetTicketReleaseIdx) {
+            if(currentTicket.getFixedVersionIdx() < tktMatchingVerIdx) {
                 filtered.add(currentTicket);
-            } else {
-                break;
             }
         }
 
