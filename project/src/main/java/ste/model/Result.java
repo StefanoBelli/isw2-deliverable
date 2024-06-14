@@ -137,6 +137,9 @@ public final class Result {
        return nPofB20;
    }
 
+   @CsvColumn(order = 19, name = "Cost")
+   public int getCost() { return 10 * fn + 1 * fp; }
+
    public void setAuc(float auc) {
        this.auc = auc;
    }
