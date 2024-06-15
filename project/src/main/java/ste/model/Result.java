@@ -22,6 +22,7 @@ public final class Result {
    private float recall;
    private float auc;
    private float kappa;
+   private float f1score;
    private float nPofB20;
 
    public Result() {}
@@ -45,6 +46,7 @@ public final class Result {
        sensitivity = String.valueOf(old.sensitivity);
        tn = old.tn;
        tp = old.tp;
+       f1score = old.f1score;
    }
    
    @CsvColumn(order = 1, name = "Dataset")
@@ -132,13 +134,20 @@ public final class Result {
        return kappa;
    }
 
-   @CsvColumn(order = 18, name = "NPofB20")
+   @CsvColumn(order = 18, name = "F1score")
+   public float getF1score() {
+       return f1score;
+   }
+
+   @CsvColumn(order = 19, name = "NPofB20")
    public float getNPofB20() {
        return nPofB20;
    }
 
-   @CsvColumn(order = 19, name = "Cost")
-   public int getCost() { return 10 * fn + 1 * fp; }
+   @CsvColumn(order = 20, name = "Cost")
+   public int getCost() { 
+       return 10 * fn + 1 * fp; 
+   }
 
    public void setAuc(float auc) {
        this.auc = auc;
@@ -210,5 +219,9 @@ public final class Result {
 
    public void setNPofB20(float nPofB20) {
        this.nPofB20 = nPofB20;
+   }
+
+   public void setF1score(float f1score) {
+       this.f1score = f1score;
    }
 }

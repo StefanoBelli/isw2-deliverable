@@ -298,6 +298,7 @@ public final class WalkForward {
         orig.setTn((int)eval.numTrueNegatives(posClassIdx));
         orig.setPrecision((float)eval.precision(posClassIdx));
         orig.setRecall((float)eval.recall(posClassIdx));
+        orig.setF1score((float)eval.fMeasure(posClassIdx));
     }
 
     private Util.Pair<Instances, Instances> getWfSplitAtIterNum(int iterIdx) {
