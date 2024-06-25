@@ -32,6 +32,12 @@ public final class BugAnalyzer {
         this.tkts = tkts;
         this.repo = repo;
         this.projName = projName;
+        this.results = null;
+    }
+
+    public BugAnalyzer(String projName, List<Release> rels, List<Ticket> tkts, GitRepository repo, List<JavaSourceFile> results) {
+        this(projName, rels, tkts, repo);
+        this.results = results;
     }
 
     public List<JavaSourceFile> getResults() {
@@ -41,12 +47,18 @@ public final class BugAnalyzer {
     public void startAnalysis() 
             throws IOException, MetricsException {
 
-        initResults();
+        boolean doMetrics = results == null;
+
+        if(doMetrics) {
+            initResults();
+        }
 
         determineBuggyness();
 
-        Metrics metrics = new Metrics(projName, results, rels, repo);
-        metrics.calculate();
+        if(doMetrics) {
+            Metrics metrics = new Metrics(projName, results, rels, repo);
+            metrics.calculate();
+        }
     }
     
     private void initResults() throws IOException {
@@ -79,6 +91,8 @@ public final class BugAnalyzer {
     } 
 
     private void determineBuggyness() throws IOException {
+        JavaSourceFile.resetBuggy(results);
+
         String pbMsg = String.format("Determining buggyness for project: %s", projName);
         try(ProgressBar pb = Util.buildProgressBar(pbMsg, tkts.size())) {
             for(Ticket tkt : tkts) {
@@ -121,7 +135,7 @@ public final class BugAnalyzer {
 
     private boolean isBuggyRelease(Release rel, int ivIncl, int fvExcl) {
         for(int i = ivIncl; i < fvExcl; ++i) {
-            if(rel.equals(rels.get(i))) {
+            if(rel.getVersion().equals(rels.get(i).getVersion())) {
                 return true;
             }
         }

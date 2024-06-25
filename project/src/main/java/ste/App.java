@@ -1,10 +1,14 @@
 package ste;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +20,10 @@ import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 
 import ste.csv.CsvWriterException;
+import ste.evaluation.NonMatchingSetsSizeException;
 import ste.evaluation.WalkForward;
+import ste.evaluation.WalkForwardSplit;
+import ste.evaluation.WalkForwardSplitIterator;
 import ste.analyzer.BugAnalyzer;
 import ste.analyzer.metrics.MetricsException;
 import ste.csv.CsvWriter;
@@ -28,6 +35,7 @@ import ste.model.JavaSourceFile;
 import ste.model.Release;
 import ste.model.Result;
 import ste.model.Ticket;
+import weka.core.converters.ConverterUtils.DataSource;
 
 public final class App {
     private static final Logger logger;
@@ -59,14 +67,28 @@ public final class App {
         return String.format("csv_output/%s-Result.csv", proj);
     }
 
+    private static String getTrainingSetDir(String proj) {
+        return String.format("csv_output/%s/training-set", proj);
+    }
+    
+    private static String getTestingSetDir(String proj) {
+        return String.format("csv_output/%s/testing-set", proj);
+    }
+        
+    private static String getTrainingSetFilename(String proj, int wfIter) {
+        return String.format("%s/%s-TrainingSet-%d.csv", getTrainingSetDir(proj), proj, wfIter);
+    }
+
+    private static String getTestingSetFilename(String proj, int wfIter) {
+        return String.format("%s/%s-TestingSet-%d.csv", getTestingSetDir(proj), proj, wfIter);
+    }
+
     private static final String LOOKUP_PY_SCRIPT_FILENAME = "csv_output/lookup-npofb20.py";
 
     private static GitRepository stormGitRepo;
     private static GitRepository bookKeeperGitRepo;
     private static List<Release> stormReleases;
     private static List<Release> bookKeeperReleases;
-    private static List<Ticket> stormTickets;
-    private static List<Ticket> bookKeeperTickets;
 
     private static final String INFO_WROTE_FMT = "project {} - wrote csv @ {}";
     private static final String INFO_ANALYSIS_FMT = "project {} - running analysis, this may take some time...";
@@ -119,7 +141,7 @@ public final class App {
             .append("\t\t\tstr.lower(row[6]) == str.lower(sys.argv[3]) and \\\n")
             .append("\t\t\tstr.lower(row[7]) == str.lower(sys.argv[4]) and \\\n")
             .append("\t\t\tstr.lower(row[8]) == str.lower(sys.argv[5]) and \\\n")
-            .append("\t\t\tstr(int(row[1]) + 1) == sys.argv[6]:\n")
+            .append("\t\t\tstr(int(row[1])) == sys.argv[6]:\n")
             .append("\t\t\tprint(f\"{row[17]}\")\n")
             .append("\t\t\tbreak\n");
 
@@ -139,29 +161,9 @@ public final class App {
 
         String stormName = jiraStormProject.getName();
         String bookKeeperName = jiraBookKeeperProject.getName();
-
-        WalkForward stormWf = new WalkForward(
-            stormName, 
-            Util.readAllFile(getDatasetCsvFilename(stormName)));
         
-        stormWf.start();
-
-        WalkForward bookKeeperWf = new WalkForward(
-            bookKeeperName, 
-            Util.readAllFile(getDatasetCsvFilename(bookKeeperName)));
-
+        WalkForward bookKeeperWf = buildWalkForward(bookKeeperName);
         bookKeeperWf.start();
-
-        logger.info("Writing results...");
-
-        String resultCsvStorm = getResultCsvFilename(stormName);
-
-        CsvWriter.writeAll(
-            resultCsvStorm, 
-            Result.class, 
-            stormWf.getResults());
-        
-        logger.info(INFO_WROTE_FMT, STORM, resultCsvStorm);
 
         String resultCsvBookKeeper = getResultCsvFilename(bookKeeperName);
 
@@ -171,6 +173,18 @@ public final class App {
             bookKeeperWf.getResults());
 
         logger.info(INFO_WROTE_FMT, BOOKKEEPER, resultCsvBookKeeper);
+
+        WalkForward stormWf = buildWalkForward(stormName);
+        stormWf.start();
+
+        String resultCsvStorm = getResultCsvFilename(stormName);
+
+        CsvWriter.writeAll(
+            resultCsvStorm, 
+            Result.class, 
+            stormWf.getResults());
+        
+        logger.info(INFO_WROTE_FMT, STORM, resultCsvStorm);
     }
 
     private static void dsCreat(JiraProject jiraStormProject, JiraProject jiraBookKeeperProject) 
@@ -194,13 +208,22 @@ public final class App {
 
         logger.info("Setup phase done");
 
-        filteringSequence(
+        var allTkts = filteringSequence(
             jiraStormProject, 
             jiraBookKeeperProject, 
             jiraStormTickets, 
             jiraBookKeeperTickets);
             
         logger.info("Project analysis phase");
+
+        List<Ticket> stormTickets = allTkts.getFirst();
+        List<Ticket> bookKeeperTickets = allTkts.getSecond();
+
+        List<Ticket> stormTicketsCpy = Ticket.copyTickets(stormTickets);
+        List<Ticket> bookKeeperTicketsCpy = Ticket.copyTickets(bookKeeperTickets);
+
+        doProportion(BOOKKEEPER, bookKeeperTickets, bookKeeperReleases);
+        doProportion(STORM, stormTickets, stormReleases);
 
         BugAnalyzer stormAnalyzer = 
             new BugAnalyzer(STORM, stormReleases, stormTickets, stormGitRepo);
@@ -219,8 +242,12 @@ public final class App {
             bookKeeperDatasetCsv, 
             JavaSourceFile.class, 
             bookKeeperAnalyzer.getResults());
-
+            
         logger.info(INFO_WROTE_FMT, BOOKKEEPER, bookKeeperDatasetCsv);
+
+        createTrainingSetsWithTestingSets(
+            jiraBookKeeperProject.getName(), bookKeeperReleases, bookKeeperTicketsCpy, 
+            bookKeeperGitRepo, bookKeeperAnalyzer.getResults());
 
         logger.info(INFO_ANALYSIS_FMT, STORM);
         stormAnalyzer.startAnalysis();
@@ -235,8 +262,49 @@ public final class App {
 
         logger.info(INFO_WROTE_FMT, STORM, stormDatasetCsv);
 
+        createTrainingSetsWithTestingSets(
+            jiraStormProject.getName(), stormReleases, stormTicketsCpy, 
+            stormGitRepo, stormAnalyzer.getResults());
+
         stormGitRepo.close();
         bookKeeperGitRepo.close();
+    }
+
+    private static List<String> getSortedSetsCsv(String setDir) throws IOException {
+        List<Util.Pair<String, Integer>> sets = new ArrayList<>();
+        File directory = new File(setDir);
+        for(File file : directory.listFiles()) {
+            String setCsv = Util.readAllFile(setDir + "/" + file.getName());
+            int setOrder;
+            try(Scanner in = new Scanner(file.getName()).useDelimiter("[^0-9]+")) {
+                setOrder = in.nextInt();
+            }
+            sets.add(new Util.Pair<>(setCsv, setOrder));
+        }
+
+        sets.sort((e1, e2) -> e1.getSecond() - e2.getSecond());
+
+        List<String> newedSets = new ArrayList<>();
+        for(Util.Pair<String, Integer> set : sets) {
+            newedSets.add(set.getFirst());
+        }
+
+        return newedSets;
+    }
+
+    private static WalkForward buildWalkForward(String projName) throws Exception {
+        Util.csv2Arff(Util.readAllFile(getDatasetCsvFilename(projName)), "dataset-tmp.arff");
+        int datasetSize = new DataSource("dataset-tmp.arff").getDataSet().size();
+        var trainingSets = getSortedSetsCsv(getTrainingSetDir(projName));
+        var testingSets = getSortedSetsCsv(getTestingSetDir(projName));
+        if(trainingSets.size() != testingSets.size()) {
+            throw new NonMatchingSetsSizeException();
+        }
+        List<WalkForwardSplit> splits = new ArrayList<>();
+        for(int i = 0; i < trainingSets.size(); ++i) {
+            splits.add(new WalkForwardSplit(trainingSets.get(i), testingSets.get(i), i));
+        }
+        return new WalkForward(projName, datasetSize, new WalkForwardSplitIterator(splits));
     }
 
     private static void cutReleasesInHalf(List<Release> rels, List<JavaSourceFile> jsfs) {
@@ -275,9 +343,9 @@ public final class App {
     private static final String STAT_INFO_ONLYREL_FMT = "project {} - rem. releases: {}";
     private static final String STAT_IVINFO_FMT = "project {} - tickets with IV: {}";
 
-    private static void filteringSequence(
+    private static Util.Pair<List<Ticket>, List<Ticket>> filteringSequence(
                 JiraProject jsp, JiraProject jbkp, JiraTicket[] jst, JiraTicket[] jbkt)
-            throws CsvWriterException, IOException, RequestException {
+            throws CsvWriterException, IOException {
                 
         logger.info("Starting filtering sequence...");
 
@@ -304,8 +372,8 @@ public final class App {
 
         logger.info("Getting relevant infos about tickets OVs, FVs and AVs...");
 
-        stormTickets = Util.initProjectTickets(stormReleases, jst);
-        bookKeeperTickets = Util.initProjectTickets(bookKeeperReleases, jbkt);
+        List<Ticket> stormTickets = Util.initProjectTickets(stormReleases, jst);
+        List<Ticket> bookKeeperTickets = Util.initProjectTickets(bookKeeperReleases, jbkt);
 
         Util.removeTicketsIfInconsistent(stormTickets);
         Util.removeTicketsIfInconsistent(bookKeeperTickets);
@@ -337,23 +405,7 @@ public final class App {
         logger.info(STAT_IVINFO_FMT, STORM, stormTicketsWithIv);
         logger.info(STAT_IVINFO_FMT, BOOKKEEPER, bookKeeperTicketsWithIv);
 
-        logger.info("Applying proportion ({} strategy)...", Proportion.STRATEGY_NAME);
-
-        logger.info("for project {}...", STORM);
-        Proportion.apply(stormTickets, stormReleases.size());
-
-        logger.info("for project {}...", BOOKKEEPER);
-        Proportion.apply(bookKeeperTickets, bookKeeperReleases.size());
-
-        Util.removeTicketsIfInconsistent(stormTickets);
-        Util.removeTicketsIfInconsistent(bookKeeperTickets);
-
-        logger.info("After proportion and inconistency fixup:");
-        
-        logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
-        logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
-
-        logger.info("Filtering sequence done");
+        return new Util.Pair<>(stormTickets, bookKeeperTickets);
     }
 
     private static void linkTicketsToCommits(
@@ -420,6 +472,78 @@ public final class App {
         }
 
         return ticketsWithIv;
+    }
+
+    //releases formal parameter is needed for log purposes only
+    private static void doProportion(String projName, List<Ticket> tickets, List<Release> releases) 
+            throws RequestException, CsvWriterException, IOException {
+        logger.info("Applying proportion ({} strategy)...", Proportion.STRATEGY_NAME);
+        logger.info("for project {}...", projName);
+        Proportion.apply(tickets);
+        Util.removeTicketsIfInconsistent(tickets);
+        logger.info("After proportion and inconistency fixup:");
+        logger.info(STAT_INFO_FMT, projName, tickets.size(), releases.size());
+        logger.info("Filtering sequence done");
+    }
+
+    private static void createTrainingSetsWithTestingSets(
+        String projName, List<Release> rels, List<Ticket> tkts, GitRepository repo, List<JavaSourceFile> jsfs) 
+            throws IOException, MetricsException, RequestException, CsvWriterException {
+                
+        List<Release> halfRels = rels.subList(0, Math.round(rels.size() / 2f));
+
+        int realSplitNum = 1;
+
+        for(int i = 2; i <= halfRels.size(); ++i) {
+            if(halfRels.get(i - 1).getCommits().isEmpty()) {
+                continue;
+            }
+
+            final int curRelIdx = i;
+
+            List<JavaSourceFile> testingSet = JavaSourceFile.copyJavaSourceFiles(jsfs);
+            testingSet.removeIf(e -> e.getRelease().getIndex() != curRelIdx);
+            CsvWriter.writeAll(
+                getTestingSetFilename(projName, realSplitNum), 
+                JavaSourceFile.class,
+                testingSet);
+
+            ++realSplitNum;
+        }
+
+        realSplitNum = 1;
+
+        for(int i = 1; i <= halfRels.size() - 1; ++i) {
+            if(halfRels.get(i).getCommits().isEmpty()) {
+                continue;
+            }
+
+            final int curRelIdx = i;
+
+            List<Release> trainingSetRels = Release.copyReleases(halfRels);
+            trainingSetRels.removeIf(e -> e.getIndex() > curRelIdx);
+
+            List<Ticket> trainingSetTkts = Ticket.copyTickets(tkts);
+            trainingSetTkts.removeIf(e -> e.getFixedVersionIdx() + 1 > curRelIdx);
+            Ticket.ensureResetArtificialIv(trainingSetTkts);
+
+            List<JavaSourceFile> trainingSet = JavaSourceFile.copyJavaSourceFiles(jsfs);
+            trainingSet.removeIf(e -> e.getRelease().getIndex() > curRelIdx);
+
+            doProportion(projName, trainingSetTkts, trainingSetRels);
+
+            BugAnalyzer bugAnalyzer = 
+                new BugAnalyzer(projName, trainingSetRels, trainingSetTkts, repo, trainingSet);
+            
+            bugAnalyzer.startAnalysis();
+
+            CsvWriter.writeAll(
+                getTrainingSetFilename(projName, realSplitNum), 
+                JavaSourceFile.class, 
+                bugAnalyzer.getResults());
+
+            ++realSplitNum;
+        }
     }
 }
 

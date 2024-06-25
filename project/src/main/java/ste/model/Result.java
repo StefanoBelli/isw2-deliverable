@@ -27,6 +27,7 @@ public final class Result {
 
    public Result() {}
 
+   //deepcopy-enabled constructor
    public Result(Result old) {
        auc = old.auc;
        balancing = String.valueOf(old.balancing);

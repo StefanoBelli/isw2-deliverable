@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -70,6 +71,8 @@ public final class Util {
    }
 
    public static void csv2Arff(String csvContent, String outArff) throws IOException {
+      Files.deleteIfExists(Path.of(outArff));
+
       InputStream csvContentIstream = new ByteArrayInputStream(csvContent.getBytes(StandardCharsets.UTF_8));
 
       CSVLoader csvLoader = new CSVLoader();

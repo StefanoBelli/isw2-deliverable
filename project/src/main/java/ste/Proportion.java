@@ -49,13 +49,13 @@ public final class Proportion {
                 return l.get(sz / 2);
         }
 
-        private static double averagedProportion(List<Ticket> tkts, int nRels) {
+        private static double averagedProportion(List<Ticket> tkts) {
             double avgP = 0;
             int numP = 0;
 
             for (Ticket projectTicket : tkts) {
                 if (projectTicket.isInjectedVersionAvail()) {
-                    double p = proportion(projectTicket, nRels);
+                    double p = proportion(projectTicket);
                     if (p > 0) {
                         numP++;
                         avgP += p;
@@ -87,7 +87,7 @@ public final class Proportion {
                     List<Ticket> tickets = Util.initProjectTickets(releases, jiraTickets);
                     Util.removeTicketsIfInconsistent(tickets);
 
-                    avgPs.add(averagedProportion(tickets, releases.size()));
+                    avgPs.add(averagedProportion(tickets));
 
                     pb.step();
                 }
@@ -106,14 +106,10 @@ public final class Proportion {
     public static final String STRATEGY_NAME = "increment with cold start";
     public static final int NO_COLDSTART_THRESHOLD = 5;
 
-    private static double proportion(Ticket t, int numRels) {
+    private static double proportion(Ticket t) {
         int iv = t.getInjectedVersionIdx() + 1;
         int ov = t.getOpeningVersionIdx() + 1;
         int fv = t.getFixedVersionIdx() + 1;
-
-        if(iv >= numRels || ov >= numRels || fv >= numRels) {
-            return 0;
-        }
 
         if(fv == ov) {
             return (double) fv - iv;
@@ -122,20 +118,18 @@ public final class Proportion {
         return (double) (fv - iv) / (fv - ov);
     }
 
-    private static double increment(List<Ticket> subTickets, int numRels) {
+    private static double increment(List<Ticket> subTickets) {
         double realProportion = 0;
         int effectiveTickets = 0;
 
         for(Ticket ticket : subTickets) {
             if(!ticket.isArtificialInjectedVersion()) {
-                double tmpProportion = proportion(ticket, numRels);
-                if(tmpProportion >= 1) {
-                    realProportion += tmpProportion;
-                    ++effectiveTickets;
-                }
+                ++effectiveTickets;
+                realProportion += proportion(ticket);
             }
         }
 
+        //needed to avoid division by zero exceptions
         if(effectiveTickets == 0) {
             return 0;
         }
@@ -149,7 +143,7 @@ public final class Proportion {
         log = LoggerFactory.getLogger(Proportion.class.getName());
     }
 
-    public static void apply(List<Ticket> allTickets, int numRels) 
+    public static void apply(List<Ticket> allTickets) 
             throws RequestException, CsvWriterException, IOException {
         for(int i = 0; i < allTickets.size(); ++i) {
             Ticket ticket = allTickets.get(i);
@@ -166,7 +160,7 @@ public final class Proportion {
                     List<Ticket> usedTicketsForIncrement = filterUsedTickets(allTickets, i);
                     
                     if(hasEnoughValidTickets(usedTicketsForIncrement)) {
-                        pIncrement = increment(usedTicketsForIncrement, numRels);
+                        pIncrement = increment(usedTicketsForIncrement);
                     } else {
                         pIncrement = ColdStart.computeProportion();
                     }

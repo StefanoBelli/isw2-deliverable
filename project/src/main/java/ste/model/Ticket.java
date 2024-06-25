@@ -1,19 +1,17 @@
 package ste.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public final class Ticket {
     private final String key;
-
     private boolean injectedVersionAvail;
     private boolean artificialInjectedVersion;
-
     private int injectedVersionIdx;
     private final int openingVersionIdx;
     private final int fixedVersionIdx;
-
     private List<RevCommit> commits;
 
     public Ticket(String key, int openingVersionIdx, int fixedVersionIdx) {
@@ -22,6 +20,17 @@ public final class Ticket {
         this.fixedVersionIdx = fixedVersionIdx;
         this.injectedVersionAvail = false;
         this.artificialInjectedVersion = false;
+    }
+
+    //non-deepcopy-enabled constructor
+    private Ticket(Ticket old) {
+        this.key = String.valueOf(old.key);
+        this.injectedVersionAvail = old.injectedVersionAvail;
+        this.artificialInjectedVersion = old.artificialInjectedVersion;
+        this.injectedVersionIdx = old.injectedVersionIdx;
+        this.openingVersionIdx = old.openingVersionIdx;
+        this.fixedVersionIdx = old.fixedVersionIdx;
+        this.commits = old.commits;
     }
 
     public int getOpeningVersionIdx() {
@@ -63,5 +72,23 @@ public final class Ticket {
 
     public void setArtificialInjectedVersion(boolean calcInjectedVersion) {
         this.artificialInjectedVersion = calcInjectedVersion;
+    }
+
+    public static void ensureResetArtificialIv(List<Ticket> tkts) {
+        for(Ticket tkt : tkts) {
+            if(tkt.isInjectedVersionAvail() && tkt.isArtificialInjectedVersion()) {
+                tkt.artificialInjectedVersion = false;
+                tkt.injectedVersionAvail = false;
+            }
+        }
+    }
+
+    public static List<Ticket> copyTickets(List<Ticket> old) {
+        List<Ticket> newTkt = new ArrayList<>();
+        for(Ticket t : old) {
+            newTkt.add(new Ticket(t));
+        }
+
+        return newTkt;
     }
 }

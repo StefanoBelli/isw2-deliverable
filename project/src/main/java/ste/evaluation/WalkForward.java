@@ -26,44 +26,17 @@ import ste.model.Result;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
-import weka.core.converters.ConverterUtils.DataSource;
 
 public final class WalkForward {
 
-    private static final class Project {
-        private final Instances dataset;
-        private final String name;
-        private final int maxRelIdx;
-
-        public Project(Instances dataset, String name) {
-            this.dataset = dataset;
-            this.name = name;
-            maxRelIdx = (int) dataset.get(dataset.numInstances() - 1).value(0);
-        }
-
-        public Instances getDataset() {
-            return dataset;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getMaxRelIdx() {
-            return maxRelIdx;
-        }
-    }
-
-    private final Project project;
-
-    private static String getDataSetArffFilename(String proj) {
-        return String.format("%s-dataset.arff", proj);
-    }
+    private final String projectName;
+    private final int wholeDatasetSize;
+    private final WalkForwardSplitIterator wfSplitsIterator;
 
     private String getNPofBxFilename(int wfRunNo, EvaluationProfile profile) {
         return String.format("csv_output/npofbx/%s/%s_%s_%s_%s_%s_%d.csv",
-                                project.getName(),
-                                project.getName().toUpperCase(),
+                                projectName,
+                                projectName.toUpperCase(),
                                 profile.getClassifier().getName().toUpperCase(),
                                 profile.getFeatureSelection().getName().toUpperCase(),
                                 profile.getSampling().getName().toUpperCase(),
@@ -71,16 +44,10 @@ public final class WalkForward {
                                 wfRunNo);
     }
 
-    public WalkForward(String projectName, String projectDatasetCsv) throws Exception {
-        String datasetArffFilename = getDataSetArffFilename(projectName);
-        Util.csv2Arff(projectDatasetCsv, datasetArffFilename);
-        Instances dataset = loadArff(datasetArffFilename);
-        project = new Project(dataset, projectName);
-    }
-
-    private Instances loadArff(String filename) throws Exception {
-        DataSource source = new DataSource(filename);
-        return source.getDataSet();
+    public WalkForward(String projectName, int wholeDatasetSize, WalkForwardSplitIterator wfSplitsIterator) {
+        this.projectName = projectName;
+        this.wholeDatasetSize = wholeDatasetSize;
+        this.wfSplitsIterator = wfSplitsIterator;
     }
 
     private final Classifier[] classifiers = {
@@ -111,15 +78,15 @@ public final class WalkForward {
     private List<Result> results;
 
     public void start() {
-        String msg = String.format("Evaluating project %s...", project.getName());
+        String msg = String.format("Evaluating project %s...", projectName);
 
-        int nWfIters = project.getMaxRelIdx();
+        int nWfCount = wfSplitsIterator.getNumOfTotalWalkForwardSplits();
         int nCl = classifiers.length;
         int nFs = featureSelections.length;
         int nSm = samplings.length;
         int nCs = costSensitivities.length;
 
-        ProgressBar pb = Util.buildProgressBar(msg, nWfIters * nCl * nFs * nSm * nCs);
+        ProgressBar pb = Util.buildProgressBar(msg, nWfCount * nCl * nFs * nSm * nCs);
         doStart(pb);
 
         pb.close();
@@ -128,8 +95,9 @@ public final class WalkForward {
     private void doStart(ProgressBar pb) {
         results = new ArrayList<>();
 
-        for(int i = 1; i <= project.getMaxRelIdx(); ++i) {
-            var curDataset = copyWfSplitAndInit(i);
+        for(int i = 1; wfSplitsIterator.hasNext(); ++i) {
+            var curDataset = copyWfSplitAndInit(wfSplitsIterator.next());
+
             Result earlyResult = setEarlyMetricsForResult(i, curDataset);
 
             for(Classifier classifier : classifiers) {
@@ -148,7 +116,7 @@ public final class WalkForward {
 
                             Result finalResult = setConfigForResult(earlyResult, profile);
 
-                            var evaluation = evaluate(i + 1, profile, curDataset);
+                            var evaluation = evaluate(i, profile, curDataset);
 
                             addResultingEvaluation(finalResult, evaluation);
 
@@ -259,7 +227,7 @@ public final class WalkForward {
 
         Result currentResult = new Result();
 
-        currentResult.setDataset(project.getName());
+        currentResult.setDataset(projectName);
 
         currentResult.setNumTrainingRelease(wfIter);
 
@@ -269,7 +237,7 @@ public final class WalkForward {
         float percDefTrain = (Util.numOfPositives(trainingSet)*100) / (float) trainingSet.size();
         currentResult.setPercDefectiveInTraining(percDefTrain);
 
-        float percTrain = (trainingSet.size() * 100) / (float) project.getDataset().size();
+        float percTrain = (trainingSet.size() * 100) / (float) wholeDatasetSize;
         currentResult.setPercTrainingData(percTrain);
 
         return currentResult;
@@ -301,20 +269,8 @@ public final class WalkForward {
         orig.setF1score((float)eval.fMeasure(posClassIdx));
     }
 
-    private Util.Pair<Instances, Instances> getWfSplitAtIterNum(int iterIdx) {
-        Instances origDataset = project.getDataset();
-
-        Instances trainingSet = new Instances(origDataset);
-        Instances testingSet = new Instances(origDataset);
-
-        trainingSet.removeIf(t -> (int) t.value(0) >= iterIdx);
-        testingSet.removeIf(t -> (int) t.value(0) != iterIdx);
-
-        return new Util.Pair<>(trainingSet, testingSet);
-    }
-
-    private Util.Pair<Instances, Instances> copyWfSplitAndInit(int i) {
-        var curDataset = getWfSplitAtIterNum(i);
+    private Util.Pair<Instances, Instances> copyWfSplitAndInit(WalkForwardSplit split) {
+        var curDataset = new Util.Pair<>(split.getTrainingSet(), split.getTestingSet());
 
         var curTrainingSet = new Instances(curDataset.getFirst());
         var curTestingSet = new Instances(curDataset.getSecond());

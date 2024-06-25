@@ -1,6 +1,7 @@
 package ste.model;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +17,6 @@ public final class Release {
     private final String id;
     private final String version;
     private final Date releaseDate;
-    
     private int index;
     private List<RevCommit> commits;
  
@@ -24,6 +24,15 @@ public final class Release {
         this.version = version;
         this.releaseDate = releaseDate;
         this.id = id;
+    }
+
+    //non-deepcopy-enabled constructor
+    public Release(Release old) {
+        this.id = String.valueOf(old.id);
+        this.version = String.valueOf(old.version);
+        this.releaseDate = new Date(old.releaseDate.getTime());
+        this.commits = old.commits; //copyrefs
+        this.index = old.index;
     }
 
     public Date getReleaseDate() {
@@ -68,5 +77,14 @@ public final class Release {
             version.getId(),
             version.getName(), 
             rd != null ? Util.dateFromString(rd) : null);
+    }
+
+    public static List<Release> copyReleases(List<Release> old) {
+        List<Release> newRels = new ArrayList<>();
+        for(Release rel : old) {
+            newRels.add(new Release(rel));
+        }
+        
+        return newRels;
     }
 }

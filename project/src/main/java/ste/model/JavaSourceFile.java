@@ -1,5 +1,8 @@
 package ste.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ste.csv.annotations.CsvColumn;
 import ste.csv.annotations.CsvDescriptor;
 
@@ -19,6 +22,26 @@ public final class JavaSourceFile {
     private int maxChurn;
     private int avgChurn;
     private boolean buggy;
+
+    //non-deepcopy-enabled constructor
+    public JavaSourceFile(JavaSourceFile old) {
+        this.release = new Release(old.release);
+        this.filename = String.valueOf(old.filename);
+        this.loc = old.loc;
+        this.avgChgSet = old.avgChgSet;
+        this.maxChgSet = old.maxChgSet;
+        this.numAuthors = old.numAuthors;
+        this.numRev = old.numRev;
+        this.locAdded = old.locAdded;
+        this.maxLocAdded = old.maxLocAdded;
+        this.avgLocAdded = old.avgLocAdded;
+        this.churn = old.churn;
+        this.maxChurn = old.maxChurn;
+        this.avgChurn = old.avgChurn;
+        this.buggy = old.buggy;
+    }
+
+    public JavaSourceFile() {}
 
     @CsvColumn(order = 1, name = "Version")
     public String getVersionByRelease() {
@@ -161,5 +184,20 @@ public final class JavaSourceFile {
         jsf.setBuggy(false);
 
         return jsf;
+    }
+    
+    public static void resetBuggy(List<JavaSourceFile> jsfs) {
+        for(JavaSourceFile jsf : jsfs) {
+            jsf.setBuggy(false);
+        }
+    }
+
+    public static List<JavaSourceFile> copyJavaSourceFiles(List<JavaSourceFile> jsfs) {
+        List<JavaSourceFile> newJsfs = new ArrayList<>();
+        for(JavaSourceFile jsf : jsfs) {
+            newJsfs.add(new JavaSourceFile(jsf));
+        }
+
+        return newJsfs;
     }
 }
