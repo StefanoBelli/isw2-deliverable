@@ -15,10 +15,8 @@ import ste.evaluation.component.classifier.impls.RandomForestClassifier;
 import ste.evaluation.component.cost.CostSensitivity;
 import ste.evaluation.component.cost.Sensitive;
 import ste.evaluation.component.fesel.FeatureSelection;
-import ste.evaluation.component.fesel.impls.ApplyGreedyBackwards;
-import ste.evaluation.component.fesel.impls.ApplyBestFirst;
+import ste.evaluation.component.fesel.impls.ApplyBestFirstBackward;
 import ste.evaluation.component.sampling.Sampling;
-import ste.evaluation.component.sampling.impls.ApplyOversampling;
 import ste.evaluation.component.sampling.impls.ApplySmote;
 import ste.evaluation.component.sampling.impls.ApplyUndersampling;
 import ste.evaluation.eam.NPofBx;
@@ -50,29 +48,69 @@ public final class WalkForward {
         this.wfSplitsIterator = wfSplitsIterator;
     }
 
+    private static final class Configuration {
+        private FeatureSelection featureSelection;
+        private Sampling sampling;
+        private CostSensitivity costSensitivity;
+
+        public Configuration(
+            FeatureSelection featureSelection, 
+            Sampling sampling, 
+            CostSensitivity costSensitivity) {
+            
+            this.featureSelection = featureSelection;
+            this.sampling = sampling;
+            this.costSensitivity = costSensitivity;
+        }
+    }
+
     private final Classifier[] classifiers = {
         new NaiveBayesClassifier(),
         new RandomForestClassifier(),
         new IBkClassifier()
     };
-
-    private final FeatureSelection[] featureSelections = {
-        new FeatureSelection(null),
-        new FeatureSelection(new ApplyBestFirst()),
-        new FeatureSelection(new ApplyGreedyBackwards())
-    };
-
-    private final Sampling[] samplings = {
-        new Sampling(null),
-        new Sampling(new ApplyOversampling()),
-        new Sampling(new ApplyUndersampling()),
-        new Sampling(new ApplySmote()),
-    };
-
-    private final CostSensitivity[] costSensitivities = {
-        new CostSensitivity(Sensitive.NONE),
-        new CostSensitivity(Sensitive.THRESHOLD),
-        new CostSensitivity(Sensitive.LEARNING)   
+    
+    private final Configuration[] configurations = {
+        new Configuration(
+            new FeatureSelection(null),
+            new Sampling(null),
+            new CostSensitivity(Sensitive.NONE)
+        ), 
+        new Configuration(
+            new FeatureSelection(null),
+            new Sampling(null),
+            new CostSensitivity(Sensitive.LEARNING)
+        ),
+        new Configuration(
+            new FeatureSelection(new ApplyBestFirstBackward()),
+            new Sampling(null),
+            new CostSensitivity(Sensitive.NONE)
+        ),
+        new Configuration(
+            new FeatureSelection(new ApplyBestFirstBackward()),
+            new Sampling(null),
+            new CostSensitivity(Sensitive.LEARNING)
+        ),
+        new Configuration(
+            new FeatureSelection(new ApplyBestFirstBackward()),
+            new Sampling(new ApplyUndersampling()),
+            new CostSensitivity(Sensitive.NONE)
+        ),
+        new Configuration(
+            new FeatureSelection(new ApplyBestFirstBackward()),
+            new Sampling(new ApplySmote()),
+            new CostSensitivity(Sensitive.NONE)
+        ),
+        new Configuration(
+            new FeatureSelection(null),
+            new Sampling(new ApplyUndersampling()),
+            new CostSensitivity(Sensitive.NONE)
+        ),
+        new Configuration(
+            new FeatureSelection(null),
+            new Sampling(new ApplySmote()),
+            new CostSensitivity(Sensitive.NONE)
+        ),
     };
 
     private List<Result> results;
@@ -82,11 +120,9 @@ public final class WalkForward {
 
         int nWfCount = wfSplitsIterator.getNumOfTotalWalkForwardSplits();
         int nCl = classifiers.length;
-        int nFs = featureSelections.length;
-        int nSm = samplings.length;
-        int nCs = costSensitivities.length;
+        int nConf = configurations.length;
 
-        ProgressBar pb = Util.buildProgressBar(msg, nWfCount * nCl * nFs * nSm * nCs);
+        ProgressBar pb = Util.buildProgressBar(msg, nWfCount * nCl * nConf);
         doStart(pb);
 
         pb.close();
@@ -96,34 +132,28 @@ public final class WalkForward {
         results = new ArrayList<>();
 
         for(int i = 1; wfSplitsIterator.hasNext(); ++i) {
-            var curDataset = copyWfSplitAndInit(wfSplitsIterator.next());
+            WalkForwardSplit wfSplit = wfSplitsIterator.next();
 
-            Result earlyResult = setEarlyMetricsForResult(i, curDataset);
+            for (Classifier classifier : classifiers) {
 
-            for(Classifier classifier : classifiers) {
+                for (Configuration configuration : configurations) {
+                    var curDataset = copyWfSplitAndInit(wfSplit);
+                    Result earlyResult = setEarlyMetricsForResult(wfSplit.getNumTrainingRels() + 1, curDataset);
 
-                for(FeatureSelection featureSelection : featureSelections) {
+                    EvaluationProfile profile = new EvaluationProfile();
+                    profile.setClassifier(classifier);
+                    profile.setFeatureSelection(configuration.featureSelection);
+                    profile.setSampling(configuration.sampling);
+                    profile.setCostSensitivity(configuration.costSensitivity);
 
-                    for(Sampling sampling : samplings) {
+                    Result finalResult = setConfigForResult(earlyResult, profile);
 
-                        for(CostSensitivity costSensitivity : costSensitivities) {
- 
-                            EvaluationProfile profile = new EvaluationProfile();
-                            profile.setClassifier(classifier);
-                            profile.setFeatureSelection(featureSelection);
-                            profile.setSampling(sampling);
-                            profile.setCostSensitivity(costSensitivity);
+                    var evaluation = evaluate(i, profile, curDataset);
 
-                            Result finalResult = setConfigForResult(earlyResult, profile);
+                    addResultingEvaluation(finalResult, evaluation);
 
-                            var evaluation = evaluate(i, profile, curDataset);
-
-                            addResultingEvaluation(finalResult, evaluation);
-
-                            pb.setExtraMessage(profile.toString());
-                            pb.step();
-                        }
-                    }
+                    pb.setExtraMessage(profile.toString());
+                    pb.step();
                 }
             }
         }
@@ -221,7 +251,7 @@ public final class WalkForward {
         }
     }
 
-    private Result setEarlyMetricsForResult(int wfIter, Util.Pair<Instances, Instances> datasets) {
+    private Result setEarlyMetricsForResult(int numTrainRels, Util.Pair<Instances, Instances> datasets) {
         var trainingSet = datasets.getFirst();
         var testingSet = datasets.getSecond();
 
@@ -229,7 +259,7 @@ public final class WalkForward {
 
         currentResult.setDataset(projectName);
 
-        currentResult.setNumTrainingRelease(wfIter);
+        currentResult.setNumTrainingRelease(numTrainRels);
 
         float percDefTest = (Util.numOfPositives(testingSet)*100) / (float) testingSet.size();
         currentResult.setPercDefectiveInTesting(percDefTest);

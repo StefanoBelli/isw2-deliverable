@@ -150,7 +150,7 @@ public final class App {
         }
 
         logger.info("wrote python lookup script for NPofB20 @ {}", scriptPath);
-        logger.info("usage: python {} <Dataset> <Classifier> <FeatureSelection> <Balancing> <Sensitivity> <#TrainingReleases + 1>", 
+        logger.info("usage: python {} <Dataset> <Classifier> <FeatureSelection> <Balancing> <Sensitivity> <WalkForwardIter>", 
             scriptPath);
     }
 
@@ -301,7 +301,7 @@ public final class App {
             throw new NonMatchingSetsSizeException();
         }
         List<WalkForwardSplit> splits = new ArrayList<>();
-        for(int i = 0; i < trainingSets.size(); ++i) {
+        for(int i = 1; i < trainingSets.size(); ++i) {
             splits.add(new WalkForwardSplit(trainingSets.get(i), testingSets.get(i), i));
         }
         return new WalkForward(projName, datasetSize, new WalkForwardSplitIterator(splits));
