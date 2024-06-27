@@ -14,7 +14,7 @@ public final class WalkForwardSplit {
         Util.csv2Arff(testingSetCsv, String.format("testing-tmp-%d.arff", fileIdx));
         trainingSet = new DataSource(String.format("training-tmp-%d.arff", fileIdx)).getDataSet();
         testingSet = new DataSource(String.format("testing-tmp-%d.arff", fileIdx)).getDataSet();
-        numTrainingRels = (int) trainingSet.get(trainingSet.numInstances() - 1).value(0);
+        numTrainingRels = (int) trainingSet.get(trainingSet.numInstances() - 1).value(0) + 1;
     }
 
     public int getNumTrainingRels() {

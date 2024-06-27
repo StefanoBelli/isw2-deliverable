@@ -131,14 +131,14 @@ public final class WalkForward {
     private void doStart(ProgressBar pb) {
         results = new ArrayList<>();
 
-        for(int i = 1; wfSplitsIterator.hasNext(); ++i) {
+        while(wfSplitsIterator.hasNext()) {
             WalkForwardSplit wfSplit = wfSplitsIterator.next();
 
             for (Classifier classifier : classifiers) {
 
                 for (Configuration configuration : configurations) {
                     var curDataset = copyWfSplitAndInit(wfSplit);
-                    Result earlyResult = setEarlyMetricsForResult(wfSplit.getNumTrainingRels() + 1, curDataset);
+                    Result earlyResult = setEarlyMetricsForResult(wfSplit.getNumTrainingRels(), curDataset);
 
                     EvaluationProfile profile = new EvaluationProfile();
                     profile.setClassifier(classifier);
@@ -148,7 +148,7 @@ public final class WalkForward {
 
                     Result finalResult = setConfigForResult(earlyResult, profile);
 
-                    var evaluation = evaluate(i, profile, curDataset);
+                    var evaluation = evaluate(wfSplit.getNumTrainingRels(), profile, curDataset);
 
                     addResultingEvaluation(finalResult, evaluation);
 
@@ -221,7 +221,7 @@ public final class WalkForward {
     }
 
     private Util.Pair<Evaluation, Float> evaluate(
-            int wfRun, EvaluationProfile profile, Util.Pair<Instances, Instances> datasets) {
+            int numTrainingRels, EvaluationProfile profile, Util.Pair<Instances, Instances> datasets) {
         try {
             var resultingPair = obtainClassifierWithFilteredTestingSet(
                     profile,
@@ -237,7 +237,7 @@ public final class WalkForward {
             NPofBx npofbx = new NPofBx();
             float nPofBxIndex = npofbx.indexFor(20, testingSet, classifier);
             CsvWriter.writeAll(
-                getNPofBxFilename(wfRun, profile), 
+                getNPofBxFilename(numTrainingRels, profile), 
                 NPofBx.TableEntry.class, 
                 npofbx.getEntries());
 
