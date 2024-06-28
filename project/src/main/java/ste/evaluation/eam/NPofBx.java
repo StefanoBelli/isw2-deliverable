@@ -57,7 +57,7 @@ public final class NPofBx {
         }
 
         @CsvColumn(order = 4, name = "Actual")
-        public String getActualAsYesNo() {
+        public String getActualAsYesOrNo() {
             return actual ? "YES" : "NO";
         }
  
@@ -72,23 +72,23 @@ public final class NPofBx {
 
     private List<TableEntry> entries;
     
-    public float indexFor(int x, Instances testingSet, 
-            AbstractClassifier classifier) 
-                throws Exception {
+    public float indexFor(int x, Instances testingSet, Instances originalTestingSet,
+            AbstractClassifier classifier) throws Exception {
 
         entries = new ArrayList<>();
         
-        int lastAttrIdx = testingSet.numAttributes() - 1;
+        int origLastAttrIdx = originalTestingSet.numAttributes() - 1;
         int totalSize = 0;
 
         int totalActual = 0;
 
         for(int i = 0; i < testingSet.numInstances(); ++i) {
             Instance cur = testingSet.get(i);
+            Instance origCur = originalTestingSet.get(i);
 
-            double size = cur.value(0);
+            double size = origCur.value(0);
             double pred = getPredictionPercForYesLabel(cur, classifier);
-            boolean actual = cur.toString(lastAttrIdx).equals("yes");
+            boolean actual = origCur.toString(origLastAttrIdx).equals("yes");
 
             if(actual) {
                 ++totalActual;

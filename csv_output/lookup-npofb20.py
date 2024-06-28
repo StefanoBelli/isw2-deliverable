@@ -9,5 +9,5 @@ with open(f"{sys.argv[1]}-Result.csv") as csvf:
 			str.lower(row[7]) == str.lower(sys.argv[4]) and \
 			str.lower(row[8]) == str.lower(sys.argv[5]) and \
 			str(int(row[1])) == sys.argv[6]:
-			print(f"{row[17]}")
+			print(f"{row[18]}")
 			break

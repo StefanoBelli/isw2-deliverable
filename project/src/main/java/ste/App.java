@@ -142,7 +142,7 @@ public final class App {
             .append("\t\t\tstr.lower(row[7]) == str.lower(sys.argv[4]) and \\\n")
             .append("\t\t\tstr.lower(row[8]) == str.lower(sys.argv[5]) and \\\n")
             .append("\t\t\tstr(int(row[1])) == sys.argv[6]:\n")
-            .append("\t\t\tprint(f\"{row[17]}\")\n")
+            .append("\t\t\tprint(f\"{row[18]}\")\n")
             .append("\t\t\tbreak\n");
 
         try(FileOutputStream fos = new FileOutputStream(scriptPath)) {

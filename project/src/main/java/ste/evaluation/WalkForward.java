@@ -222,6 +222,9 @@ public final class WalkForward {
 
     private Util.Pair<Evaluation, Float> evaluate(
             int numTrainingRels, EvaluationProfile profile, Util.Pair<Instances, Instances> datasets) {
+        
+        Instances originalTestingSet = new Instances(datasets.getSecond());
+
         try {
             var resultingPair = obtainClassifierWithFilteredTestingSet(
                     profile,
@@ -235,7 +238,7 @@ public final class WalkForward {
             eval.evaluateModel(classifier, testingSet);
 
             NPofBx npofbx = new NPofBx();
-            float nPofBxIndex = npofbx.indexFor(20, testingSet, classifier);
+            float nPofBxIndex = npofbx.indexFor(20, testingSet, originalTestingSet, classifier);
             CsvWriter.writeAll(
                 getNPofBxFilename(numTrainingRels, profile), 
                 NPofBx.TableEntry.class, 
