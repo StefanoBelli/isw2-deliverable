@@ -115,7 +115,8 @@ public final class NPofBx {
 
     private float calcIndexCore(int totalSize, int topX, int totalActuallyBuggy) {
         //rank by normalized probability of buggyness
-        entries.sort(
+        List<TableEntry> tents = new ArrayList<>(entries);
+        tents.sort(
             (e1, e2) -> {
                 float npy1 = e1.getNormProbYes();
                 float npy2 = e2.getNormProbYes();
@@ -135,7 +136,7 @@ public final class NPofBx {
 
         int topXActuallyBuggy = 0;
 
-        for(TableEntry entry : entries) {
+        for(TableEntry entry : tents) {
             sizeSoFar += entry.getSize();
 
             if(sizeSoFar > topXPercSize) {
