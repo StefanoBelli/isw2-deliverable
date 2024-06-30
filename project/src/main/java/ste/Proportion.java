@@ -152,20 +152,16 @@ public final class Proportion {
             int fv = ticket.getFixedVersionIdx() + 1;
 
             if(!ticket.isInjectedVersionAvail()) {
-                int newIv;
-                if(ov == fv) {
-                    newIv = ov;
+                double pIncrement = 0;
+                List<Ticket> usedTicketsForIncrement = filterUsedTickets(allTickets, i);
+
+                if (hasEnoughValidTickets(usedTicketsForIncrement)) {
+                    pIncrement = increment(usedTicketsForIncrement);
                 } else {
-                    double pIncrement = 0;
-                    List<Ticket> usedTicketsForIncrement = filterUsedTickets(allTickets, i);
-                    
-                    if(hasEnoughValidTickets(usedTicketsForIncrement)) {
-                        pIncrement = increment(usedTicketsForIncrement);
-                    } else {
-                        pIncrement = ColdStart.computeProportion();
-                    }
-                    newIv = (int) Math.round(fv - ((fv - ov) * pIncrement));
+                    pIncrement = ColdStart.computeProportion();
                 }
+
+                int newIv = Math.max(1, (int) Math.round(fv - ((fv - ov) * pIncrement)));
 
                 ticket.setInjectedVersionIdx(newIv - 1);
                 ticket.setArtificialInjectedVersion(true);

@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -155,6 +156,13 @@ public final class Util {
 
       List<Ticket> tickets = new ArrayList<>();
 
+      Arrays.sort(tkts, (e1, e2) -> 
+         Util.dateFromString(
+            e1.getFields().getResolutionDate().substring(0,10))
+               .compareTo(
+         Util.dateFromString(
+            e2.getFields().getResolutionDate().substring(0,10))));
+
       for (JiraTicket tkt : tkts) {
          String key = tkt.getKey();
 
@@ -196,7 +204,7 @@ public final class Util {
          int ov = t.getOpeningVersionIdx();
          int fv = t.getFixedVersionIdx();
 
-         return iv < 0 || !(iv < fv && iv <= ov && ov <= fv);
+         return !(iv < fv && iv <= ov && ov <= fv);
       });
    }
 

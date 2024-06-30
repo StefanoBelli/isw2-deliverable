@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -396,9 +395,6 @@ public final class App {
         logger.info(STAT_INFO_FMT, STORM, stormTickets.size(), stormReleases.size());
         logger.info(STAT_INFO_FMT, BOOKKEEPER, bookKeeperTickets.size(), bookKeeperReleases.size());
 
-        reverseTicketsOrder(stormTickets);
-        reverseTicketsOrder(bookKeeperTickets);
-
         int stormTicketsWithIv = statTicketsWithIv(stormTickets);
         int bookKeeperTicketsWithIv = statTicketsWithIv(bookKeeperTickets);
 
@@ -427,10 +423,6 @@ public final class App {
 
     private static void removeTicketsIfNoCommits(List<Ticket> tkts) {
         tkts.removeIf(t -> t.getCommits().isEmpty());
-    }
-
-    private static void reverseTicketsOrder(List<Ticket> tkts) {
-        Collections.reverse(tkts);
     }
 
     private static void linkReleasesToCommits(List<Release> rels, GitRepository repo, String projName) throws IOException {
