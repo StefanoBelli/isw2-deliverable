@@ -57,7 +57,7 @@ if __name__ == '__main__':
                         str.lower(result_row[8]) == str.lower(predcomp[4]) and \
                         result_row[1] == predcomp[5][:- 4]:
                     
-                        result_npofb20 = float(result_row[npofb20_result_col_idx]) / 100
+                        result_npofb20 = float(result_row[npofb20_result_col_idx])
 
                         print(f"{predcomp[0]}, {predcomp[1]}, {predcomp[2]}, {predcomp[3]}, {predcomp[4]}, {predcomp[5]}")
                         found = True
