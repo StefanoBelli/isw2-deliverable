@@ -373,6 +373,9 @@ public final class App {
 
         List<Ticket> stormTickets = Util.initProjectTickets(stormReleases, jst);
         List<Ticket> bookKeeperTickets = Util.initProjectTickets(bookKeeperReleases, jbkt);
+        
+        Util.enableIvComputationIfMinorTicketInconsistency(stormTickets);
+        Util.enableIvComputationIfMinorTicketInconsistency(bookKeeperTickets);
 
         Util.removeTicketsIfInconsistent(stormTickets);
         Util.removeTicketsIfInconsistent(bookKeeperTickets);

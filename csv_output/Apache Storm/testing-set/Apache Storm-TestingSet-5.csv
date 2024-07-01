@@ -39,7 +39,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 0.9.5,examples/storm-starter/test/jvm/storm/starter/tools/SlidingWindowCounterTest.java,106,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,examples/storm-starter/test/jvm/storm/starter/tools/SlotBasedCounterTest.java,181,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/flux/flux-core/src/main/java/org/apache/storm/flux/Flux.java,263,526,263,263,526,263,263,32,32,1,2,no
-0.9.5,external/flux/flux-core/src/main/java/org/apache/storm/flux/FluxBuilder.java,590,1182,591,591,1182,591,591,32,32,1,2,no
+0.9.5,external/flux/flux-core/src/main/java/org/apache/storm/flux/FluxBuilder.java,590,1182,591,591,1182,591,591,32,32,1,2,yes
 0.9.5,external/flux/flux-core/src/main/java/org/apache/storm/flux/api/TopologySource.java,39,78,39,39,78,39,39,32,32,1,2,no
 0.9.5,external/flux/flux-core/src/main/java/org/apache/storm/flux/model/BeanDef.java,39,78,39,39,78,39,39,32,32,1,2,no
 0.9.5,external/flux/flux-core/src/main/java/org/apache/storm/flux/model/BeanReference.java,39,78,39,39,78,39,39,32,32,1,2,no
@@ -58,7 +58,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 0.9.5,external/flux/flux-core/src/main/java/org/apache/storm/flux/parser/FluxParser.java,202,404,202,202,404,202,202,32,32,1,2,no
 0.9.5,external/flux/flux-core/src/test/java/org/apache/storm/flux/FluxBuilderTest.java,31,62,31,31,62,31,31,32,32,1,2,no
 0.9.5,external/flux/flux-core/src/test/java/org/apache/storm/flux/IntegrationTest.java,39,80,27,41,78,26,41,22,32,1,3,no
-0.9.5,external/flux/flux-core/src/test/java/org/apache/storm/flux/TCKTest.java,234,468,234,234,468,234,234,32,32,1,2,no
+0.9.5,external/flux/flux-core/src/test/java/org/apache/storm/flux/TCKTest.java,234,468,234,234,468,234,234,32,32,1,2,yes
 0.9.5,external/flux/flux-core/src/test/java/org/apache/storm/flux/multilang/MultilangEnvirontmentTest.java,89,178,89,89,178,89,89,32,32,1,2,no
 0.9.5,external/flux/flux-core/src/test/java/org/apache/storm/flux/test/SimpleTopology.java,42,101,34,42,101,34,42,27,32,1,3,no
 0.9.5,external/flux/flux-core/src/test/java/org/apache/storm/flux/test/SimpleTopologySource.java,35,87,29,35,87,29,35,27,32,1,3,no
@@ -131,7 +131,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 0.9.5,external/storm-hbase/src/main/java/org/apache/storm/hbase/common/HBaseClient.java,135,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-hbase/src/main/java/org/apache/storm/hbase/common/IColumn.java,30,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-hbase/src/main/java/org/apache/storm/hbase/common/ICounter.java,29,0,0,0,0,0,0,0,0,0,0,no
-0.9.5,external/storm-hbase/src/main/java/org/apache/storm/hbase/common/Utils.java,69,0,0,0,0,0,0,0,0,0,0,no
+0.9.5,external/storm-hbase/src/main/java/org/apache/storm/hbase/common/Utils.java,69,0,0,0,0,0,0,0,0,0,0,yes
 0.9.5,external/storm-hbase/src/main/java/org/apache/storm/hbase/security/AutoHBase.java,242,243,243,243,243,243,243,286,286,1,1,no
 0.9.5,external/storm-hbase/src/main/java/org/apache/storm/hbase/security/HBaseSecurityUtil.java,64,22,22,22,12,12,12,286,286,1,1,yes
 0.9.5,external/storm-hbase/src/main/java/org/apache/storm/hbase/trident/mapper/SimpleTridentHBaseMapMapper.java,50,250,50,50,250,50,50,102,286,3,5,yes
@@ -152,9 +152,9 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 0.9.5,external/storm-hbase/src/test/java/org/apache/storm/hbase/topology/WordSpout.java,88,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-hbase/src/test/java/org/apache/storm/hbase/trident/PrintFunction.java,40,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-hbase/src/test/java/org/apache/storm/hbase/trident/WordCountTrident.java,104,0,0,0,0,0,0,0,0,0,0,no
-0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/AbstractHdfsBolt.java,139,0,0,0,0,0,0,0,0,0,0,no
-0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/HdfsBolt.java,131,7,1,1,0,0,0,63,286,6,7,no
-0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/SequenceFileBolt.java,149,7,1,1,0,0,0,63,286,6,7,no
+0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/AbstractHdfsBolt.java,139,0,0,0,0,0,0,0,0,0,0,yes
+0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/HdfsBolt.java,131,7,1,1,0,0,0,63,286,6,7,yes
+0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/SequenceFileBolt.java,149,7,1,1,0,0,0,63,286,6,7,yes
 0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/format/DefaultFileNameFormat.java,86,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/format/DefaultSequenceFormat.java,69,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-hdfs/src/main/java/org/apache/storm/hdfs/bolt/format/DelimitedRecordFormat.java,88,0,0,0,0,0,0,0,0,0,0,no
@@ -238,7 +238,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/FailedMsgRetryManager.java,26,7,7,7,4,4,4,286,286,1,1,yes
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/KafkaConfig.java,52,7,1,1,0,0,0,81,286,4,7,yes
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/KafkaError.java,43,0,0,0,0,0,0,0,0,0,0,no
-0.9.5,external/storm-kafka/src/jvm/storm/kafka/KafkaSpout.java,195,1,1,1,0,0,0,20,20,1,1,no
+0.9.5,external/storm-kafka/src/jvm/storm/kafka/KafkaSpout.java,195,1,1,1,0,0,0,20,20,1,1,yes
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/KafkaUtils.java,240,150,9,56,6,0,22,44,286,7,16,yes
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/KeyValueScheme.java,28,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/KeyValueSchemeAsMultiScheme.java,37,0,0,0,0,0,0,0,0,0,0,no
@@ -266,9 +266,9 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/IBatchCoordinator.java,26,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/IBrokerReader.java,25,6,6,6,5,5,5,20,20,1,1,no
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/MaxMetric.java,40,0,0,0,0,0,0,0,0,0,0,no
-0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/OpaqueTridentKafkaSpout.java,59,3,3,3,1,1,1,20,20,1,1,no
+0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/OpaqueTridentKafkaSpout.java,59,3,3,3,1,1,1,20,20,1,1,yes
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/StaticBrokerReader.java,36,18,18,18,13,13,13,20,20,1,1,no
-0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/TransactionalTridentKafkaSpout.java,58,0,0,0,0,0,0,0,0,0,0,no
+0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/TransactionalTridentKafkaSpout.java,58,0,0,0,0,0,0,0,0,0,0,yes
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/TridentKafkaConfig.java,37,0,0,0,0,0,0,0,0,0,0,no
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/TridentKafkaEmitter.java,281,73,7,30,19,2,13,59,286,6,10,yes
 0.9.5,external/storm-kafka/src/jvm/storm/kafka/trident/TridentKafkaState.java,99,0,0,0,0,0,0,0,0,0,0,no

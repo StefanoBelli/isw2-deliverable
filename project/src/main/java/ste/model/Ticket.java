@@ -74,6 +74,11 @@ public final class Ticket {
         this.artificialInjectedVersion = calcInjectedVersion;
     }
 
+    public void unsetInjectedVersionAvail() {
+        this.injectedVersionAvail = false;
+        this.artificialInjectedVersion = false;
+    }
+
     public static void ensureResetArtificialIv(List<Ticket> tkts) {
         for(Ticket tkt : tkts) {
             if(tkt.isInjectedVersionAvail() && tkt.isArtificialInjectedVersion()) {

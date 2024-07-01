@@ -198,8 +198,26 @@ public final class Util {
       return tickets;
    }
 
+   public static void enableIvComputationIfMinorTicketInconsistency(List<Ticket> tkts) {
+      for(Ticket tkt : tkts) {
+         boolean isIvAvailable = tkt.isInjectedVersionAvail();
+         int ov = tkt.getOpeningVersionIdx();
+         int fv = tkt.getFixedVersionIdx();
+         int iv = tkt.getInjectedVersionIdx();
+
+         if(isIvAvailable && ov <= fv && iv < fv && 
+               /* start of broken part */ iv > ov /* end of broken part */) {
+            tkt.unsetInjectedVersionAvail();
+         }
+      }
+   }
+
    public static void removeTicketsIfInconsistent(List<Ticket> tkts) {
       tkts.removeIf(t -> {
+         if(!t.isInjectedVersionAvail()) {
+            return false;
+         }
+
          int iv = t.getInjectedVersionIdx();
          int ov = t.getOpeningVersionIdx();
          int fv = t.getFixedVersionIdx();

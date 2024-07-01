@@ -4,11 +4,11 @@ from sys import argv
 import csv
 
 result_filename = {
-    'APACHE STORM': 'csv_output/Apache Storm-Result.csv',
-    'BOOKKEEPER': 'csv_output/Bookkeeper-Result.csv'
+    'APACHE STORM': '../csv_output/Apache Storm-Result.csv',
+    'BOOKKEEPER': '../csv_output/Bookkeeper-Result.csv'
 }
 
-epsilon = 0.0001
+epsilon = 0.001
 
 
 def findcsvcolidx(row, igncasecolname="npofb20"):

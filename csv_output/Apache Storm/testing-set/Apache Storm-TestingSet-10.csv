@@ -769,7 +769,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.2,storm-core/src/jvm/org/apache/storm/daemon/ClientJarTransformerRunner.java,41,0,0,0,0,0,0,0,0,0,0,no
 1.0.2,storm-core/src/jvm/org/apache/storm/daemon/DaemonCommon.java,22,0,0,0,0,0,0,0,0,0,0,no
 1.0.2,storm-core/src/jvm/org/apache/storm/daemon/DirectoryCleaner.java,177,0,0,0,0,0,0,0,0,0,0,no
-1.0.2,storm-core/src/jvm/org/apache/storm/daemon/DrpcServer.java,357,0,0,0,0,0,0,0,0,0,0,no
+1.0.2,storm-core/src/jvm/org/apache/storm/daemon/DrpcServer.java,357,0,0,0,0,0,0,0,0,0,0,yes
 1.0.2,storm-core/src/jvm/org/apache/storm/daemon/GrouperFactory.java,243,0,0,0,0,0,0,0,0,0,0,no
 1.0.2,storm-core/src/jvm/org/apache/storm/daemon/JarTransformer.java,31,0,0,0,0,0,0,0,0,0,0,no
 1.0.2,storm-core/src/jvm/org/apache/storm/daemon/Shutdownable.java,22,0,0,0,0,0,0,0,0,0,0,no
@@ -939,7 +939,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.2,storm-core/src/jvm/org/apache/storm/localizer/LocalizedResourceRetentionSet.java,140,0,0,0,0,0,0,0,0,0,0,no
 1.0.2,storm-core/src/jvm/org/apache/storm/localizer/LocalizedResourceSet.java,101,0,0,0,0,0,0,0,0,0,0,no
 1.0.2,storm-core/src/jvm/org/apache/storm/localizer/Localizer.java,695,0,0,0,0,0,0,0,0,0,0,no
-1.0.2,storm-core/src/jvm/org/apache/storm/logging/ThriftAccessLogger.java,32,0,0,0,0,0,0,0,0,0,0,no
+1.0.2,storm-core/src/jvm/org/apache/storm/logging/ThriftAccessLogger.java,32,0,0,0,0,0,0,0,0,0,0,yes
 1.0.2,storm-core/src/jvm/org/apache/storm/logging/filters/AccessLoggingFilter.java,52,0,0,0,0,0,0,0,0,0,0,no
 1.0.2,storm-core/src/jvm/org/apache/storm/messaging/ConnectionWithStatus.java,49,0,0,0,0,0,0,0,0,0,0,no
 1.0.2,storm-core/src/jvm/org/apache/storm/messaging/DeserializingConnectionCallback.java,60,0,0,0,0,0,0,0,0,0,0,no

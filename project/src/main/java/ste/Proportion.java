@@ -161,7 +161,9 @@ public final class Proportion {
                     pIncrement = ColdStart.computeProportion();
                 }
 
-                int newIv = Math.max(1, (int) Math.round(fv - ((fv - ov) * pIncrement)));
+                int newIv = Math.max(
+                    1, (int) Math.round(
+                        fv == ov ? fv - pIncrement : fv - ((fv - ov) * pIncrement)));
 
                 ticket.setInjectedVersionIdx(newIv - 1);
                 ticket.setArtificialInjectedVersion(true);

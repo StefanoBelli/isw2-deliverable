@@ -443,7 +443,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.4,external/storm-hdfs/src/test/java/org/apache/storm/hdfs/bolt/AvroGenericRecordBoltTest.java,275,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,external/storm-hdfs/src/test/java/org/apache/storm/hdfs/bolt/TestHdfsBolt.java,284,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,external/storm-hdfs/src/test/java/org/apache/storm/hdfs/bolt/TestSequenceFileBolt.java,186,0,0,0,0,0,0,0,0,0,0,no
-1.0.4,external/storm-hdfs/src/test/java/org/apache/storm/hdfs/bolt/TestWritersMap.java,48,0,0,0,0,0,0,0,0,0,0,no
+1.0.4,external/storm-hdfs/src/test/java/org/apache/storm/hdfs/bolt/TestWritersMap.java,48,0,0,0,0,0,0,0,0,0,0,yes
 1.0.4,external/storm-hdfs/src/test/java/org/apache/storm/hdfs/bolt/format/TestSimpleFileNameFormat.java,79,2,1,1,0,0,0,16,16,2,2,no
 1.0.4,external/storm-hdfs/src/test/java/org/apache/storm/hdfs/spout/ConfigsTest.java,88,176,88,88,176,88,88,25,25,2,2,no
 1.0.4,external/storm-hdfs/src/test/java/org/apache/storm/hdfs/spout/TestDirLock.java,188,0,0,0,0,0,0,0,0,0,0,no
@@ -456,7 +456,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.4,external/storm-hive/src/main/java/org/apache/storm/hive/bolt/HiveBolt.java,333,23,8,11,-18,-6,0,204,595,3,3,no
 1.0.4,external/storm-hive/src/main/java/org/apache/storm/hive/bolt/mapper/DelimitedRecordHiveMapper.java,143,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,external/storm-hive/src/main/java/org/apache/storm/hive/bolt/mapper/HiveMapper.java,81,0,0,0,0,0,0,0,0,0,0,no
-1.0.4,external/storm-hive/src/main/java/org/apache/storm/hive/bolt/mapper/JsonRecordHiveMapper.java,132,0,0,0,0,0,0,0,0,0,0,no
+1.0.4,external/storm-hive/src/main/java/org/apache/storm/hive/bolt/mapper/JsonRecordHiveMapper.java,132,0,0,0,0,0,0,0,0,0,0,yes
 1.0.4,external/storm-hive/src/main/java/org/apache/storm/hive/common/HiveOptions.java,159,0,0,0,-6,-3,-3,8,8,2,2,no
 1.0.4,external/storm-hive/src/main/java/org/apache/storm/hive/common/HiveUtils.java,118,139,46,69,66,22,33,204,595,3,3,no
 1.0.4,external/storm-hive/src/main/java/org/apache/storm/hive/common/HiveWriter.java,484,74,37,37,60,30,30,8,8,2,2,no
@@ -994,7 +994,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.4,storm-client/src/jvm/org/apache/storm/cluster/PaceMakerStateStorage.java,265,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-client/src/jvm/org/apache/storm/cluster/PaceMakerStateStorageFactory.java,37,1,1,1,0,0,0,595,595,1,1,no
 1.0.4,storm-client/src/jvm/org/apache/storm/cluster/StateStorageFactory.java,28,1,1,1,0,0,0,595,595,1,1,no
-1.0.4,storm-client/src/jvm/org/apache/storm/cluster/StormClusterStateImpl.java,733,4,1,4,-8,-3,4,29,40,1,3,no
+1.0.4,storm-client/src/jvm/org/apache/storm/cluster/StormClusterStateImpl.java,733,4,1,4,-8,-3,4,29,40,1,3,yes
 1.0.4,storm-client/src/jvm/org/apache/storm/cluster/VersionedData.java,36,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-client/src/jvm/org/apache/storm/cluster/ZKStateStorage.java,252,2,2,2,0,0,0,595,595,1,1,no
 1.0.4,storm-client/src/jvm/org/apache/storm/cluster/ZKStateStorageFactory.java,36,1,1,1,0,0,0,595,595,1,1,no
@@ -1027,7 +1027,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.4,storm-client/src/jvm/org/apache/storm/coordination/IBatchBolt.java,30,1,1,1,0,0,0,595,595,1,1,no
 1.0.4,storm-client/src/jvm/org/apache/storm/daemon/Acker.java,139,1,1,1,0,0,0,595,595,1,1,yes
 1.0.4,storm-client/src/jvm/org/apache/storm/daemon/DaemonCommon.java,22,0,0,0,0,0,0,0,0,0,0,no
-1.0.4,storm-client/src/jvm/org/apache/storm/daemon/GrouperFactory.java,243,1,1,1,0,0,0,595,595,1,1,no
+1.0.4,storm-client/src/jvm/org/apache/storm/daemon/GrouperFactory.java,243,1,1,1,0,0,0,595,595,1,1,yes
 1.0.4,storm-client/src/jvm/org/apache/storm/daemon/Shutdownable.java,22,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-client/src/jvm/org/apache/storm/daemon/StormCommon.java,587,101,17,35,-14,-2,0,134,595,2,6,no
 1.0.4,storm-client/src/jvm/org/apache/storm/daemon/Task.java,249,12,2,6,4,1,2,129,595,4,5,yes
@@ -1048,7 +1048,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.4,storm-client/src/jvm/org/apache/storm/dependency/DependencyUploader.java,174,21,7,10,14,5,7,200,595,3,3,no
 1.0.4,storm-client/src/jvm/org/apache/storm/dependency/FileNotAvailableException.java,33,1,1,1,0,0,0,595,595,1,1,no
 1.0.4,storm-client/src/jvm/org/apache/storm/drpc/DRPCInvocationsClient.java,130,1,1,1,0,0,0,595,595,1,1,no
-1.0.4,storm-client/src/jvm/org/apache/storm/drpc/DRPCSpout.java,293,19,6,8,12,4,6,267,595,2,3,no
+1.0.4,storm-client/src/jvm/org/apache/storm/drpc/DRPCSpout.java,293,19,6,8,12,4,6,267,595,2,3,yes
 1.0.4,storm-client/src/jvm/org/apache/storm/drpc/JoinResult.java,75,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-client/src/jvm/org/apache/storm/drpc/KeyedFairBolt.java,93,2,2,2,0,0,0,595,595,1,1,no
 1.0.4,storm-client/src/jvm/org/apache/storm/drpc/LinearDRPCInputDeclarer.java,52,0,0,0,0,0,0,0,0,0,0,no
@@ -1165,7 +1165,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.4,storm-client/src/jvm/org/apache/storm/generated/WorkerSummary.java,1879,22,22,22,0,0,0,119,119,1,1,no
 1.0.4,storm-client/src/jvm/org/apache/storm/grouping/CustomStreamGrouping.java,43,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-client/src/jvm/org/apache/storm/grouping/Load.java,77,0,0,0,0,0,0,0,0,0,0,no
-1.0.4,storm-client/src/jvm/org/apache/storm/grouping/LoadAwareCustomStreamGrouping.java,24,0,0,0,0,0,0,0,0,0,0,no
+1.0.4,storm-client/src/jvm/org/apache/storm/grouping/LoadAwareCustomStreamGrouping.java,24,0,0,0,0,0,0,0,0,0,0,yes
 1.0.4,storm-client/src/jvm/org/apache/storm/grouping/LoadAwareShuffleGrouping.java,76,0,0,0,0,0,0,0,0,0,0,yes
 1.0.4,storm-client/src/jvm/org/apache/storm/grouping/LoadMapping.java,64,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-client/src/jvm/org/apache/storm/grouping/PartialKeyGrouping.java,106,0,0,0,0,0,0,0,0,0,0,no
@@ -2087,7 +2087,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.4,storm-server/src/main/java/org/apache/storm/localizer/LocalizedResource.java,130,0,0,0,0,0,0,0,0,0,0,yes
 1.0.4,storm-server/src/main/java/org/apache/storm/localizer/LocalizedResourceRetentionSet.java,140,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-server/src/main/java/org/apache/storm/localizer/LocalizedResourceSet.java,101,0,0,0,0,0,0,0,0,0,0,no
-1.0.4,storm-server/src/main/java/org/apache/storm/localizer/Localizer.java,695,15,5,6,-18,-6,0,209,595,2,3,no
+1.0.4,storm-server/src/main/java/org/apache/storm/localizer/Localizer.java,695,15,5,6,-18,-6,0,209,595,2,3,yes
 1.0.4,storm-server/src/main/java/org/apache/storm/logging/ThriftAccessLogger.java,56,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-server/src/main/java/org/apache/storm/logging/filters/AccessLoggingFilter.java,53,23,8,21,6,2,4,40,119,2,3,no
 1.0.4,storm-server/src/main/java/org/apache/storm/metric/ClusterMetricsConsumerExecutor.java,89,1,1,1,0,0,0,595,595,1,1,no
@@ -2143,7 +2143,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.4,storm-server/src/test/java/org/apache/storm/localizer/AsyncLocalizerTest.java,189,5,5,5,2,2,2,40,40,1,1,no
 1.0.4,storm-server/src/test/java/org/apache/storm/localizer/LocalizedResourceRetentionSetTest.java,85,0,0,0,0,0,0,0,0,0,0,no
 1.0.4,storm-server/src/test/java/org/apache/storm/localizer/LocalizedResourceSetTest.java,74,0,0,0,0,0,0,0,0,0,0,no
-1.0.4,storm-server/src/test/java/org/apache/storm/localizer/LocalizerTest.java,680,28,9,10,2,1,1,209,595,2,3,no
+1.0.4,storm-server/src/test/java/org/apache/storm/localizer/LocalizerTest.java,680,28,9,10,2,1,1,209,595,2,3,yes
 1.0.4,storm-server/src/test/java/org/apache/storm/metric/ClusterMetricsConsumerExecutorTest.java,133,1,1,1,0,0,0,595,595,1,1,no
 1.0.4,storm-server/src/test/java/org/apache/storm/nimbus/LocalNimbusTest.java,132,7,7,7,0,0,0,595,595,1,1,no
 1.0.4,storm-server/src/test/java/org/apache/storm/scheduler/resource/TestResourceAwareScheduler.java,1382,327,82,226,-435,-109,15,45,119,3,4,no
