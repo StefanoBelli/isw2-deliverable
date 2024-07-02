@@ -16,9 +16,9 @@ public final class NPofBx {
     @CsvDescriptor
     public static final class TableEntry {
         private int entryId;
-        private int size;
-        private float probYes;
-        private float normProbYes;
+        private long size;
+        private double probYes;
+        private double normProbYes;
         private boolean actual;
 
         public void setActual(boolean actual) {
@@ -29,15 +29,15 @@ public final class NPofBx {
             this.entryId = entryId;
         }
 
-        public void setNormProbYes(float normProbYes) {
+        public void setNormProbYes(double normProbYes) {
             this.normProbYes = normProbYes;
         }
 
-        public void setProbYes(float probYes) {
+        public void setProbYes(double probYes) {
             this.probYes = probYes;
         }
 
-        public void setSize(int size) {
+        public void setSize(long size) {
             this.size = size;
         }
 
@@ -47,12 +47,12 @@ public final class NPofBx {
         }
 
         @CsvColumn(order = 2, name = "Size")
-        public int getSize() {
+        public long getSize() {
             return size;
         }
 
         @CsvColumn(order = 3, name = "Predicted")
-        public float getProbYes() {
+        public double getProbYes() {
             return probYes;
         }
 
@@ -61,7 +61,7 @@ public final class NPofBx {
             return actual ? "YES" : "NO";
         }
  
-        public float getNormProbYes() {
+        public double getNormProbYes() {
             return normProbYes;
         }
 
@@ -72,7 +72,7 @@ public final class NPofBx {
 
     private List<TableEntry> entries;
     
-    public float indexFor(int x, Instances testingSet, Instances originalTestingSet,
+    public double indexFor(int x, Instances testingSet, Instances originalTestingSet,
             AbstractClassifier classifier) throws Exception {
 
         entries = new ArrayList<>();
@@ -96,9 +96,9 @@ public final class NPofBx {
 
             TableEntry entry = new TableEntry();
             entry.setActual(actual);
-            entry.setSize((int) size);
-            entry.setProbYes((float) pred);
-            entry.setNormProbYes((float) (pred / size));
+            entry.setSize(Math.round(size));
+            entry.setProbYes(pred);
+            entry.setNormProbYes(pred / size);
             entry.setEntryId(i);
 
             totalSize += (int) size;
@@ -113,17 +113,18 @@ public final class NPofBx {
         return entries;
     }
 
-    private float calcIndexCore(int totalSize, int topX, int totalActuallyBuggy) {
+    private double calcIndexCore(int totalSize, int topX, int totalActuallyBuggy) {
         //rank by normalized probability of buggyness
         List<TableEntry> tents = new ArrayList<>(entries);
         tents.sort(
             (e1, e2) -> {
-                float npy1 = e1.getNormProbYes();
-                float npy2 = e2.getNormProbYes();
+                double npy1 = e1.getNormProbYes();
+                double npy2 = e2.getNormProbYes();
+                int cmp = Double.compare(npy1, npy2);
 
-                if (npy1 < npy2) {
+                if (cmp < 0) {
                     return 1;
-                } else if(npy1 == npy2) {
+                } else if(cmp == 0) {
                     return 0;
                 } else {
                     return -1;
@@ -148,7 +149,7 @@ public final class NPofBx {
             }
         }
 
-        return totalActuallyBuggy > 0 ? (float) topXActuallyBuggy / totalActuallyBuggy : 0f;
+        return totalActuallyBuggy > 0 ? (double) topXActuallyBuggy / totalActuallyBuggy : 0f;
     }
 
     private static double getPredictionPercForYesLabel(Instance inst, AbstractClassifier classifier) 

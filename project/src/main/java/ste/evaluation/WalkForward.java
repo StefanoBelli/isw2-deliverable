@@ -212,7 +212,7 @@ public final class WalkForward {
         }
     }
 
-    private void addResultingEvaluation(Result currentResult, Util.Pair<Evaluation, Float> evaluation) {
+    private void addResultingEvaluation(Result currentResult, Util.Pair<Evaluation, Double> evaluation) {
         if(evaluation != null) {
             setPerfMetricsForResult(currentResult, evaluation.getFirst());
             currentResult.setNPofB20(evaluation.getSecond());
@@ -220,7 +220,7 @@ public final class WalkForward {
         }
     }
 
-    private Util.Pair<Evaluation, Float> evaluate(
+    private Util.Pair<Evaluation, Double> evaluate(
             int numTrainingRels, EvaluationProfile profile, Util.Pair<Instances, Instances> datasets) {
         
         Instances originalTestingSet = new Instances(datasets.getSecond());
@@ -238,7 +238,7 @@ public final class WalkForward {
             eval.evaluateModel(classifier, testingSet);
 
             NPofBx npofbx = new NPofBx();
-            float nPofBxIndex = npofbx.indexFor(20, testingSet, originalTestingSet, classifier);
+            double nPofBxIndex = npofbx.indexFor(20, testingSet, originalTestingSet, classifier);
             CsvWriter.writeAll(
                 getNPofBxFilename(numTrainingRels, profile), 
                 NPofBx.TableEntry.class, 

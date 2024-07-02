@@ -23,7 +23,7 @@ public final class Result {
    private float auc;
    private float kappa;
    private float f1score;
-   private float nPofB20;
+   private double nPofB20;
 
    public Result() {}
 
@@ -141,7 +141,7 @@ public final class Result {
    }
 
    @CsvColumn(order = 19, name = "NPofB20")
-   public float getNPofB20() {
+   public double getNPofB20() {
        return nPofB20;
    }
 
@@ -218,7 +218,7 @@ public final class Result {
        this.tp = tp;
    }
 
-   public void setNPofB20(float nPofB20) {
+   public void setNPofB20(double nPofB20) {
        this.nPofB20 = nPofB20;
    }
 
