@@ -337,13 +337,13 @@ public final class WalkForward {
 
         posClassIdx = curFilteredTestingSet.classAttribute().indexOfValue("yes");
 
-        var curSamplingResult = evaluationProfile.getSampling().getFilteredClassifierWithSampledTrainingSet(
-                evaluationProfile.getClassifier().buildClassifier(), curFilteredTrainingSet);
+        var curSampledTestingSet = evaluationProfile.getSampling().getFilteredTrainingSet(
+                curFilteredTrainingSet);
 
         var curCostSensitiveClassifier = evaluationProfile.getCostSensitivity().getCostSensititiveClassifier(
-                curSamplingResult.getFirst());
+                evaluationProfile.getClassifier().buildClassifier());
 
-        curCostSensitiveClassifier.buildClassifier(curSamplingResult.getSecond());
+        curCostSensitiveClassifier.buildClassifier(curSampledTestingSet);
 
         return new Util.Pair<>(curCostSensitiveClassifier, curFilteredTestingSet);
     }

@@ -1,9 +1,6 @@
 package ste.evaluation.component.sampling;
 
-import ste.Util;
 import ste.evaluation.component.NamedEvaluationComponent;
-import weka.classifiers.AbstractClassifier;
-import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Instances;
 import weka.filters.Filter;
 
@@ -14,27 +11,16 @@ public final class Sampling implements NamedEvaluationComponent {
         this.applyFilter = applyFilter;
     }
 
-    public final Util.Pair<AbstractClassifier,Instances> getFilteredClassifierWithSampledTrainingSet(AbstractClassifier classifier, Instances trainingSet) {
+    public final Instances getFilteredTrainingSet(Instances trainingSet) {
         if(applyFilter == null) {
-            return new Util.Pair<>(classifier, trainingSet);
+            return trainingSet;
         }
 
-        Filter usedFilter;
-        FilteredClassifier fc = new FilteredClassifier();
-        Instances fi;
-
-        fc.setClassifier(classifier);
-
         try {
-            usedFilter = applyFilter.getFilter(trainingSet);
-            fi = Filter.useFilter(trainingSet, usedFilter);
+            return Filter.useFilter(trainingSet, applyFilter.getFilter(trainingSet));
         } catch(Exception e) {
             return null;
         }
-
-        fc.setFilter(usedFilter);
-
-        return new Util.Pair<>(fc, fi);
     }
     
     @Override
