@@ -11,16 +11,12 @@ public final class Sampling implements NamedEvaluationComponent {
         this.applyFilter = applyFilter;
     }
 
-    public final Instances getFilteredTrainingSet(Instances trainingSet) {
+    public final Instances getFilteredTrainingSet(Instances trainingSet) throws Exception {
         if(applyFilter == null) {
             return trainingSet;
         }
 
-        try {
-            return Filter.useFilter(trainingSet, applyFilter.getFilter(trainingSet));
-        } catch(Exception e) {
-            return null;
-        }
+        return Filter.useFilter(trainingSet, applyFilter.getFilter(trainingSet));
     }
     
     @Override

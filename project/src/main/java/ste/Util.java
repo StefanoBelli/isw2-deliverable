@@ -244,11 +244,11 @@ public final class Util {
          return lst.isEmpty() ? 0 : asStream(lst).sum();
       }
 
-      public static List<Integer> eachSub(List<Integer> l1, List<Integer> l2) {
+      public static List<Integer> eachSubAbs(List<Integer> l1, List<Integer> l2) {
          List<Integer> res = new ArrayList<>();
 
          for(int i1 = 0; i1 < l1.size(); ++i1) {
-            res.add(l1.get(i1) - l2.get(i1));
+            res.add(Math.abs(l1.get(i1) - l2.get(i1)));
          }
 
          return res;

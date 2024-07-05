@@ -94,7 +94,7 @@ public final class Metrics {
             }
         }
 
-        List<Integer> churn = Util.IntListWide.eachSub(locAdded, locDeleted);
+        List<Integer> churn = Util.IntListWide.eachSubAbs(locAdded, locDeleted);
 
         aggregateAndSetProps(
             jsf, locAdded, numRevs, 
@@ -153,7 +153,7 @@ public final class Metrics {
         //low-impact loop on performance
 
         for(Release rel : rels) {
-            if(rel.equals(jsf.getRelease())) {
+            if(rel.getVersion().equals(jsf.getRelease().getVersion())) {
                 return rel.getCommits();
             }
         }

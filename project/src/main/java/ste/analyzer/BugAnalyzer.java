@@ -79,7 +79,7 @@ public final class BugAnalyzer {
 
         for(Pair<String, ObjectId> obj : objs) {
             String relPath = obj.getFirst();
-            if(relPath.endsWith(".java")) {
+            if(relPath.endsWith(".java") && !relPath.contains("src/test")) {
                 JavaSourceFile jsf = JavaSourceFile.build(relPath, rel);
                 if(!results.contains(jsf)) {
                     String javaSourceCode = new String(repo.readObjContent(obj.getSecond()));
