@@ -1,10 +1,10 @@
 package ste.evaluation.component.classifier.impls;
 
-import ste.evaluation.component.classifier.Classifier;
+import ste.evaluation.component.classifier.MyClassifier;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.lazy.IBk;
 
-public final class IBkClassifier implements Classifier {
+public final class IBkClassifier implements MyClassifier {
 
     @Override
     public String getName() {

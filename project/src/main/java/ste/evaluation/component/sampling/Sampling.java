@@ -1,8 +1,10 @@
 package ste.evaluation.component.sampling;
 
 import ste.evaluation.component.NamedEvaluationComponent;
+import ste.evaluation.component.sampling.exception.ApplyFilterException;
+import weka.classifiers.Classifier;
+import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Instances;
-import weka.filters.Filter;
 
 public final class Sampling implements NamedEvaluationComponent {
     private final ApplyFilter applyFilter;
@@ -11,13 +13,18 @@ public final class Sampling implements NamedEvaluationComponent {
         this.applyFilter = applyFilter;
     }
 
-    public final Instances getFilteredTrainingSet(Instances trainingSet) throws Exception {
+    public final Classifier getFilteredClassifier(Classifier orig, Instances trainingSet) throws ApplyFilterException {
         if(applyFilter == null) {
-            return trainingSet;
+            return orig;
         }
 
-        return Filter.useFilter(trainingSet, applyFilter.getFilter(trainingSet));
+        FilteredClassifier filteredClassifier = new FilteredClassifier();
+        filteredClassifier.setClassifier(orig);
+        filteredClassifier.setFilter(applyFilter.getFilter(trainingSet));
+        
+        return filteredClassifier;
     }
+
     
     @Override
     public String getName() {

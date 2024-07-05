@@ -6,7 +6,7 @@ import java.util.List;
 import ste.csv.annotations.CsvColumn;
 import ste.csv.annotations.CsvDescriptor;
 import ste.evaluation.eam.exception.NPofBxException;
-import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -73,7 +73,7 @@ public final class NPofBx {
     private List<TableEntry> entries;
     
     public double indexFor(int x, Instances testingSet, Instances originalTestingSet,
-            AbstractClassifier classifier) throws Exception {
+            Classifier classifier) throws Exception {
 
         entries = new ArrayList<>();
         
@@ -152,7 +152,7 @@ public final class NPofBx {
         return totalActuallyBuggy > 0 ? (double) topXActuallyBuggy / totalActuallyBuggy : 0f;
     }
 
-    private static double getPredictionPercForYesLabel(Instance inst, AbstractClassifier classifier) 
+    private static double getPredictionPercForYesLabel(Instance inst, Classifier classifier) 
             throws Exception {
         double[] predDist = classifier.distributionForInstance(inst);
 

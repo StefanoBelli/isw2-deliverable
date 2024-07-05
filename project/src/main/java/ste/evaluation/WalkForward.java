@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import me.tongfei.progressbar.ProgressBar;
 import ste.Util;
 import ste.csv.CsvWriter;
-import ste.evaluation.component.classifier.Classifier;
+import ste.evaluation.component.classifier.MyClassifier;
 import ste.evaluation.component.classifier.impls.IBkClassifier;
 import ste.evaluation.component.classifier.impls.NaiveBayesClassifier;
 import ste.evaluation.component.classifier.impls.RandomForestClassifier;
@@ -21,9 +21,9 @@ import ste.evaluation.component.sampling.impls.ApplySmote;
 import ste.evaluation.component.sampling.impls.ApplyUndersampling;
 import ste.evaluation.eam.NPofBx;
 import ste.model.Result;
-import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
+import weka.classifiers.Classifier;
 
 public final class WalkForward {
 
@@ -64,7 +64,7 @@ public final class WalkForward {
         }
     }
 
-    private final Classifier[] classifiers = {
+    private final MyClassifier[] classifiers = {
         new NaiveBayesClassifier(),
         new RandomForestClassifier(),
         new IBkClassifier()
@@ -134,7 +134,7 @@ public final class WalkForward {
         while(wfSplitsIterator.hasNext()) {
             WalkForwardSplit wfSplit = wfSplitsIterator.next();
 
-            for (Classifier classifier : classifiers) {
+            for (MyClassifier classifier : classifiers) {
 
                 for (Configuration configuration : configurations) {
                     var curDataset = copyWfSplitAndInit(wfSplit);
@@ -165,12 +165,12 @@ public final class WalkForward {
 
     
     private static final class EvaluationProfile {
-        private Classifier classifier;
+        private MyClassifier classifier;
         private FeatureSelection featureSelection;
         private Sampling sampling;
         private CostSensitivity costSensitivity;
 
-        public Classifier getClassifier() {
+        public MyClassifier getClassifier() {
             return classifier;
         }
 
@@ -186,7 +186,7 @@ public final class WalkForward {
             return sampling;
         }
 
-        public void setClassifier(Classifier classifier) {
+        public void setClassifier(MyClassifier classifier) {
             this.classifier = classifier;
         }
 
@@ -321,7 +321,7 @@ public final class WalkForward {
 
     private int posClassIdx;
 
-    private Util.Pair<AbstractClassifier, Instances> obtainClassifierWithFilteredTestingSet(
+    private Util.Pair<Classifier, Instances> obtainClassifierWithFilteredTestingSet(
             EvaluationProfile evaluationProfile,
             Instances trainingSet,
             Instances testingSet) throws Exception {
@@ -337,13 +337,13 @@ public final class WalkForward {
 
         posClassIdx = curFilteredTestingSet.classAttribute().indexOfValue("yes");
 
-        var curSampledTrainingSet = evaluationProfile.getSampling().getFilteredTrainingSet(
-                curFilteredTrainingSet);
+        var curFilteredClassifier = evaluationProfile.getSampling().getFilteredClassifier(
+            evaluationProfile.getClassifier().buildClassifier(), trainingSet);
 
         var curCostSensitiveClassifier = evaluationProfile.getCostSensitivity().getCostSensititiveClassifier(
-                evaluationProfile.getClassifier().buildClassifier());
+                curFilteredClassifier);
 
-        curCostSensitiveClassifier.buildClassifier(curSampledTrainingSet);
+        curCostSensitiveClassifier.buildClassifier(curFilteredTrainingSet);
 
         return new Util.Pair<>(curCostSensitiveClassifier, curFilteredTestingSet);
     }

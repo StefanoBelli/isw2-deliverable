@@ -1,7 +1,7 @@
 package ste.evaluation.component.cost;
 
 import ste.evaluation.component.NamedEvaluationComponent;
-import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Classifier;
 import weka.classifiers.CostMatrix;
 import weka.classifiers.meta.CostSensitiveClassifier;
 
@@ -12,7 +12,7 @@ public final class CostSensitivity implements NamedEvaluationComponent {
         this.sens = sens;
     }
 
-    public AbstractClassifier getCostSensititiveClassifier(AbstractClassifier classifier) {
+    public Classifier getCostSensititiveClassifier(Classifier classifier) {
         if(sens == Sensitive.NONE) {
             return classifier;
         }
