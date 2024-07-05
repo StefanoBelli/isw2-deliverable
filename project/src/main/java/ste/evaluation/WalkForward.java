@@ -226,7 +226,7 @@ public final class WalkForward {
         Instances originalTestingSet = new Instances(datasets.getSecond());
 
         try {
-            var resultingPair = obtainClassifierWithFilteredTestingSet(
+            var resultingPair = obtainTrainedClassifier(
                     profile,
                     datasets.getFirst(),
                     datasets.getSecond());
@@ -236,6 +236,8 @@ public final class WalkForward {
 
             Evaluation eval = new Evaluation(testingSet);
             eval.evaluateModel(classifier, testingSet);
+            
+            posClassIdx = testingSet.classAttribute().indexOfValue("yes");
 
             NPofBx npofbx = new NPofBx();
             double nPofBxIndex = npofbx.indexFor(20, testingSet, originalTestingSet, classifier);
@@ -321,7 +323,7 @@ public final class WalkForward {
 
     private int posClassIdx;
 
-    private Util.Pair<Classifier, Instances> obtainClassifierWithFilteredTestingSet(
+    private Util.Pair<Classifier, Instances> obtainTrainedClassifier(
             EvaluationProfile evaluationProfile,
             Instances trainingSet,
             Instances testingSet) throws Exception {
@@ -334,8 +336,6 @@ public final class WalkForward {
 
         curFilteredTrainingSet.setClassIndex(curFilteredTrainingSet.numAttributes() - 1);
         curFilteredTestingSet.setClassIndex(curFilteredTestingSet.numAttributes() - 1);
-
-        posClassIdx = curFilteredTestingSet.classAttribute().indexOfValue("yes");
 
         var curFilteredClassifier = evaluationProfile.getSampling().getFilteredClassifier(
             evaluationProfile.getClassifier().buildClassifier(), trainingSet);
