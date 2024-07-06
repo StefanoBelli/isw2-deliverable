@@ -70,6 +70,9 @@ public final class WalkForward {
         new IBkClassifier()
     };
     
+    /*
+     * Evaluating profiles 
+     */
     private final Configuration[] configurations = {
         new Configuration(
             new FeatureSelection(null),
@@ -328,8 +331,17 @@ public final class WalkForward {
             Instances trainingSet,
             Instances testingSet) throws Exception {
 
+        /*
+         * perform feature selection on training set (get best features out of it),
+         * make training set and testing set compatible: cut-out same non-selected features
+         * from FS search algorithm (applied on TRAINING SET only) on both of them.
+         * IMPORTANT: if feature selection is *disabled* in current configuration
+         *            curFilteredTrainingSet, curFilteredTestingSet are equal to the original
+         *            trainingSet and testingSet, with following instructions having no effect
+         *            (classIndex has already been set on testingSet and trainingSet)
+         */
         var curFilteredDataset = evaluationProfile.getFeatureSelection().getFilteredDataSets(
-                trainingSet, testingSet);
+            trainingSet, testingSet);
 
         var curFilteredTrainingSet = curFilteredDataset.getFirst();
         var curFilteredTestingSet = curFilteredDataset.getSecond();
@@ -337,14 +349,47 @@ public final class WalkForward {
         curFilteredTrainingSet.setClassIndex(curFilteredTrainingSet.numAttributes() - 1);
         curFilteredTestingSet.setClassIndex(curFilteredTestingSet.numAttributes() - 1);
 
-        var curFilteredClassifier = evaluationProfile.getSampling().getFilteredClassifier(
-            evaluationProfile.getClassifier().buildClassifier(), trainingSet);
+        /*
+         * Get base classifier from current evaluation configuration
+         */
+        var curBaseClassifier = evaluationProfile.getClassifier().buildClassifier();
 
-        var curCostSensitiveClassifier = evaluationProfile.getCostSensitivity().getCostSensititiveClassifier(
-                curFilteredClassifier);
+        /*
+         * If sampling enabled, then build a sampling-capable classifier, 
+         * otherwise get the same base classifier being passed to this method 
+         * (depends on current evaluationProfile)
+         */
+        var curIntermediateClassifier = evaluationProfile.getSampling().getFilteredClassifier(
+            curBaseClassifier, curFilteredTrainingSet);
 
-        curCostSensitiveClassifier.buildClassifier(curFilteredTrainingSet);
+        /*
+         * If cost sensitivity is enabled, then build a cost-sensitive classifier,
+         * otherwise get the same intermediate classifier being passed to this method
+         * (depends on current evaluationProfile).
+         */
+        var curFinalClassifier = evaluationProfile.getCostSensitivity().getCostSensititiveClassifier(
+            curIntermediateClassifier);
 
-        return new Util.Pair<>(curCostSensitiveClassifier, curFilteredTestingSet);
+        /*
+         * curFinalClassifier's configuration depends on current profile
+         * this allows us to experiment easier just by changing/adding configuration profiles
+         * (see the configurations array in this class, 
+         * just search text for "private final Configuration[] configurations = {")
+         * 
+         * For sure this enables also "wrong" configurations like SAMPLING+COST SENSITIVITY 
+         * (WE DID *NOT* ENABLE BOTH AT THE SAME TIME IN CONFIG)
+         * at developer's discretion, however enables easy experimentation
+         * 
+         * IF NO FS, NO SAMPLING, NO COST SENSITIVITY THEN curFinalClassifier = curBaseClassifier
+         * IF YES FS, NO SAMPLING, NO COST SENSITIVITY THEN curFinalClassifier = curBaseClassifier
+         * IF NO FS, YES SAMPLING, NO COST SENSITIIVITY THEN curFinalClassifier = FilteredClassifier(wraps curBaseClassifier, enables sampling)
+         * IF YES FS, YES SAMPLING, NO COST SENSITIVITY THEN curFinalClassifier = FilteredClassifier(wraps curBaseClassifier, enables sampling)
+         * IF NO FS, NO SAMPLING, YES COST SENSITIVITY THEN curFinalClassifier = CostSensitiveClassifier(wraps curBaseClassifier, enables cost-sensitivity)
+         * IF YES FS, NO SAMPLING, YES COST SENSITIVITY THEN curFinalClassifier = CostSensitiveClassifier(wraps curBaseClassifier, enables cost-sensitivity)
+         * and so on...
+         */
+        curFinalClassifier.buildClassifier(curFilteredTrainingSet);
+
+        return new Util.Pair<>(curFinalClassifier, curFilteredTestingSet);
     }
 }
