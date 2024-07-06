@@ -8,8 +8,7 @@ result_filename = {
     'BOOKKEEPER': '../csv_output/Bookkeeper-Result.csv'
 }
 
-epsilon = 0.001
-
+epsilon = 0.0001
 
 def findcsvcolidx(row, igncasecolname="npofb20"):
     i = 0
@@ -22,7 +21,9 @@ if __name__ == '__main__':
     if len(argv) == 1:
         print("specify ACUME output file (\"EAM_NEAM_output.csv\")")
         exit(1)
-
+    elif len(argv) >= 3:
+        epsilon = float(argv[2])
+    
     with open(argv[1]) as acume_f:
         acume_f_reader = csv.reader(acume_f)
         is_header = True
@@ -73,3 +74,8 @@ if __name__ == '__main__':
                 print(f" <-- DIFF (by {abs(result_npofb20 - acume_npofb20)})")
             else:
                 print(" OK")
+
+    
+    print()
+    print(f"graceful termination, epsilon = {epsilon}")
+    print()
