@@ -85,6 +85,7 @@ public final class Proportion {
                     JiraTicket[] jiraTickets = JiraTicket.getAllTicketsByName(apacheProject);
                     List<Release> releases = Util.sortReleasesByDate(jiraProject, nTotRels -> nTotRels);
                     List<Ticket> tickets = Util.initProjectTickets(releases, jiraTickets);
+                    tickets.removeIf(tkt -> !tkt.isInjectedVersionAvail());
                     Util.removeTicketsIfInconsistent(tickets);
 
                     avgPs.add(averagedProportion(tickets));
