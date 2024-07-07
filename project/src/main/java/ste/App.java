@@ -353,8 +353,7 @@ public final class App {
 
         logger.info(
             "Removing releases that have no release date" +
-            ", sorting them and then cutting them in half (but includes one extra release" + 
-            ", which will be removed later)...");
+            ", then sorting them");
 
         stormReleases = Util.sortReleasesByDate(jsp, nrels -> nrels);
         bookKeeperReleases = Util.sortReleasesByDate(jbkp, nrels -> nrels);
@@ -476,12 +475,6 @@ public final class App {
         logger.info("for project {}...", projName);
         Proportion.apply(tickets);
         Util.removeTicketsIfInconsistent(tickets);
-
-        System.out.println("...");
-        for(Ticket t : tickets) {
-            System.out.println((t.getInjectedVersionIdx() + 1) + ", " + (t.getOpeningVersionIdx() + 1) + ", " + (t.getFixedVersionIdx() + 1));
-        }
-
         logger.info("After proportion and inconistency fixup:");
         logger.info(STAT_INFO_FMT, projName, tickets.size(), releases.size());
         logger.info("Filtering sequence done");
@@ -495,6 +488,7 @@ public final class App {
 
         int realSplitNum = 1;
 
+        //Release's getIndex() returns indexes ranging from 1..n
         for(int i = 2; i <= halfRels.size(); ++i) {
             if(halfRels.get(i - 1).getCommits().isEmpty()) {
                 continue;
@@ -514,6 +508,7 @@ public final class App {
 
         realSplitNum = 1;
 
+        //Release's getIndex() returns indexes ranging from 1..n
         for(int i = 1; i <= halfRels.size() - 1; ++i) {
             if(halfRels.get(i).getCommits().isEmpty()) {
                 continue;

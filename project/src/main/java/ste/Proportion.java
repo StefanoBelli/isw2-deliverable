@@ -177,7 +177,6 @@ public final class Proportion {
             }
         }
     }
-    
 
     private static boolean hasEnoughValidTickets(List<Ticket> tickets) {
         int validTickets = 0;
