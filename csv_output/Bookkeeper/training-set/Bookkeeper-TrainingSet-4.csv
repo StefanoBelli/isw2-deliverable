@@ -232,7 +232,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/conf/ClientConfiguration.java,276,61,20,30,60,20,30,4,6,2,3,yes
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/conf/ServerConfiguration.java,549,182,30,110,182,30,110,6,12,2,6,yes
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/jmx/BKMBeanInfo.java,27,27,27,27,27,27,27,2,2,1,1,no
-4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/jmx/BKMBeanRegistry.java,88,89,45,84,88,44,84,3,4,1,2,no
+4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/jmx/BKMBeanRegistry.java,88,89,45,84,88,44,84,3,4,1,2,yes
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/meta/AbstractZkLedgerManager.java,283,36,9,23,30,8,23,9,25,3,4,yes
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/meta/FlatLedgerManager.java,175,12,6,7,24,12,21,6,6,2,2,yes
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/meta/HierarchicalLedgerManager.java,507,29,7,15,25,6,16,4,6,2,4,yes

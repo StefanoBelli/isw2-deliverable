@@ -476,6 +476,12 @@ public final class App {
         logger.info("for project {}...", projName);
         Proportion.apply(tickets);
         Util.removeTicketsIfInconsistent(tickets);
+
+        System.out.println("...");
+        for(Ticket t : tickets) {
+            System.out.println((t.getInjectedVersionIdx() + 1) + ", " + (t.getOpeningVersionIdx() + 1) + ", " + (t.getFixedVersionIdx() + 1));
+        }
+
         logger.info("After proportion and inconistency fixup:");
         logger.info(STAT_INFO_FMT, projName, tickets.size(), releases.size());
         logger.info("Filtering sequence done");

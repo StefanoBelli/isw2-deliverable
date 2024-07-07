@@ -124,7 +124,10 @@ public final class Proportion {
         int effectiveTickets = 0;
 
         for(Ticket ticket : subTickets) {
-            if(!ticket.isArtificialInjectedVersion()) {
+            if(
+                ticket.isInjectedVersionAvail() && 
+                !ticket.isArtificialInjectedVersion()
+            ) {
                 ++effectiveTickets;
                 realProportion += proportion(ticket);
             }
@@ -144,6 +147,9 @@ public final class Proportion {
         log = LoggerFactory.getLogger(Proportion.class.getName());
     }
 
+    /*
+     * allTickets must be sorted (by resolution date) before they get passed to this method!
+     */
     public static void apply(List<Ticket> allTickets) 
             throws RequestException, CsvWriterException, IOException {
         for(int i = 0; i < allTickets.size(); ++i) {
@@ -170,17 +176,10 @@ public final class Proportion {
                 ticket.setArtificialInjectedVersion(true);
             }
         }
-
-        alreadyGotEnoughValidTickets = false;
     }
     
-    private static boolean alreadyGotEnoughValidTickets = false;
 
     private static boolean hasEnoughValidTickets(List<Ticket> tickets) {
-        if(alreadyGotEnoughValidTickets) {
-            return true;
-        }
-
         int validTickets = 0;
         
         for(Ticket ticket : tickets) {
@@ -190,15 +189,16 @@ public final class Proportion {
             }
         }
 
-        alreadyGotEnoughValidTickets = validTickets > NO_COLDSTART_THRESHOLD;
-        if(alreadyGotEnoughValidTickets) {
-            log.info("starting to use increment now..."+
-                    " (reached {}/{} valid tickets)", validTickets, tickets.size());
+        boolean mustUseIncrement = validTickets > NO_COLDSTART_THRESHOLD;
+        if(mustUseIncrement) {
+            log.info("using increment "+
+                    " ({}/{} valid tickets)", validTickets, tickets.size());
         } else {
             log.info("using cold start ({}/{} valid tickets)", 
                 validTickets, tickets.size());
         }
-        return alreadyGotEnoughValidTickets;
+
+        return mustUseIncrement;
     }
 
     private static List<Ticket> filterUsedTickets(List<Ticket> allTickets, int targetTicketIdx) {

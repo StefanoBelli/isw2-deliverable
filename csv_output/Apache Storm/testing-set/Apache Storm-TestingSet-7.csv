@@ -727,7 +727,7 @@ Version,Relative path,LOC,LOC added,Avg LOC added,Max LOC added,Churn,Avg churn,
 1.0.0,storm-core/src/jvm/org/apache/storm/localizer/LocalizedResource.java,130,520,130,130,520,130,130,2014,2067,4,4,no
 1.0.0,storm-core/src/jvm/org/apache/storm/localizer/LocalizedResourceRetentionSet.java,140,560,140,140,560,140,140,2014,2067,4,4,no
 1.0.0,storm-core/src/jvm/org/apache/storm/localizer/LocalizedResourceSet.java,101,404,101,101,404,101,101,2014,2067,4,4,no
-1.0.0,storm-core/src/jvm/org/apache/storm/localizer/Localizer.java,695,2780,695,695,2780,695,695,2014,2067,4,4,no
+1.0.0,storm-core/src/jvm/org/apache/storm/localizer/Localizer.java,695,2780,695,695,2780,695,695,2014,2067,4,4,yes
 1.0.0,storm-core/src/jvm/org/apache/storm/logging/ThriftAccessLogger.java,32,194,14,27,159,11,27,594,2067,9,14,no
 1.0.0,storm-core/src/jvm/org/apache/storm/logging/filters/AccessLoggingFilter.java,52,208,52,52,208,52,52,2014,2067,4,4,no
 1.0.0,storm-core/src/jvm/org/apache/storm/messaging/ConnectionWithStatus.java,49,196,49,49,196,49,49,2014,2067,4,4,no
