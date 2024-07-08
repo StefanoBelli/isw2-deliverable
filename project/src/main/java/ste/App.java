@@ -34,7 +34,6 @@ import ste.model.JavaSourceFile;
 import ste.model.Release;
 import ste.model.Result;
 import ste.model.Ticket;
-import weka.core.converters.ConverterUtils.DataSource;
 
 public final class App {
     private static final Logger logger;
@@ -293,7 +292,6 @@ public final class App {
 
     private static WalkForward buildWalkForward(String projName) throws Exception {
         Util.csv2Arff(Util.readAllFile(getDatasetCsvFilename(projName)), "dataset-tmp.arff");
-        int datasetSize = new DataSource("dataset-tmp.arff").getDataSet().size();
         var trainingSets = getSortedSetsCsv(getTrainingSetDir(projName));
         var testingSets = getSortedSetsCsv(getTestingSetDir(projName));
         if(trainingSets.size() != testingSets.size()) {
@@ -303,7 +301,7 @@ public final class App {
         for(int i = 0; i < trainingSets.size(); ++i) {
             splits.add(new WalkForwardSplit(trainingSets.get(i), testingSets.get(i), i));
         }
-        return new WalkForward(projName, datasetSize, new WalkForwardSplitIterator(splits));
+        return new WalkForward(projName, new WalkForwardSplitIterator(splits));
     }
 
     private static void cutReleasesInHalf(List<Release> rels, List<JavaSourceFile> jsfs) {

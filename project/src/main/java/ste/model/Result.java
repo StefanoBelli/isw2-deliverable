@@ -60,7 +60,7 @@ public final class Result {
        return numTrainingRelease;
    }
 
-   @CsvColumn(order = 3, name = "%TrainingData")
+   @CsvColumn(order = 3, name = "%TrainingInstances")
    public float getPercTrainingData() {
        return percTrainingData;
    }

@@ -28,7 +28,6 @@ import weka.classifiers.Classifier;
 public final class WalkForward {
 
     private final String projectName;
-    private final int wholeDatasetSize;
     private final WalkForwardSplitIterator wfSplitsIterator;
 
     private String getNPofBxFilename(int wfRunNo, EvaluationProfile profile) {
@@ -42,9 +41,8 @@ public final class WalkForward {
                                 wfRunNo);
     }
 
-    public WalkForward(String projectName, int wholeDatasetSize, WalkForwardSplitIterator wfSplitsIterator) {
+    public WalkForward(String projectName, WalkForwardSplitIterator wfSplitsIterator) {
         this.projectName = projectName;
-        this.wholeDatasetSize = wholeDatasetSize;
         this.wfSplitsIterator = wfSplitsIterator;
     }
 
@@ -275,7 +273,7 @@ public final class WalkForward {
         float percDefTrain = (Util.numOfPositives(trainingSet)*100) / (float) trainingSet.size();
         currentResult.setPercDefectiveInTraining(percDefTrain);
 
-        float percTrain = (trainingSet.size() * 100) / (float) wholeDatasetSize;
+        float percTrain = 100 * (trainingSet.numInstances() / (float) (trainingSet.numInstances() + testingSet.numInstances()));
         currentResult.setPercTrainingData(percTrain);
 
         return currentResult;
